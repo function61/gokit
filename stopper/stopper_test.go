@@ -10,16 +10,16 @@ func TestStopper(t *testing.T) {
 
 	// spawn two "workers" who both take 200ms to stop after asking to stop
 
-	go func(stopper *Stopper) {
-		defer stopper.Done()
-		<-stopper.ShouldStop
+	go func(stop *Stopper) {
+		defer stop.Done()
+		<-stop.Signal
 
 		time.Sleep(200 * time.Millisecond)
 	}(stopManager.Stopper())
 
-	go func(stopper *Stopper) {
-		defer stopper.Done()
-		<-stopper.ShouldStop
+	go func(stop *Stopper) {
+		defer stop.Done()
+		<-stop.Signal
 
 		time.Sleep(200 * time.Millisecond)
 	}(stopManager.Stopper())

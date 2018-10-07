@@ -21,8 +21,8 @@ func NewManager() *Manager {
 
 func (m *Manager) StopAllWorkersAndWait() {
 	for _, worker := range m.workers {
-		worker.Stopped = true
-		worker.ShouldStop <- true
+		worker.SignalReceived = true
+		worker.Signal <- true
 	}
 
 	m.workersWaitGroup.Wait()
@@ -33,8 +33,8 @@ func (m *Manager) Stopper() *Stopper {
 	m.workersWaitGroup.Add(1)
 
 	stopper := &Stopper{
-		Stopped:          false,
-		ShouldStop:       make(chan bool, 1), // buffered so worker recv waiting not required
+		SignalReceived:   false,
+		Signal:           make(chan bool, 1), // buffered so worker recv waiting not required
 		workersWaitGroup: m.workersWaitGroup,
 	}
 
@@ -44,8 +44,8 @@ func (m *Manager) Stopper() *Stopper {
 }
 
 type Stopper struct {
-	Stopped          bool
-	ShouldStop       chan bool // each worker must read exactly one ShouldStop signal
+	SignalReceived   bool
+	Signal           chan bool // each worker must read exactly one ShouldStop signal
 	workersWaitGroup *sync.WaitGroup
 }
 
