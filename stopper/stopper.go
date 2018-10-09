@@ -25,6 +25,7 @@ func (m *Manager) StopAllWorkersAndWait() {
 		worker.Signal <- true
 	}
 
+	// waits for all stoppers to call .Done()
 	m.workersWaitGroup.Wait()
 }
 
@@ -44,12 +45,30 @@ func (m *Manager) Stopper() *Stopper {
 }
 
 type Stopper struct {
-	// sometimes shutdown logic is in two different places (one place reads stopper.Signal)
-	// via channel, and another place that e.g. reads from a socket. now the shutdown causes
-	// a socket read error, and that error handling needs to know if the error was to be
-	// expected, it can simply query stopper.SignalReceived instead of trying to determine from
-	// the error if the socket was closed on purpose or to communicate with the other code
-	// that called socket's close()
+	// why SignalReceived? consider this case where one worker stop needs two different places
+	// in code to handle stopping:
+	//
+	// conn := getConnection()
+	//
+	// go func() {
+	//     <-stop.Signal
+	//     conn.Close()
+	// }()
+	//
+	// for { // reads indefinitely from socket
+	//     _, err := conn.Read(buffer)
+	//     if err != nil {
+	//         if stop.SignalReceived { // error expected because we ourself .Close()d it
+	//             return // clean shutdown
+	//         }
+	//
+	//         panic(err) // handle unexpected error
+	//     }
+	//     
+	// }
+	//
+	// if we didn't have stop.SignalReceived, we'd have to have shared variable "cleanShutdown"
+	// which we'd set before calling Close() and use that variable in Read() error handling
 	SignalReceived   bool
 	Signal           chan bool // each worker must read exactly one ShouldStop signal
 	workersWaitGroup *sync.WaitGroup
