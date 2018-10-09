@@ -44,6 +44,12 @@ func (m *Manager) Stopper() *Stopper {
 }
 
 type Stopper struct {
+	// sometimes shutdown logic is in two different places (one place reads stopper.Signal)
+	// via channel, and another place that e.g. reads from a socket. now the shutdown causes
+	// a socket read error, and that error handling needs to know if the error was to be
+	// expected, it can simply query stopper.SignalReceived instead of trying to determine from
+	// the error if the socket was closed on purpose or to communicate with the other code
+	// that called socket's close()
 	SignalReceived   bool
 	Signal           chan bool // each worker must read exactly one ShouldStop signal
 	workersWaitGroup *sync.WaitGroup
