@@ -31,7 +31,13 @@ func TestStopper(t *testing.T) {
 	stopManager.StopAllWorkersAndWait()
 
 	// above should take 100ms + parallel(200ms, 200ms) = 300ms
-	if time.Since(stoppingStarted) < 290*time.Millisecond {
-		t.Error("test executed too fast")
+	stopDuration := time.Since(stoppingStarted)
+
+	if stopDuration < 290*time.Millisecond {
+		t.Error("stopped too fast")
+	}
+
+	if stopDuration > 310*time.Millisecond {
+		t.Error("stopped too slow")
 	}
 }
