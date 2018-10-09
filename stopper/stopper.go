@@ -64,7 +64,7 @@ type Stopper struct {
 	//
 	//         panic(err) // handle unexpected error
 	//     }
-	//     
+	//
 	// }
 	//
 	// if we didn't have stop.SignalReceived, we'd have to have shared variable "cleanShutdown"
