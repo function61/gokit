@@ -39,8 +39,8 @@ RestartSec=10s
 		strings.Join(cmd, " "),
 		filepath.Dir(selfAbsolutePath))
 
-	if _, errStat := os.Stat(unitfilePath); errStat != nil && !os.IsNotExist(errStat) {
-		return "", errors.New("File does exist already!")
+	if _, errStat := os.Stat(unitfilePath); errStat == nil || !os.IsNotExist(errStat) {
+		return "", errors.New("systemd service file already exists!")
 	}
 
 	if err := ioutil.WriteFile(unitfilePath, []byte(unitContent), 0755); err != nil {
