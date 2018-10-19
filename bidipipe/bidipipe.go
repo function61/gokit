@@ -30,14 +30,12 @@ func Pipe(party1 io.ReadWriteCloser, party1Name string, party2 io.ReadWriteClose
 func pipeOneDir(dst io.ReadWriteCloser, dstName string, src io.ReadWriteCloser, srcName string, done *sync.WaitGroup, firstErrorCh chan error) {
 	defer done.Done()
 
-	_, errCopyDst := io.Copy(dst, src)
-
-	if errCopyDst != nil {
+	if _, err := io.Copy(dst, src); err != nil {
 		firstErrorCh <- fmt.Errorf(
 			"bidipipe: %s -> %s error: %s",
 			srcName,
 			dstName,
-			errCopyDst.Error())
+			err.Error())
 	}
 
 	// we have two goroutines Copy() to different directions. either goroutine could encounter
