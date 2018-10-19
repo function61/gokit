@@ -7,16 +7,16 @@ import (
 type Func func() time.Duration
 
 func ExponentialWithCappedMax(base time.Duration, max time.Duration) Func {
-	idx := 0
+	idx := -1
 
 	return func() time.Duration {
 		idx++
 
-		if idx == 1 {
+		if idx == 0 {
 			return 0 * time.Millisecond
 		}
 
-		sleepDuration := (1 << uint(idx-2)) * base
+		sleepDuration := (1 << uint(idx-1)) * base
 
 		if sleepDuration > max {
 			sleepDuration = max
