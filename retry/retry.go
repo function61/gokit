@@ -15,9 +15,7 @@ func Retry(
 ) error {
 	attemptNumber := 1
 
-	var errGiveUp error = nil
-
-	for errGiveUp == nil {
+	for {
 		attemptStarted := time.Now()
 
 		errAttempt := attempt(ctx)
@@ -32,7 +30,8 @@ func Retry(
 		select {
 		case <-ctx.Done(): // context canceled? (= deadline exceeded)
 			err = fmt.Errorf("GIVING UP (context timeout): %s", err.Error())
-			errGiveUp = err
+			failed(err)
+			return err
 		case <-time.After(backoffDuration()):
 		}
 
@@ -40,8 +39,6 @@ func Retry(
 
 		attemptNumber++
 	}
-
-	return errGiveUp
 }
 
 // 0ms, 100 ms, 200 ms, 400 ms, 800 ms, 1000 ms, 1000 ms, ...
