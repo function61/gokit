@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestHext(t *testing.T) {
+func TestHex(t *testing.T) {
 	assert.True(t, len(Hex(2)) == 4)
 	assert.True(t, len(Hex(4)) == 8)
 	assert.True(t, len(Hex(8)) == 16)
