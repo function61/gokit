@@ -5,12 +5,14 @@
 	"builders": [
 		{
 			"name": "default",
+			"dockerfile_path": "build-default.Dockerfile",
 			"mount_destination": "/go/src/github.com/function61/gokit",
 			"dev_command": [
 				"bash"
 			],
 			"dev_ports": [],
-			"pass_envs": []
+			"pass_envs": [],
+			"contextless_build": true
 		}
 	]
 }
