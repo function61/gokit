@@ -50,8 +50,8 @@ RestartSec=10s
 	hints := []string{
 		"Wrote unit file to " + unitfilePath,
 		"Run to enable on boot & to start now:",
-		"$ systemctl enable " + servicename,
-		"$ systemctl start " + servicename,
+		"	$ systemctl enable " + servicename,
+		"	$ systemctl start " + servicename,
 	}
 
 	return strings.Join(hints, "\n"), nil
