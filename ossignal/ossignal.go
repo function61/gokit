@@ -11,8 +11,8 @@ import (
 // "SIGINT is nearly identical to SIGTERM"
 //     https://en.wikipedia.org/wiki/Signal_(IPC)
 
-func WaitForInterruptOrTerminate() os.Signal {
+func InterruptOrTerminate() <-chan os.Signal {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	return <-ch
+	return ch
 }
