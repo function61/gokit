@@ -52,6 +52,7 @@ RestartSec=10s
 		"Run to enable on boot & to start now:",
 		"	$ systemctl enable " + servicename,
 		"	$ systemctl start " + servicename,
+		"	$ systemctl status " + servicename,
 	}
 
 	return strings.Join(hints, "\n"), nil
