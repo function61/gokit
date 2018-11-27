@@ -23,8 +23,8 @@ func TestSucceedsRightAway(t *testing.T) {
 		return nil
 	}, DefaultBackoff(), ifFailed)
 
-	assert.True(t, err == nil)
-	assert.True(t, attempts == 1)
+	assert.Assert(t, err == nil)
+	assert.Assert(t, attempts == 1)
 }
 
 func TestSucceedsOnThirdTry(t *testing.T) {
@@ -48,11 +48,11 @@ func TestSucceedsOnThirdTry(t *testing.T) {
 		return nil
 	}, DefaultBackoff(), ifFailed)
 
-	assert.True(t, err == nil)
-	assert.True(t, attempts == 3)
-	assert.True(t, len(receivedErrors) == 2)
-	assert.True(t, strings.HasPrefix(receivedErrors[0].Error(), "attempt 1 failed in "))
-	assert.True(t, strings.HasPrefix(receivedErrors[1].Error(), "attempt 2 failed in "))
+	assert.Assert(t, err == nil)
+	assert.Assert(t, attempts == 3)
+	assert.Assert(t, len(receivedErrors) == 2)
+	assert.Assert(t, strings.HasPrefix(receivedErrors[0].Error(), "attempt 1 failed in "))
+	assert.Assert(t, strings.HasPrefix(receivedErrors[1].Error(), "attempt 2 failed in "))
 }
 
 func TestTakesTooLong(t *testing.T) {
@@ -79,8 +79,8 @@ func TestTakesTooLong(t *testing.T) {
 		}
 	}, DefaultBackoff(), ifFailed)
 
-	assert.True(t, attempts == 1)
-	assert.True(t, len(receivedErrors) == 1)
-	assert.True(t, regexp.MustCompile("GIVING UP \\(context timeout\\): attempt 1 failed in .+: encountered timeout").MatchString(receivedErrors[0].Error()))
+	assert.Assert(t, attempts == 1)
+	assert.Assert(t, len(receivedErrors) == 1)
+	assert.Assert(t, regexp.MustCompile("GIVING UP \\(context timeout\\): attempt 1 failed in .+: encountered timeout").MatchString(receivedErrors[0].Error()))
 	assert.EqualString(t, err.Error(), receivedErrors[0].Error())
 }

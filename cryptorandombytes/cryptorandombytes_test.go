@@ -6,7 +6,7 @@ import (
 )
 
 func TestHex(t *testing.T) {
-	assert.True(t, len(Hex(2)) == 4)
-	assert.True(t, len(Hex(4)) == 8)
-	assert.True(t, len(Hex(8)) == 16)
+	assert.Assert(t, len(Hex(2)) == 4)
+	assert.Assert(t, len(Hex(4)) == 8)
+	assert.Assert(t, len(Hex(8)) == 16)
 }

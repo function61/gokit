@@ -15,8 +15,8 @@ func TestEnvThatDoesNotExist(t *testing.T) {
 func TestEnvThatExists(t *testing.T) {
 	val, err := Get("PATH")
 
-	assert.True(t, err == nil)
-	assert.True(t, len(val) > 1)
+	assert.Assert(t, err == nil)
+	assert.Assert(t, len(val) > 1)
 }
 
 func TestBase64Encoded(t *testing.T) {
@@ -28,6 +28,6 @@ func TestBase64Encoded(t *testing.T) {
 
 	fooVal, err := GetFromBase64Encoded("FOO")
 
-	assert.True(t, err == nil)
+	assert.Assert(t, err == nil)
 	assert.EqualString(t, string(fooVal), "hi mom!")
 }
