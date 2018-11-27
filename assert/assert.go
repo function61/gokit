@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+// waiting for generics to arrive to Go..
+
 func EqualString(t *testing.T, actual string, expected string) {
 	t.Helper()
 
@@ -20,18 +22,10 @@ func EqualInt(t *testing.T, actual int, expected int) {
 	}
 }
 
-func True(t *testing.T, actual bool) {
+func Assert(t *testing.T, expr bool) {
 	t.Helper()
 
-	if !actual {
-		t.Fatal("Expecting true; got false")
-	}
-}
-
-func False(t *testing.T, actual bool) {
-	t.Helper()
-
-	if actual {
+	if !expr {
 		t.Fatal("Expecting true; got false")
 	}
 }
