@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -27,5 +28,13 @@ func Assert(t *testing.T, expr bool) {
 
 	if !expr {
 		t.Fatal("Expecting true; got false")
+	}
+}
+
+func Matches(t *testing.T, actual string, pattern string) {
+	t.Helper()
+
+	if !regexp.MustCompile(pattern).MatchString(actual) {
+		t.Fatalf("expected %s to match %s", pattern, actual)
 	}
 }
