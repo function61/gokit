@@ -98,7 +98,7 @@ func Send(ctx context.Context, method string, url string, confPieces ...ConfigPi
 
 	// handle application-level errors
 	if !conf.TolerateNon2xxResponse && (resp.StatusCode < 200 || resp.StatusCode > 299) {
-		return resp, fmt.Errorf("HTTP response not 2xx; was %d", resp.StatusCode)
+		return resp, fmt.Errorf("HTTP response not 2xx; was %s", resp.Status)
 	}
 
 	if conf.OutputsJson {

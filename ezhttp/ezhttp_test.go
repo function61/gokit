@@ -115,7 +115,7 @@ func TestNon200x(t *testing.T) {
 	defer ts.Close()
 
 	_, err := Send(context.TODO(), http.MethodGet, ts.URL)
-	assert.EqualString(t, err.Error(), "HTTP response not 2xx; was 500")
+	assert.EqualString(t, err.Error(), "HTTP response not 2xx; was 500 Internal Server Error")
 
 	_, err = Send(context.TODO(), http.MethodGet, ts.URL, TolerateNon2xxResponse)
 	assert.Assert(t, err == nil)
