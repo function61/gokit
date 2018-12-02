@@ -2,15 +2,25 @@ package cryptorandombytes
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 )
 
 func Hex(bytesLen int) string {
-	randBytes := make([]byte, bytesLen)
+	return hex.EncodeToString(randBytes(bytesLen))
+}
 
-	if _, err := rand.Read(randBytes); err != nil {
+func Base64Url(bytesLen int) string {
+	return base64.RawURLEncoding.EncodeToString(randBytes(bytesLen))
+}
+
+func randBytes(bytesLen int) []byte {
+	bytes := make([]byte, bytesLen)
+
+	// Read() uses io.ReadFull(), so non-nil error guarantees len(bytes) amount of bytes
+	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
 
-	return hex.EncodeToString(randBytes)
+	return bytes
 }
