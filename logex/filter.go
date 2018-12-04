@@ -1,12 +1,9 @@
 package logex
 
 import (
-	"io/ioutil"
 	"log"
 	"regexp"
 )
-
-var Discard = log.New(ioutil.Discard, "", 0)
 
 // pipes Logger's output (io.Writer) into another Logger, but only if entry matches regex
 func Filter(filter *regexp.Regexp, matches *log.Logger) *log.Logger {
