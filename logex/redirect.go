@@ -6,16 +6,16 @@ import (
 )
 
 // pipes Logger's output (io.Writer) into another Logger
+func OutputToAnotherLog(another *log.Logger) io.Writer {
+	return &anotherLogWriter{another}
+}
+
 type anotherLogWriter struct {
 	another *log.Logger
 }
 
 func (d *anotherLogWriter) Write(msg []byte) (int, error) {
 	return len(msg), d.another.Output(2, string(msg))
-}
-
-func OutputToAnotherLog(another *log.Logger) io.Writer {
-	return &anotherLogWriter{another}
 }
 
 func RedirectGlobalStdLog(to *log.Logger) {
