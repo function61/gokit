@@ -9,9 +9,20 @@
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
 
+[[projects]]
+  branch = "master"
+  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2"]
+  pruneopts = "UT"
+  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/dgrijalva/jwt-go"]
+  input-imports = [
+    "github.com/dgrijalva/jwt-go",
+    "golang.org/x/crypto/pbkdf2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
