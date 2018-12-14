@@ -65,6 +65,7 @@ func downgradingResolver(strategyId string) (DerivationStrategy, DerivationStrat
 		return nil, nil
 	}
 
-	// recommend downgrade to with just one iteration (this is ridiculous example, I know)
+	// recommend upgrade (actuall downgrade) to with just one iteration
+	// (this is ridiculous example, I know)
 	return strategy, insecureStrategy
 }
