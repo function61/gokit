@@ -31,35 +31,36 @@ func Store(plaintext string, strategy DerivationStrategy) (StoredPassword, error
 	return serialize(strategy.Id(), salt[:], derived), nil
 }
 
-// returns true if given password matches stored password, false if not
-// return error if there's an internal error in the checking process (e.g. unknown derivation strategy)
+// 1st return: true if given password matches stored password, false if not
+// 2nd return: if != "" is the upgraded version of the stored password, if upgraded DerivationStrategy found
+// 3rd return: error if there's an internal error in the checking process (e.g. unknown derivation strategy)
 //
-// this is safe from timing attacks
+// this function is safe from timing attacks
 func Verify(stored StoredPassword, givenPlaintext string, resolver StrategyResolver) (bool, StoredPassword, error) {
-	betterStoredPassword := StoredPassword("")
+	upgradedPassword := StoredPassword("")
 
 	storedStrategyId, storedSalt, storedBytes, err := deserialize(stored)
 	if err != nil {
-		return false, betterStoredPassword, err
+		return false, upgradedPassword, err
 	}
 
 	strategy, betterStrategy := resolver(storedStrategyId)
 	if strategy == nil {
-		return false, betterStoredPassword, errors.New("unknown strategy")
+		return false, upgradedPassword, errors.New("unknown strategy")
 	}
 
 	givenBytes := strategy.Derive([]byte(givenPlaintext), storedSalt)
 
 	if subtle.ConstantTimeCompare(storedBytes, givenBytes) != 1 {
-		return false, betterStoredPassword, nil
+		return false, upgradedPassword, nil
 	}
 
 	if betterStrategy != nil {
-		betterStoredPassword, err = Store(givenPlaintext, betterStrategy)
+		upgradedPassword, err = Store(givenPlaintext, betterStrategy)
 		if err != nil {
-			return true, betterStoredPassword, err
+			return true, upgradedPassword, err
 		}
 	}
 
-	return true, betterStoredPassword, nil
+	return true, upgradedPassword, nil
 }
