@@ -7,6 +7,8 @@ import (
 	"io"
 )
 
+var ErrIncorrectPassword = errors.New("incorrect password")
+
 type DerivationStrategy interface {
 	Id() string
 	Derive(plaintext []byte, salt []byte) []byte
@@ -31,36 +33,36 @@ func Store(plaintext string, strategy DerivationStrategy) (StoredPassword, error
 	return serialize(strategy.Id(), salt[:], derived), nil
 }
 
-// 1st return: true if given password matches stored password, false if not
-// 2nd return: if != "" is the upgraded version of the stored password, if upgraded DerivationStrategy found
-// 3rd return: error if there's an internal error in the checking process (e.g. unknown derivation strategy)
+// 1st return: if != "" is the upgraded version of the stored password, if upgraded DerivationStrategy found
+// 2nd return: nil if hash matches and no internal errors occurred.
+//             ErrIncorrectPassword if no internal errors but hash doesn't match.
 //
 // this function is safe from timing attacks
-func Verify(stored StoredPassword, givenPlaintext string, resolver StrategyResolver) (bool, StoredPassword, error) {
+func Verify(stored StoredPassword, givenPlaintext string, resolver StrategyResolver) (StoredPassword, error) {
 	upgradedPassword := StoredPassword("")
 
 	storedStrategyId, storedSalt, storedBytes, err := deserialize(stored)
 	if err != nil {
-		return false, upgradedPassword, err
+		return upgradedPassword, err
 	}
 
 	strategy, betterStrategy := resolver(storedStrategyId)
 	if strategy == nil {
-		return false, upgradedPassword, errors.New("unknown strategy")
+		return upgradedPassword, errors.New("unknown strategy")
 	}
 
 	givenBytes := strategy.Derive([]byte(givenPlaintext), storedSalt)
 
 	if subtle.ConstantTimeCompare(storedBytes, givenBytes) != 1 {
-		return false, upgradedPassword, nil
+		return upgradedPassword, ErrIncorrectPassword
 	}
 
 	if betterStrategy != nil {
 		upgradedPassword, err = Store(givenPlaintext, betterStrategy)
 		if err != nil {
-			return true, upgradedPassword, err
+			return upgradedPassword, err
 		}
 	}
 
-	return true, upgradedPassword, nil
+	return upgradedPassword, nil
 }

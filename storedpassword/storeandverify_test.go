@@ -15,25 +15,21 @@ func TestStoreAndVerify(t *testing.T) {
 	assert.EqualString(t, strategyId, "pbkdf2-sha256-100k")
 
 	// pretend above strategy is not found
-	match, upgrade, err := Verify(stored, "hunter2", alwaysFailingResolver)
-	assert.Assert(t, match == false)
+	upgrade, err := Verify(stored, "hunter2", alwaysFailingResolver)
 	assert.EqualString(t, err.Error(), "unknown strategy")
 	assert.Assert(t, upgrade == "")
 
 	// strategy should now be found
-	match, upgrade, err = Verify(stored, "hunter2", BuiltinStrategies)
-	assert.Assert(t, match == true)
+	upgrade, err = Verify(stored, "hunter2", BuiltinStrategies)
 	assert.Assert(t, err == nil)
 	assert.Assert(t, upgrade == "")
 
-	match, upgrade, err = Verify(stored, "hunter INCORRECT", BuiltinStrategies)
-	assert.Assert(t, match == false)
-	assert.Assert(t, err == nil)
+	upgrade, err = Verify(stored, "hunter INCORRECT", BuiltinStrategies)
+	assert.Assert(t, err == ErrIncorrectPassword)
 	assert.Assert(t, upgrade == "")
 
 	// Verify() should now suggest upgrade with this resolver
-	match, upgrade, err = Verify(stored, "hunter2", downgradingResolver)
-	assert.Assert(t, match == true)
+	upgrade, err = Verify(stored, "hunter2", downgradingResolver)
 	assert.Assert(t, err == nil)
 	assert.Assert(t, upgrade != "")
 
@@ -43,8 +39,7 @@ func TestStoreAndVerify(t *testing.T) {
 	assert.EqualString(t, strategyId, "pbkdf2-sha256-1")
 
 	// verify upgraded password
-	match, upgrade, err = Verify(upgrade, "hunter2", downgradingResolver)
-	assert.Assert(t, match == true)
+	upgrade, err = Verify(upgrade, "hunter2", downgradingResolver)
 	assert.Assert(t, err == nil)
 	assert.Assert(t, upgrade == "")
 }
