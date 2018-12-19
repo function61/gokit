@@ -13,6 +13,8 @@ import (
 func InstallSystemdServiceFile(servicename string, args []string, description string) (string, error) {
 	unitfilePath := "/etc/systemd/system/" + servicename + ".service"
 
+	// why LOGGER_SUPPRESS_TIMESTAMPS? journalctl adds its own timestamps to each line,
+	// so this is redundant data
 	unitTemplate := `[Unit]
 Description=%s
 
@@ -24,6 +26,7 @@ ExecStart=%s
 WorkingDirectory=%s
 Restart=always
 RestartSec=10s
+Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 `
 
 	selfAbsolutePath, errAbs := filepath.Abs(os.Args[0])
