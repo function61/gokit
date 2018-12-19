@@ -3,6 +3,7 @@ package logex
 import (
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 // a logger that discards its output
@@ -16,4 +17,16 @@ func NonNil(ref *log.Logger) *log.Logger {
 	}
 
 	return ref
+}
+
+// centralized place for creating "standard" stderr logger in a way that supports suppressing
+// log timestamps if a mechanism around it (Docker/systemd) would add one anyway
+func StandardLogger() *log.Logger {
+	flags := log.LstdFlags
+
+	if os.Getenv("LOGGER_SUPPRESS_TIMESTAMPS") == "1" {
+		flags = 0
+	}
+
+	return log.New(os.Stderr, "", flags)
 }
