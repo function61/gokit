@@ -64,6 +64,12 @@ func RespondsJson(ref interface{}, allowUnknownFields bool) ConfigPiece {
 	})
 }
 
+func Client(client *http.Client) ConfigPiece {
+	return After(func(conf *Config) {
+		conf.Client = client
+	})
+}
+
 var TolerateNon2xxResponse = After(func(conf *Config) {
 	conf.TolerateNon2xxResponse = true
 })

@@ -44,6 +44,7 @@ type ConfigPiece struct {
 
 type Config struct {
 	Abort                         error // ConfigHook can set this to abort request send
+	Client                        *http.Client
 	Request                       *http.Request
 	TolerateNon2xxResponse        bool
 	RequestBody                   io.Reader
@@ -54,7 +55,9 @@ type Config struct {
 
 // please use http.MethodGet etc. constants for "method"
 func Send(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	conf := &Config{}
+	conf := &Config{
+		Client: http.DefaultClient,
+	}
 
 	for _, configure := range confPieces {
 		if configure.BeforeInit == nil {
@@ -90,7 +93,7 @@ func Send(ctx context.Context, method string, url string, confPieces ...ConfigPi
 		return nil, conf.Abort
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := conf.Client.Do(req)
 	if err != nil {
 		return resp, err // this is a transport-level error
 	}
