@@ -53,6 +53,26 @@ type Config struct {
 	OutputsJsonAllowUnknownFields bool
 }
 
+func Get(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return Send(ctx, http.MethodGet, url, confPieces...)
+}
+
+func Post(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return Send(ctx, http.MethodPost, url, confPieces...)
+}
+
+func Put(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return Send(ctx, http.MethodPut, url, confPieces...)
+}
+
+func Head(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return Send(ctx, http.MethodHead, url, confPieces...)
+}
+
+func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return Send(ctx, http.MethodDelete, url, confPieces...)
+}
+
 // please use http.MethodGet etc. constants for "method"
 func Send(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
 	conf := &Config{
