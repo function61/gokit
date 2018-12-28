@@ -1,5 +1,7 @@
 package throttle
 
+// alternative implementation: https://github.com/golang/go/wiki/RateLimiting
+
 import (
 	"sync"
 	"time"
