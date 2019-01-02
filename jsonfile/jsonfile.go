@@ -4,6 +4,7 @@ package jsonfile
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 )
 
@@ -32,7 +33,11 @@ func Write(path string, content interface{}) error {
 	}
 	defer file.Close()
 
-	jsonEncoder := json.NewEncoder(file)
+	return Marshal(file, content)
+}
+
+func Marshal(sink io.Writer, content interface{}) error {
+	jsonEncoder := json.NewEncoder(sink)
 	jsonEncoder.SetIndent("", "    ")
 	return jsonEncoder.Encode(content)
 }
