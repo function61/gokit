@@ -8,36 +8,40 @@ import (
 	"os"
 )
 
-func Read(path string, content interface{}, disallowUnknownFields bool) error {
+func Read(path string, data interface{}, disallowUnknownFields bool) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	jsonDecoder := json.NewDecoder(file)
-	if disallowUnknownFields {
-		jsonDecoder.DisallowUnknownFields()
-	}
-	if err := jsonDecoder.Decode(content); err != nil {
-		return err
-	}
-
-	return nil
+	return Unmarshal(file, data, disallowUnknownFields)
 }
 
-func Write(path string, content interface{}) error {
+func Write(path string, data interface{}) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return Marshal(file, content)
+	return Marshal(file, data)
 }
 
-func Marshal(sink io.Writer, content interface{}) error {
-	jsonEncoder := json.NewEncoder(sink)
+func Unmarshal(source io.Reader, data interface{}, disallowUnknownFields bool) error {
+	jsonDecoder := json.NewDecoder(source)
+	if disallowUnknownFields {
+		jsonDecoder.DisallowUnknownFields()
+	}
+	if err := jsonDecoder.Decode(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Marshal(destination io.Writer, data interface{}) error {
+	jsonEncoder := json.NewEncoder(destination)
 	jsonEncoder.SetIndent("", "    ")
-	return jsonEncoder.Encode(content)
+	return jsonEncoder.Encode(data)
 }
