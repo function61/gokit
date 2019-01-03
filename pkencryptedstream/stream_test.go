@@ -1,0 +1,100 @@
+package pkencryptedstream
+
+import (
+	"bytes"
+	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/cryptoutil"
+	"io/ioutil"
+	"testing"
+)
+
+func TestEncryptAndDecrypt(t *testing.T) {
+	testPrivateKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey(bytes.NewBufferString(testPrivateKeyDer))
+	assert.Assert(t, err == nil)
+
+	testPublicKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPublicKey(bytes.NewBufferString(testPublicKeyDer))
+	assert.Assert(t, err == nil)
+
+	ciphertextStream := &bytes.Buffer{}
+
+	stream, err := Writer(ciphertextStream, testPublicKey)
+	assert.Assert(t, err == nil)
+
+	_, err = stream.Write([]byte("this will be encrypted"))
+	assert.Assert(t, err == nil)
+
+	plaintextReader, err := Reader(ciphertextStream, testPrivateKey)
+	assert.Assert(t, err == nil)
+
+	plaintext, err := ioutil.ReadAll(plaintextReader)
+	assert.Assert(t, err == nil)
+	assert.EqualString(t, string(plaintext), "this will be encrypted")
+}
+
+const testPublicKeyDer = `-----BEGIN RSA PUBLIC KEY-----
+MIICCgKCAgEAqIbnGU6O4qPaw38oQO8onYaWX1plYjNHK1Ps7ra53C2C8tp45+T+
+UYwsvqSAdaSGO5CEDy0jz8vihmlaQzB4dqm1xJl27qQ+SO/iywks4S+9a0kb6mrE
+9W5gUQxyLfGjQcCn/CLe3xF12QqEx6hiIxrUNEacwhE04JJiVH3TlUQWHGJxz1bP
+Tg7S6dm7B2/vLKpkRavC5M6P/foKGC7mkLIW2DigpOJRZDiq5Ny8DbCSlD/pjKOK
+gAoufAMtQw0+M072j5lfwcNnf+F4hdUWskPPkcqdWLAVB7NmbsdSqwJ9Di8q/20K
+1XxTfbkd6nzSluGJNQEwPucZ3xyuh3zC4g1o000hC1sUXWei8FAcyMw3dA1ERUyS
+ZUcOnawg0Pf4QfcBcSmMeodImQoPLXyLQh0OxiIenOQ4Btbl+lurcMvTZ1aXg0XF
+INFkaxFZLcunXwDuU3JiyCZzd7T4ovJ6JQimPlN/xcXohJtHP2emWhF7mv3qTCyx
+agIB5aNP70NOp7sZllQf0ydQv3aT6rn1+zHxpgKnIJO/kYlQVEDUuBKRL569wOn3
+Z7LrPoIfUOXMVuA4xSG78oITjW7K5SCp03egWnDXCjEgJxabPInetRto8M6BuVau
+PWyUyfmD7JdKN5Ni266na46CmoDSlm2r/3xdSWRuck3TjDy9fRfs2K0CAwEAAQ==
+-----END RSA PUBLIC KEY-----
+`
+
+const testPrivateKeyDer = `-----BEGIN RSA PRIVATE KEY-----
+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
+-----END RSA PRIVATE KEY-----
+`
