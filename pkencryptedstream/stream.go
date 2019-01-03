@@ -84,6 +84,7 @@ var (
 // Format:
 // 		<len of below envelope>
 // 		<encrypted AES key envelope: RSA-OAEP-SHA256>
+// 		<iv>
 // 		<ciphertext stream>
 func Writer(destination io.Writer, pubKey *rsa.PublicKey) (io.WriteCloser, error) {
 	// generate new 256-bit AES key
