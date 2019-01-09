@@ -1,4 +1,4 @@
-FROM fn61/buildkit-golang:20181006_1640_1d9517ebebbc11d7
+FROM fn61/buildkit-golang:20190108_1812_e64c80f1
 
 WORKDIR /go/src/github.com/function61/gokit
 
