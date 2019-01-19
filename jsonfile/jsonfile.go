@@ -19,13 +19,24 @@ func Read(path string, data interface{}, disallowUnknownFields bool) error {
 }
 
 func Write(path string, data interface{}) error {
-	file, err := os.Create(path)
+	// use temp-file scheme to write file atomically (as much as POSIX allows)
+	tempName := path + ".temp"
+
+	file, err := os.Create(tempName)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return Marshal(file, data)
+	if err := Marshal(file, data); err != nil {
+		return err
+	}
+
+	if err := file.Close(); err != nil { // double close is intentional
+		return err
+	}
+
+	return os.Rename(tempName, path)
 }
 
 func Unmarshal(source io.Reader, data interface{}, disallowUnknownFields bool) error {
