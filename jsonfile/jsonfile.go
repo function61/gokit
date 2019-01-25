@@ -4,6 +4,7 @@ package jsonfile
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 )
@@ -15,7 +16,11 @@ func Read(path string, data interface{}, disallowUnknownFields bool) error {
 	}
 	defer file.Close()
 
-	return Unmarshal(file, data, disallowUnknownFields)
+	if err := Unmarshal(file, data, disallowUnknownFields); err != nil {
+		return fmt.Errorf("%s: %s", path, err.Error())
+	}
+
+	return nil
 }
 
 func Write(path string, data interface{}) error {
@@ -45,7 +50,7 @@ func Unmarshal(source io.Reader, data interface{}, disallowUnknownFields bool) e
 		jsonDecoder.DisallowUnknownFields()
 	}
 	if err := jsonDecoder.Decode(data); err != nil {
-		return err
+		return fmt.Errorf("JSON parsing failed: %s", err.Error())
 	}
 
 	return nil
