@@ -13,6 +13,7 @@ import (
 const (
 	PemTypeRsaPrivateKey = "RSA PRIVATE KEY"
 	PemTypeRsaPublicKey  = "RSA PUBLIC KEY"
+	PemTypeCertificate   = "CERTIFICATE"
 )
 
 // PEM(PKCS1(rsa.PrivateKey))
@@ -43,6 +44,16 @@ func ParsePemPkcs1EncodedRsaPublicKey(pemReader io.Reader) (*rsa.PublicKey, erro
 	}
 
 	return pubKey, nil
+}
+
+// PEM(cert)
+func ParsePemX509Certificate(pemReader io.Reader) (*x509.Certificate, error) {
+	certBytes, err := ParsePemBytes(pemReader, PemTypeCertificate)
+	if err != nil {
+		return nil, err
+	}
+
+	return x509.ParseCertificate(certBytes)
 }
 
 func MarshalPemBytes(content []byte, pemType string) []byte {
