@@ -2,6 +2,7 @@ package httpauth
 
 import (
 	"net/http"
+	"time"
 )
 
 type RequestContext struct {
@@ -13,11 +14,12 @@ type UserDetails struct {
 }
 
 type HttpRequestAuthenticator interface {
-	Authenticate(*http.Request) *UserDetails
+	// authenticates a Request that has cookies returned by ToCookiesWithCsrfProtection()
+	AuthenticateWithCsrfProtection(req *http.Request) (*UserDetails, error)
 }
 
 type Signer interface {
-	Sign(userDetails UserDetails) string
+	Sign(userDetails UserDetails, now time.Time) string
 }
 
 // if returns nul, request handling is aborted.

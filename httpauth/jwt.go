@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/function61/gokit/csrf"
 	"net/http"
 	"time"
 )
@@ -23,10 +24,10 @@ func NewEcJwtSigner(privateKey []byte) (Signer, error) {
 	}, nil
 }
 
-func (j *jwtSigner) Sign(userDetails UserDetails) string {
+func (j *jwtSigner) Sign(userDetails UserDetails, now time.Time) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodES512, jwt.MapClaims{
 		"sub": userDetails.Id,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": now.Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString(j.privKey)
@@ -52,23 +53,27 @@ func NewEcJwtAuthenticator(validatorPublicKey []byte) (HttpRequestAuthenticator,
 	}, nil
 }
 
-func (j *jwtAuthenticator) Authenticate(r *http.Request) *UserDetails {
-	cookie, err := r.Cookie(loginCookieName)
-	if err == http.ErrNoCookie {
-		return nil
+func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*UserDetails, error) {
+	authCookie, err := r.Cookie(loginCookieName)
+	if err != nil {
+		return nil, err
 	}
 
-	claims := j.getValidatedClaims(cookie.Value)
-	if claims == nil {
-		return nil
+	claims, err := j.getValidatedClaims(authCookie.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := csrf.ValidateCookie(r); err != nil {
+		return nil, err
 	}
 
 	return &UserDetails{
 		Id: claims["sub"].(string),
-	}
+	}, nil
 }
 
-func (j *jwtAuthenticator) getValidatedClaims(jwtString string) jwt.MapClaims {
+func (j *jwtAuthenticator) getValidatedClaims(jwtString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(jwtString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
@@ -78,9 +83,8 @@ func (j *jwtAuthenticator) getValidatedClaims(jwtString string) jwt.MapClaims {
 	})
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
-	return claims
+	return token.Claims.(jwt.MapClaims), nil
 }

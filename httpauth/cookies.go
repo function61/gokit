@@ -1,6 +1,7 @@
 package httpauth
 
 import (
+	"github.com/function61/gokit/csrf"
 	"net/http"
 )
 
@@ -8,13 +9,18 @@ const (
 	loginCookieName = "login"
 )
 
-func ToCookie(tokenString string) *http.Cookie {
-	return &http.Cookie{
+func ToCookiesWithCsrfProtection(tokenString string) []*http.Cookie {
+	authCookie := &http.Cookie{
 		Name:     loginCookieName,
 		Value:    tokenString,
 		Path:     "/",
-		HttpOnly: true, // = not visible to JavaScript
+		HttpOnly: true, // = not visible to JavaScript, to protect from XSS
 		// Secure: true, // FIXME
+	}
+
+	return []*http.Cookie{
+		authCookie,
+		csrf.CreateCookie(),
 	}
 }
 
