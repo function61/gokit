@@ -37,6 +37,7 @@ func TestSignAndAuthenticate(t *testing.T) {
 	}
 
 	onlyLoginCookie := []*http.Cookie{bothCookies[0]}
+	onlyCsrfCookie := []*http.Cookie{bothCookies[1]}
 
 	assert.EqualString(t,
 		authenticateReq(makeReq(bothCookies, "invalid header")),
@@ -49,6 +50,10 @@ func TestSignAndAuthenticate(t *testing.T) {
 	assert.EqualString(t,
 		authenticateReq(makeReq(onlyLoginCookie, "just something here")),
 		"csrf: cookie csrf_token missing")
+
+	assert.EqualString(t,
+		authenticateReq(makeReq(onlyCsrfCookie, "just something here")),
+		"auth: cookie login missing")
 
 	assert.EqualString(t,
 		authenticateReq(makeReq(bothCookies, bothCookies[1].Value)),

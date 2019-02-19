@@ -2,6 +2,7 @@ package httpauth
 
 import (
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/function61/gokit/csrf"
@@ -56,7 +57,7 @@ func NewEcJwtAuthenticator(validatorPublicKey []byte) (HttpRequestAuthenticator,
 func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*UserDetails, error) {
 	authCookie, err := r.Cookie(loginCookieName)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("auth: cookie " + loginCookieName + " missing")
 	}
 
 	claims, err := j.getValidatedClaims(authCookie.Value)
