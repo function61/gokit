@@ -9,6 +9,8 @@ package csrf
 // relies on the attacker not being able to set a cookie for another domain in the forged request:
 //    https://stackoverflow.com/questions/6761415/how-to-set-a-cookie-for-another-domain
 //    https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_header_name
+//
+// This is thoroughly tested by httpauth package
 
 import (
 	"errors"
@@ -37,7 +39,7 @@ func CreateCookie() *http.Cookie {
 	}
 }
 
-func ValidateCookie(req *http.Request) error {
+func Validate(req *http.Request) error {
 	headerToken := req.Header.Get(csrfHeaderName)
 	if headerToken == "" {
 		return errHeaderMissing

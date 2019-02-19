@@ -65,7 +65,7 @@ func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*Use
 		return nil, err
 	}
 
-	if err := csrf.ValidateCookie(r); err != nil {
+	if err := csrf.Validate(r); err != nil {
 		return nil, err
 	}
 
