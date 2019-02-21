@@ -27,7 +27,7 @@ func TestTimeout(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.TODO(), 100*time.Millisecond)
 	defer cancel()
 
-	_, err := Send(ctx, http.MethodGet, ts.URL)
+	_, err := Get(ctx, ts.URL)
 	assert.Matches(t, err.Error(), "Get [^ ]+ context deadline exceeded")
 }
 
@@ -44,7 +44,7 @@ func TestPostJson(t *testing.T) {
 	defer ts.Close()
 
 	req := ExampleJsonPayload{Hello: "hello good sir"}
-	resp, err := Send(context.TODO(), http.MethodPost, ts.URL, SendJson(&req))
+	resp, err := Post(context.TODO(), ts.URL, SendJson(&req))
 	assert.Assert(t, err == nil)
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `{"Hello":"hello good sir"}`)
@@ -61,7 +61,7 @@ func TestPostArbitraryData(t *testing.T) {
 	defer ts.Close()
 
 	reqBody := bytes.NewBufferString("why\nhello there\nmy good sir")
-	resp, err := Send(context.TODO(), http.MethodPost, ts.URL, SendBody(reqBody, "text/awesome"))
+	resp, err := Post(context.TODO(), ts.URL, SendBody(reqBody, "text/awesome"))
 
 	assert.Assert(t, err == nil)
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -86,14 +86,14 @@ func TestRespondsJson(t *testing.T) {
 	defer ts.Close()
 
 	responseBody := &ExampleJsonPayload{}
-	_, err := Send(context.TODO(), http.MethodGet, ts.URL+"/valid-json", RespondsJson(responseBody, false))
+	_, err := Get(context.TODO(), ts.URL+"/valid-json", RespondsJson(responseBody, false))
 	assert.Assert(t, err == nil)
 	assert.EqualString(t, responseBody.Hello, "World")
 
-	_, err = Send(context.TODO(), http.MethodGet, ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, false))
+	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, false))
 	assert.EqualString(t, err.Error(), `json: unknown field "got"`)
 
-	_, err = Send(context.TODO(), http.MethodGet, ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, true))
+	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, true))
 	assert.Assert(t, err == nil)
 }
 
@@ -104,7 +104,7 @@ func TestRespondsJsonFails(t *testing.T) {
 	defer ts.Close()
 
 	responseBody := &ExampleJsonPayload{}
-	_, err := Send(context.TODO(), http.MethodGet, ts.URL, RespondsJson(responseBody, false))
+	_, err := Get(context.TODO(), ts.URL, RespondsJson(responseBody, false))
 	assert.EqualString(t, err.Error(), "invalid character 'i' looking for beginning of value")
 }
 
@@ -114,10 +114,10 @@ func TestNon200x(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	_, err := Send(context.TODO(), http.MethodGet, ts.URL)
+	_, err := Get(context.TODO(), ts.URL)
 	assert.EqualString(t, err.Error(), "HTTP response not 2xx; was 500 Internal Server Error")
 
-	_, err = Send(context.TODO(), http.MethodGet, ts.URL, TolerateNon2xxResponse)
+	_, err = Get(context.TODO(), ts.URL, TolerateNon2xxResponse)
 	assert.Assert(t, err == nil)
 }
 
@@ -127,7 +127,7 @@ func TestHeader(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resp, err := Send(context.TODO(), http.MethodGet, ts.URL, Header("User-Agent", "Sausage"))
+	resp, err := Get(context.TODO(), ts.URL, Header("User-Agent", "Sausage"))
 	assert.Assert(t, err == nil)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -140,7 +140,7 @@ func TestAuthBearer(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resp, err := Send(context.TODO(), http.MethodGet, ts.URL, AuthBearer("LOLOLOLOL"))
+	resp, err := Get(context.TODO(), ts.URL, AuthBearer("LOLOLOLOL"))
 	assert.Assert(t, err == nil)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -153,7 +153,7 @@ func TestAuthBasic(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	resp, err := Send(context.TODO(), http.MethodGet, ts.URL, AuthBasic("AzureDiamond", "hunter2"))
+	resp, err := Get(context.TODO(), ts.URL, AuthBasic("AzureDiamond", "hunter2"))
 	assert.Assert(t, err == nil)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
@@ -171,7 +171,7 @@ func TestCookie(t *testing.T) {
 		Value: "says nom nom",
 	}
 
-	resp, err := Send(context.TODO(), http.MethodGet, ts.URL, Cookie(cmCookie))
+	resp, err := Get(context.TODO(), ts.URL, Cookie(cmCookie))
 	assert.Assert(t, err == nil)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)

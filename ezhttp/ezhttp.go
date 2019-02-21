@@ -54,27 +54,27 @@ type Config struct {
 }
 
 func Get(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return Send(ctx, http.MethodGet, url, confPieces...)
+	return do(ctx, http.MethodGet, url, confPieces...)
 }
 
 func Post(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return Send(ctx, http.MethodPost, url, confPieces...)
+	return do(ctx, http.MethodPost, url, confPieces...)
 }
 
 func Put(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return Send(ctx, http.MethodPut, url, confPieces...)
+	return do(ctx, http.MethodPut, url, confPieces...)
 }
 
 func Head(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return Send(ctx, http.MethodHead, url, confPieces...)
+	return do(ctx, http.MethodHead, url, confPieces...)
 }
 
 func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return Send(ctx, http.MethodDelete, url, confPieces...)
+	return do(ctx, http.MethodDelete, url, confPieces...)
 }
 
 // please use http.MethodGet etc. constants for "method"
-func Send(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+func do(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
 	conf := &Config{
 		Client: http.DefaultClient,
 	}
