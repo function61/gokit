@@ -1,3 +1,4 @@
+// Assertion helpers
 package assert
 
 import (

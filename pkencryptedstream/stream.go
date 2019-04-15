@@ -1,3 +1,5 @@
+// Use public key crypto to encrypt a data stream in a way, that the encrypting party can
+// not necessarily decrypt the same data (unless she possesses the private key as well).
 package pkencryptedstream
 
 /*	Public key (RSA) encrypted stream:

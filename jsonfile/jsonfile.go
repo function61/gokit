@@ -1,6 +1,5 @@
-package jsonfile
-
 // I got tired of writing the same readConfigFile(), writeConfigFile() magic over and over again..
+package jsonfile
 
 import (
 	"encoding/json"

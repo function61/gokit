@@ -1,3 +1,4 @@
+// CSRF protection
 package csrf
 
 // Using a double-submit cookie here. We cannot just double-submit the session cookie,

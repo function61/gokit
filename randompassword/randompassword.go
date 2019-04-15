@@ -1,3 +1,4 @@
+// Generate random passwords
 package randompassword
 
 import (

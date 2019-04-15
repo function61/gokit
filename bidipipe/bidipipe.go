@@ -1,3 +1,4 @@
+// Bi-directional pipe (for proxying use cases)
 package bidipipe
 
 import (

@@ -1,3 +1,4 @@
+// Util for programmatically writing systemd unit file so your service can be autostarted
 package systemdinstaller
 
 import (

@@ -1,3 +1,4 @@
+// Small wrappers for dealing with ENV vars
 package envvar
 
 import (

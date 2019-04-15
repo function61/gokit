@@ -1,3 +1,4 @@
+// API that tries to make it safe(r) to store user's passwords
 package storedpassword
 
 import (

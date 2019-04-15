@@ -1,3 +1,4 @@
+// Wrapper for doing "file exists" -dance in Go (which has a bit too much ceremony)
 package fileexists
 
 import (

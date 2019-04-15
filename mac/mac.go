@@ -1,3 +1,5 @@
+// Message Authentication Code: make sure a message is not tampered with while in-transit
+// by a possibly malicious party.
 package mac
 
 import (

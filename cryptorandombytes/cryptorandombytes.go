@@ -1,3 +1,4 @@
+// Safe random bytes in various formats (hex/base64/..)
 package cryptorandombytes
 
 import (

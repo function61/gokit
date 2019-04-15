@@ -1,3 +1,4 @@
+// Small helpers for common crypto needs
 package cryptoutil
 
 import (

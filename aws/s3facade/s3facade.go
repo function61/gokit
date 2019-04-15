@@ -1,3 +1,4 @@
+// Because AWS SDK has so much ceremony..
 package s3facade
 
 // why the facade? there's so many things happening to set up the client that I always

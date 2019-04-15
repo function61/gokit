@@ -1,5 +1,3 @@
-package ezhttp
-
 // This package aims to wrap Go HTTP Client's request-response with sane defaults:
 //
 // - You are forced to consider timeouts by having to specify Context
@@ -7,6 +5,7 @@ package ezhttp
 //   (unless explicitly asked to)
 // - Sending and receiving JSON requires much less boilerplate, and on receiving JSON you
 //   are forced to think whether to "allowUnknownFields"
+package ezhttp
 
 import (
 	"context"

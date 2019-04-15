@@ -1,3 +1,4 @@
+// Converts Hashicorp's HCL to JSON
 package hcl2json
 
 import (

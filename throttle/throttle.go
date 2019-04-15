@@ -1,3 +1,4 @@
+// "This thing should happen 3 times a second at most"
 package throttle
 
 // alternative implementation: https://github.com/golang/go/wiki/RateLimiting

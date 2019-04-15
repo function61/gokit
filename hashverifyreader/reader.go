@@ -1,3 +1,5 @@
+// If you know the hash of a stream beforehand, wrap it with this to get
+// integrity-verified io.Reader
 package hashverifyreader
 
 import (

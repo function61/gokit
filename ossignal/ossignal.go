@@ -1,3 +1,4 @@
+// Small wrapper for catching SIGINT and SIGTERM
 package ossignal
 
 import (
