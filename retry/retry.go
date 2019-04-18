@@ -1,3 +1,4 @@
+// Battle-tested algorithm for retrying with timeout and exponential backoff
 package retry
 
 import (
