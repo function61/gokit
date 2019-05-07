@@ -52,6 +52,16 @@ type Config struct {
 	OutputsJsonAllowUnknownFields bool
 }
 
+type ResponseStatusError struct {
+	error
+	statusCode int
+}
+
+// returns the (non-2xx) status code that caused the error
+func (e ResponseStatusError) StatusCode() int {
+	return e.statusCode
+}
+
 func Get(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
 	return do(ctx, http.MethodGet, url, confPieces...)
 }
@@ -72,7 +82,8 @@ func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Resp
 	return do(ctx, http.MethodDelete, url, confPieces...)
 }
 
-// please use http.MethodGet etc. constants for "method"
+// returns ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
 func do(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
 	conf := &Config{
 		Client: http.DefaultClient,
@@ -119,7 +130,7 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 
 	// handle application-level errors
 	if !conf.TolerateNon2xxResponse && (resp.StatusCode < 200 || resp.StatusCode > 299) {
-		return resp, fmt.Errorf("HTTP response not 2xx; was %s", resp.Status)
+		return resp, &ResponseStatusError{error: fmt.Errorf("HTTP response not 2xx; was %s", resp.Status), statusCode: resp.StatusCode}
 	}
 
 	if conf.OutputsJson {
