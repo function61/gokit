@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/function61/gokit/assert"
 	"regexp"
-	"strings"
 	"testing"
 	"time"
 )
@@ -51,8 +50,9 @@ func TestSucceedsOnThirdTry(t *testing.T) {
 	assert.Assert(t, err == nil)
 	assert.Assert(t, attempts == 3)
 	assert.Assert(t, len(receivedErrors) == 2)
-	assert.Assert(t, strings.HasPrefix(receivedErrors[0].Error(), "attempt 1 failed in "))
-	assert.Assert(t, strings.HasPrefix(receivedErrors[1].Error(), "attempt 2 failed in "))
+	// use regex to work around variable timing ("failed in 270ns")
+	assert.Matches(t, receivedErrors[0].Error(), "attempt 1 failed in .+: fails on first try")
+	assert.Matches(t, receivedErrors[1].Error(), "attempt 2 failed in .+: fails on second as well")
 }
 
 func TestTakesTooLong(t *testing.T) {
