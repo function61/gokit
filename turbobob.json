@@ -5,7 +5,7 @@
 	"builders": [
 		{
 			"name": "default",
-			"uses": "docker://fn61/buildkit-golang:20190125_1536_1b2a32b5",
+			"uses": "docker://fn61/buildkit-golang:20190517_1314_f51ec433",
 			"mount_destination": "/go/src/github.com/function61/gokit",
 			"workdir": "/go/src/github.com/function61/gokit",
 			"commands": {
