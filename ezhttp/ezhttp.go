@@ -10,7 +10,7 @@ package ezhttp
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"time"
@@ -130,7 +130,7 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 
 	// handle application-level errors
 	if !conf.TolerateNon2xxResponse && (resp.StatusCode < 200 || resp.StatusCode > 299) {
-		return resp, &ResponseStatusError{error: fmt.Errorf("HTTP response not 2xx; was %s", resp.Status), statusCode: resp.StatusCode}
+		return resp, &ResponseStatusError{error: errors.New(resp.Status), statusCode: resp.StatusCode}
 	}
 
 	if conf.OutputsJson {
