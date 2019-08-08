@@ -7,6 +7,6 @@ import (
 
 var started = time.Now()
 
-func Elapsed() time.Duration {
-	return time.Since(started)
+func Started() time.Time {
+	return started
 }
