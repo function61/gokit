@@ -13,6 +13,7 @@ type serviceFile struct {
 	servicename          string
 	args                 []string
 	description          string
+	docs                 []string
 	requireNetworkOnline bool
 	selfAbsolutePath     string
 	err                  error // if error reading selfAbsolutePath
@@ -74,6 +75,10 @@ func serialize(sf serviceFile) string {
 	l("[Unit]")
 	l("Description=" + sf.description)
 
+	if len(sf.docs) > 0 {
+		l("Documentation=" + strings.Join(sf.docs, " "))
+	}
+
 	// https://unix.stackexchange.com/a/126146
 	if sf.requireNetworkOnline {
 		l("Wants=network-online.target")
@@ -103,6 +108,12 @@ func unitfilePath(sf serviceFile) string {
 func Args(args ...string) optFn {
 	return func(sf *serviceFile) {
 		sf.args = args
+	}
+}
+
+func Docs(docs ...string) optFn {
+	return func(sf *serviceFile) {
+		sf.docs = docs
 	}
 }
 
