@@ -64,7 +64,7 @@ type hashVerifyReader struct {
 }
 
 func (h *hashVerifyReader) Read([]byte) (int, error) {
-	if bytes.Compare(h.hash.Sum(nil), h.expectedHash) != 0 {
+	if !bytes.Equal(h.hash.Sum(nil), h.expectedHash) {
 		return 0, errors.New("hashVerifyReader: digest mismatch")
 	}
 
