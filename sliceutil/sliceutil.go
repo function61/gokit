@@ -13,6 +13,18 @@ func ContainsString(items []string, item string) bool {
 	return false
 }
 
+func FilterString(items []string, fn func(item string) bool) []string {
+	altered := []string{}
+
+	for _, item := range items {
+		if fn(item) {
+			altered = append(altered, item)
+		}
+	}
+
+	return altered
+}
+
 func ContainsInt(items []int, item int) bool {
 	for _, candidate := range items {
 		if candidate == item {
