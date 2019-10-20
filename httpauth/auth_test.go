@@ -91,7 +91,7 @@ func TestTokenExpiry(t *testing.T) {
 			assert.Assert(t, err == nil)
 			assert.EqualString(t, userDetails.Id, "123")
 		} else {
-			assert.EqualString(t, err.Error(), "Token is expired")
+			assert.EqualString(t, err.Error(), "token is expired by 1h0m0s")
 		}
 	}
 
