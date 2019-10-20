@@ -21,6 +21,7 @@ func NewManager() *Manager {
 	}
 }
 
+// it's safe to call this many times, even concurrently
 func (m *Manager) StopAllWorkersAndWait() {
 	for _, worker := range m.workers {
 		// does not synchronously stop

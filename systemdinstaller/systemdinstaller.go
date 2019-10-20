@@ -48,7 +48,6 @@ func GetHints(sf serviceFile) string {
 	}, "\n")
 }
 
-// FIXME(security): args are not shell escaped - DO NOT TAKE THIS FROM USER INPUT
 func Install(sf serviceFile) error {
 	if sf.err != nil {
 		return sf.err
@@ -105,6 +104,7 @@ func unitfilePath(sf serviceFile) string {
 	return "/etc/systemd/system/" + sf.servicename + ".service"
 }
 
+// FIXME(security): args are not shell escaped - DO NOT TAKE THIS FROM USER INPUT
 func Args(args ...string) optFn {
 	return func(sf *serviceFile) {
 		sf.args = args
