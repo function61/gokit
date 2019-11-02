@@ -1,4 +1,8 @@
 
+[[constraint]]
+  name = "github.com/hashicorp/hcl"
+  version = "v1.0.0"
+
 [prune]
   go-tests = true
   unused-packages = true
