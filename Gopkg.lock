@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:b6910af4f844c4a5d1a63306dffbc3d1063ad516eac78f3d07c0dda88625e5d0"
+  name = "github.com/aws/aws-lambda-go"
+  packages = ["events"]
+  pruneopts = "UT"
+  revision = "e5086e5a7e53f7039034fa29008221760b04ff79"
+  version = "v1.13.2"
+
+[[projects]]
   digest = "1:dd52baae8ec19086b5aabb657118e73c04fa8edfd561e365024a96d9ed9feb51"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -97,6 +105,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/credentials",
     "github.com/aws/aws-sdk-go/aws/session",
