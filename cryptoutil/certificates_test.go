@@ -1,0 +1,50 @@
+package cryptoutil
+
+import (
+	"github.com/function61/gokit/assert"
+	"strings"
+	"testing"
+)
+
+func TestParsePemX509Certificate(t *testing.T) {
+	cert, err := ParsePemX509Certificate(strings.NewReader(testValidCertificate))
+	assert.Assert(t, err == nil)
+
+	assert.EqualString(t, cert.Subject.CommonName, "godoc.org")
+	assert.EqualString(t, Identity(*cert), "godoc.org")
+	assert.EqualString(t, Issuer(*cert), "Let's Encrypt")
+}
+
+const (
+	testValidCertificate = `-----BEGIN CERTIFICATE-----
+MIIFSjCCBDKgAwIBAgISA3AsiG0ZGHx2+DKJ/rYP+12TMA0GCSqGSIb3DQEBCwUA
+MEoxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQD
+ExpMZXQncyBFbmNyeXB0IEF1dGhvcml0eSBYMzAeFw0xOTExMTUxMDQyNTRaFw0y
+MDAyMTMxMDQyNTRaMBQxEjAQBgNVBAMTCWdvZG9jLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAPZKznZnDthzoBpGymVTGNDjD27Cb3c1rFpotn7V
+d/kRTDNULakUpri5nvjDgooLze+YdYsVR4wdTcVqzOhjbL80bNgKFOqMhSTiGycU
+ExcWI5/JGUj1VwRxA3XzQDjB0RIVv+I9fxfReBuvYV/iFDBmSp6nTtga85oAjkeS
+yHXWPcv/upUyGY1qQdYGbhRzsL9F2wOga/Ww3oNwscPzNgxn+z3r0z8HGe9Bi167
+2QsugL+w3XKLWc1IPFSb0y/kBNoR5Fe2DiJIy8b9KyNkjyi88NNJMfCRY5fzJ4Bn
+33RwABeMacakjPxf40J3Q4tOhDTcRubf66J7yPUnx0SpF70CAwEAAaOCAl4wggJa
+MA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIw
+DAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUus7AliyM7r0rhFDSoKXrZoyENekwHwYD
+VR0jBBgwFoAUqEpqYwR93brm0Tm3pkVl7/Oo7KEwbwYIKwYBBQUHAQEEYzBhMC4G
+CCsGAQUFBzABhiJodHRwOi8vb2NzcC5pbnQteDMubGV0c2VuY3J5cHQub3JnMC8G
+CCsGAQUFBzAChiNodHRwOi8vY2VydC5pbnQteDMubGV0c2VuY3J5cHQub3JnLzAU
+BgNVHREEDTALgglnb2RvYy5vcmcwTAYDVR0gBEUwQzAIBgZngQwBAgEwNwYLKwYB
+BAGC3xMBAQEwKDAmBggrBgEFBQcCARYaaHR0cDovL2Nwcy5sZXRzZW5jcnlwdC5v
+cmcwggEEBgorBgEEAdZ5AgQCBIH1BIHyAPAAdQAHt1wb5X1o//Gwxh0jFce65ld8
+V5S3au68YToaadOiHAAAAW5u34uCAAAEAwBGMEQCIEgVFUq5+UIQKUvAtQa5JDhx
+j1o+Rjux/ExJZrdNb+SDAiAUSW0Q1AbjND60CTMso7LQ20JYEgDWiOS0sPVoIepH
+7gB3AG9Tdqwx8DEZ2JkApFEV/3cVHBHZAsEAKQaNsgiaN9kTAAABbm7fjAYAAAQD
+AEgwRgIhAKnkFR1POF+xpuzB7Tow2nrZnFgNHeokFqtwSYhoJD5LAiEAiWDAl5wb
+oe8gNmEB9uAqLmzEPFDqGgsu/v2eIJGud9owDQYJKoZIhvcNAQELBQADggEBABEu
+/CnR1fdA3dbNsm26Kqj3A1vI2QuZIHdQc4uzcEWrRNpXkwXTwEBoQY1yl7tskp8z
+vkStFb1U4nLWzHFKZt22PPqqS9ePGiSrtm1+9hbwGBqk/ajruFSaloJ/VgjrPoPO
+36x9w11RcB3HmSNvyyuo9qD6qSLYgbCIjp0EfFbWu16gJdodbKG7tnXkXFox395w
++bVRNOOB+m0uJ/TVK7oZ+d8em6jXOg5H/j2yXaT6PzXFHC6urjOywLbag+eBIquc
+w2rH0z1Uy5WGFdaZikQTHKzMD9bKd6YZON/AhldgLcXcv6fSGEcST9u0wRZaqRzv
+gk7zx2YkezS8Y4tehMQ=
+-----END CERTIFICATE-----`
+)

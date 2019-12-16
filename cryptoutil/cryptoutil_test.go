@@ -13,14 +13,6 @@ aGVsbG8=
 `)
 }
 
-func TestParsePemX509Certificate(t *testing.T) {
-	cert, err := ParsePemX509Certificate(strings.NewReader(testValidCertificate))
-	assert.Assert(t, err == nil)
-
-	assert.EqualString(t, cert.Subject.Country[0], "US")
-	assert.EqualString(t, cert.Subject.CommonName, "foo")
-}
-
 func TestParsePemPkcs1EncodedRsaPrivateKey(t *testing.T) {
 	privKey, err := ParsePemPkcs1EncodedRsaPrivateKey(strings.NewReader(testValidRsaPrivateKey))
 	assert.Assert(t, err == nil)
@@ -82,18 +74,4 @@ MHcCAQEEINTwTX5Xt26rkBv44y2dXEwetcT54HZr6v20FBFhW7hboAoGCCqGSM49
 AwEHoUQDQgAExER1ikX4DnifPRJ1i9Ra9H9IGq7CaKbBFgofAo5c63l+pYd+/7Zr
 K8BX/2/x4tBJR1w8YyKepbbwQtX3zVI7mw==
 -----END EC PRIVATE KEY-----`
-	testValidCertificate = `-----BEGIN CERTIFICATE-----
-MIICMzCCAZygAwIBAgIJALiPnVsvq8dsMA0GCSqGSIb3DQEBBQUAMFMxCzAJBgNV
-BAYTAlVTMQwwCgYDVQQIEwNmb28xDDAKBgNVBAcTA2ZvbzEMMAoGA1UEChMDZm9v
-MQwwCgYDVQQLEwNmb28xDDAKBgNVBAMTA2ZvbzAeFw0xMzAzMTkxNTQwMTlaFw0x
-ODAzMTgxNTQwMTlaMFMxCzAJBgNVBAYTAlVTMQwwCgYDVQQIEwNmb28xDDAKBgNV
-BAcTA2ZvbzEMMAoGA1UEChMDZm9vMQwwCgYDVQQLEwNmb28xDDAKBgNVBAMTA2Zv
-bzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAzdGfxi9CNbMf1UUcvDQh7MYB
-OveIHyc0E0KIbhjK5FkCBU4CiZrbfHagaW7ZEcN0tt3EvpbOMxxc/ZQU2WN/s/wP
-xph0pSfsfFsTKM4RhTWD2v4fgk+xZiKd1p0+L4hTtpwnEw0uXRVd0ki6muwV5y/P
-+5FHUeldq+pgTcgzuK8CAwEAAaMPMA0wCwYDVR0PBAQDAgLkMA0GCSqGSIb3DQEB
-BQUAA4GBAJiDAAtY0mQQeuxWdzLRzXmjvdSuL9GoyT3BF/jSnpxz5/58dba8pWen
-v3pj4P3w5DoOso0rzkZy2jEsEitlVM2mLSbQpMM+MUVQCQoiG6W9xuCFuxSrwPIS
-pAqEAuV4DNoxQKKWmhVv+J0ptMWD25Pnpxeq5sXzghfJnslJlQND
------END CERTIFICATE-----`
 )
