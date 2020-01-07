@@ -10,8 +10,9 @@ package ezhttp
 import (
 	"context"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -130,7 +131,10 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 
 	// handle application-level errors
 	if !conf.TolerateNon2xxResponse && (resp.StatusCode < 200 || resp.StatusCode > 299) {
-		return resp, &ResponseStatusError{error: errors.New(resp.Status), statusCode: resp.StatusCode}
+		defer resp.Body.Close()
+
+		// TODO: if caller wants to process error herself, we need an opt-out for this mechanism
+		return resp, errorWithResponseBodySample(resp)
 	}
 
 	if conf.OutputsJson {
@@ -147,4 +151,26 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 	}
 
 	return resp, nil
+}
+
+func errorWithResponseBodySample(resp *http.Response) error {
+	errContentSampleLength := 128
+	truncatedIndicator := ""
+
+	// .Body is documented as always non-nil
+	errContent, err := ioutil.ReadAll(io.LimitReader(resp.Body, int64(errContentSampleLength)))
+	if err != nil {
+		errContent = []byte(fmt.Sprintf("<failed reading response body: %v>", err))
+	} else if len(errContent) == errContentSampleLength {
+		truncatedIndicator = ".."
+	}
+
+	if len(errContent) == 0 {
+		errContent = []byte("<no response body>")
+	}
+
+	return &ResponseStatusError{
+		statusCode: resp.StatusCode,
+		error:      fmt.Errorf("%s; %s%s", resp.Status, errContent, truncatedIndicator),
+	}
 }
