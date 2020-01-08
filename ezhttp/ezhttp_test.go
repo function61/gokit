@@ -115,7 +115,7 @@ func TestNon200x(t *testing.T) {
 	defer ts.Close()
 
 	_, err := Get(context.TODO(), ts.URL)
-	assert.EqualString(t, err.Error(), "500 Internal Server Error")
+	assert.EqualString(t, err.Error(), "500 Internal Server Error; I failed you :(\n")
 
 	_, err = Get(context.TODO(), ts.URL, TolerateNon2xxResponse)
 	assert.Assert(t, err == nil)
