@@ -9,7 +9,6 @@ import (
 )
 
 type Ref struct {
-	idx          int
 	desc         *prometheus.Desc
 	labelValues  []string
 	latestMetric prometheus.Metric // is nil until first Observe() call
@@ -32,15 +31,14 @@ func (c *Collector) Register(name string, help string, labels prometheus.Labels)
 
 	labelKeys, labelValues := splitLabelsAndValues(labels)
 
-	idx := len(c.refs)
-
-	c.refs = append(c.refs, &Ref{
-		idx:         idx,
+	ref := &Ref{
 		desc:        prometheus.NewDesc(name, help, labelKeys, nil),
 		labelValues: labelValues,
-	})
+	}
 
-	return c.refs[idx]
+	c.refs = append(c.refs, ref)
+
+	return ref
 }
 
 func (c *Collector) Observe(ref *Ref, value float64, ts time.Time) {
