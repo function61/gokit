@@ -32,6 +32,14 @@ func Assert(t *testing.T, expr bool) {
 	}
 }
 
+func Ok(t *testing.T, err error) {
+	t.Helper()
+
+	if err != nil {
+		t.Fatalf("error: %v", err)
+	}
+}
+
 func Matches(t *testing.T, actual string, pattern string) {
 	t.Helper()
 
