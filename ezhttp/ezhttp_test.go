@@ -52,7 +52,9 @@ func TestPostJson(t *testing.T) {
 
 func TestPostArbitraryData(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(fmt.Sprintf("received Content-Type: %s\n\n", r.Header.Get("Content-Type"))))
+		if _, err := w.Write([]byte(fmt.Sprintf("received Content-Type: %s\n\n", r.Header.Get("Content-Type")))); err != nil {
+			panic(err)
+		}
 
 		if _, err := io.Copy(w, r.Body); err != nil { // pipe request to response
 			panic(err)

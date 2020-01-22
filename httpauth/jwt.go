@@ -102,7 +102,7 @@ func (j *jwtAuthenticator) getValidatedClaims(jwtString string) (*jwt.StandardCl
 
 	// cache the claims until expiration, if we have expiration and is in the future
 	if claims.ExpiresAt != 0 {
-		untilExpiration := time.Unix(claims.ExpiresAt, 0).Sub(time.Now())
+		untilExpiration := time.Until(time.Unix(claims.ExpiresAt, 0))
 
 		if untilExpiration > 0 {
 			j.authCache.Set(jwtString, claims, untilExpiration)
