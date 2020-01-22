@@ -57,7 +57,8 @@ func Install(sf serviceFile) error {
 		return errors.New("systemd service file already exists!")
 	}
 
-	if err := ioutil.WriteFile(unitfilePath(sf), []byte(serialize(sf)), 0755); err != nil {
+	// https://unix.stackexchange.com/questions/433886/what-are-the-correct-permissions-for-a-systemd-service
+	if err := ioutil.WriteFile(unitfilePath(sf), []byte(serialize(sf)), 0644); err != nil {
 		return err
 	}
 
