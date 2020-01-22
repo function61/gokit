@@ -27,9 +27,9 @@ func NewEcJwtSigner(privateKey []byte) (Signer, error) {
 }
 
 func (j *jwtSigner) Sign(userDetails UserDetails, now time.Time) string {
-	token := jwt.NewWithClaims(jwt.SigningMethodES512, jwt.MapClaims{
-		"sub": userDetails.Id,
-		"exp": now.Add(time.Hour * 24).Unix(),
+	token := jwt.NewWithClaims(jwt.SigningMethodES512, jwt.StandardClaims{
+		Subject:   userDetails.Id,
+		ExpiresAt: now.Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString(j.privKey)
