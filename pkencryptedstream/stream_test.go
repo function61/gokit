@@ -9,25 +9,25 @@ import (
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {
-	testPrivateKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey(bytes.NewBufferString(testPrivateKeyDer))
-	assert.Assert(t, err == nil)
+	testPrivateKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(testPrivateKeyDer))
+	assert.Ok(t, err)
 
-	testPublicKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPublicKey(bytes.NewBufferString(testPublicKeyDer))
-	assert.Assert(t, err == nil)
+	testPublicKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPublicKey([]byte(testPublicKeyDer))
+	assert.Ok(t, err)
 
 	ciphertextStream := &bytes.Buffer{}
 
 	stream, err := Writer(ciphertextStream, testPublicKey)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	_, err = stream.Write([]byte("this will be encrypted"))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	plaintextReader, err := Reader(ciphertextStream, testPrivateKey)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	plaintext, err := ioutil.ReadAll(plaintextReader)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, string(plaintext), "this will be encrypted")
 }
 

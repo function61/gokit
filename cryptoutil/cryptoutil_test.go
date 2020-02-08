@@ -2,7 +2,6 @@ package cryptoutil
 
 import (
 	"github.com/function61/gokit/assert"
-	"strings"
 	"testing"
 )
 
@@ -14,22 +13,22 @@ aGVsbG8=
 }
 
 func TestParsePemPkcs1EncodedRsaPrivateKey(t *testing.T) {
-	privKey, err := ParsePemPkcs1EncodedRsaPrivateKey(strings.NewReader(testValidRsaPrivateKey))
+	privKey, err := ParsePemPkcs1EncodedRsaPrivateKey([]byte(testValidRsaPrivateKey))
 	assert.Ok(t, err)
 	assert.Assert(t, privKey.E == 65537)
 }
 
 func TestParsePemPkcs1EncodedRsaPublicKey(t *testing.T) {
-	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader(testValidRsaPublicKey))
+	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey([]byte(testValidRsaPublicKey))
 	assert.Ok(t, err)
 	assert.Assert(t, pubKey.E == 65537)
 
 	// invalid PEM
-	_, err = ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader("-----BEGIN RSA PUBLIC KEY-----\nMIIB@\n-----END RSA PUBLIC KEY-----"))
+	_, err = ParsePemPkcs1EncodedRsaPublicKey([]byte("-----BEGIN RSA PUBLIC KEY-----\nMIIB@\n-----END RSA PUBLIC KEY-----"))
 	assert.EqualString(t, err.Error(), "PEM decode failed")
 
 	// valid PEM, invalid asn1
-	_, err = ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader("-----BEGIN RSA PUBLIC KEY-----\nMIIB\n-----END RSA PUBLIC KEY-----"))
+	_, err = ParsePemPkcs1EncodedRsaPublicKey([]byte("-----BEGIN RSA PUBLIC KEY-----\nMIIB\n-----END RSA PUBLIC KEY-----"))
 	assert.EqualString(t, err.Error(), "asn1: syntax error: truncated tag or length")
 }
 
@@ -48,7 +47,7 @@ func TestParsePemEncodedPrivateKey(t *testing.T) {
 }
 
 func TestSha256FingerprintForPublicKey(t *testing.T) {
-	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader(testValidRsaPublicKey))
+	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey([]byte(testValidRsaPublicKey))
 	assert.Ok(t, err)
 
 	fingerprint, err := Sha256FingerprintForPublicKey(pubKey)

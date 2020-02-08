@@ -2,12 +2,11 @@ package cryptoutil
 
 import (
 	"github.com/function61/gokit/assert"
-	"strings"
 	"testing"
 )
 
 func TestParsePemX509Certificate(t *testing.T) {
-	cert, err := ParsePemX509Certificate(strings.NewReader(testValidCertificate))
+	cert, err := ParsePemX509Certificate([]byte(testValidCertificate))
 	assert.Assert(t, err == nil)
 
 	assert.EqualString(t, cert.Subject.CommonName, "godoc.org")

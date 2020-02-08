@@ -10,8 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/ssh"
-	"io"
-	"io/ioutil"
 )
 
 const (
@@ -23,8 +21,8 @@ const (
 )
 
 // PEM(PKCS1(rsa.PrivateKey))
-func ParsePemPkcs1EncodedRsaPrivateKey(pemReader io.Reader) (*rsa.PrivateKey, error) {
-	privKeyBytes, err := ParsePemBytes(pemReader, PemTypeRsaPrivateKey)
+func ParsePemPkcs1EncodedRsaPrivateKey(pemBytes []byte) (*rsa.PrivateKey, error) {
+	privKeyBytes, err := ParsePemBytes(pemBytes, PemTypeRsaPrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -38,8 +36,8 @@ func ParsePemPkcs1EncodedRsaPrivateKey(pemReader io.Reader) (*rsa.PrivateKey, er
 }
 
 // PEM(PKCS1(rsa.PublicKey))
-func ParsePemPkcs1EncodedRsaPublicKey(pemReader io.Reader) (*rsa.PublicKey, error) {
-	pubKeyBytes, err := ParsePemBytes(pemReader, PemTypeRsaPublicKey)
+func ParsePemPkcs1EncodedRsaPublicKey(pemBytes []byte) (*rsa.PublicKey, error) {
+	pubKeyBytes, err := ParsePemBytes(pemBytes, PemTypeRsaPublicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +59,7 @@ func MarshalPemBytes(content []byte, pemType string) []byte {
 	)
 }
 
-func ParsePemBytes(pemReader io.Reader, expectedType string) ([]byte, error) {
-	pemBytes, err := ioutil.ReadAll(pemReader)
-	if err != nil {
-		return nil, err
-	}
-
+func ParsePemBytes(pemBytes []byte, expectedType string) ([]byte, error) {
 	pemParsed, _ := pem.Decode(pemBytes)
 	if pemParsed == nil {
 		return nil, errors.New("PEM decode failed")

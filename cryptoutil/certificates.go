@@ -2,12 +2,11 @@ package cryptoutil
 
 import (
 	"crypto/x509"
-	"io"
 )
 
 // PEM(cert)
-func ParsePemX509Certificate(pemReader io.Reader) (*x509.Certificate, error) {
-	certBytes, err := ParsePemBytes(pemReader, PemTypeCertificate)
+func ParsePemX509Certificate(pemBytes []byte) (*x509.Certificate, error) {
+	certBytes, err := ParsePemBytes(pemBytes, PemTypeCertificate)
 	if err != nil {
 		return nil, err
 	}
