@@ -15,13 +15,13 @@ aGVsbG8=
 
 func TestParsePemPkcs1EncodedRsaPrivateKey(t *testing.T) {
 	privKey, err := ParsePemPkcs1EncodedRsaPrivateKey(strings.NewReader(testValidRsaPrivateKey))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, privKey.E == 65537)
 }
 
 func TestParsePemPkcs1EncodedRsaPublicKey(t *testing.T) {
 	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader(testValidRsaPublicKey))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, pubKey.E == 65537)
 
 	// invalid PEM
@@ -35,16 +35,26 @@ func TestParsePemPkcs1EncodedRsaPublicKey(t *testing.T) {
 
 func TestParsePemEncodedPrivateKey(t *testing.T) {
 	rsaKey, err := ParsePemEncodedPrivateKey([]byte(testValidRsaPrivateKey))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	rsaPublicKey, _ := PublicKeyFromPrivateKey(rsaKey)
 	rsaPublicKeyDescr, _ := PublicKeyHumanReadableDescription(rsaPublicKey)
 	assert.EqualString(t, rsaPublicKeyDescr, "RSA-1024")
 
 	ecdsaKey, err := ParsePemEncodedPrivateKey([]byte(testValidEcdsaPrivateKey))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	ecdsaPublicKey, _ := PublicKeyFromPrivateKey(ecdsaKey)
 	ecdsaPublicKeyDescr, _ := PublicKeyHumanReadableDescription(ecdsaPublicKey)
 	assert.EqualString(t, ecdsaPublicKeyDescr, "ECDSA")
+}
+
+func TestSha256FingerprintForPublicKey(t *testing.T) {
+	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey(strings.NewReader(testValidRsaPublicKey))
+	assert.Ok(t, err)
+
+	fingerprint, err := Sha256FingerprintForPublicKey(pubKey)
+	assert.Ok(t, err)
+
+	assert.EqualString(t, fingerprint, "SHA256:mkKvVUiFg0oZd1IRltdabZPDD4oPUJcyIFnxeqi1sl8")
 }
 
 const (

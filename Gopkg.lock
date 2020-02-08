@@ -168,9 +168,18 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  digest = "1:83f852cf4982dfaf44ed24eadd0a3de2c9bd9a6972feb140eda7aaca908a04d0"
   name = "golang.org/x/crypto"
-  packages = ["pbkdf2"]
+  packages = [
+    "curve25519",
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "internal/chacha20",
+    "internal/subtle",
+    "pbkdf2",
+    "poly1305",
+    "ssh",
+  ]
   pruneopts = "UT"
   revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
 
@@ -197,6 +206,7 @@
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/common/expfmt",
     "golang.org/x/crypto/pbkdf2",
+    "golang.org/x/crypto/ssh",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

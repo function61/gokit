@@ -9,6 +9,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"io/ioutil"
 )
@@ -117,4 +118,14 @@ func PublicKeyHumanReadableDescription(pubkey crypto.PublicKey) (string, error) 
 	default:
 		return "", errors.New("unknown public key algorithm")
 	}
+}
+
+func Sha256FingerprintForPublicKey(publicKey crypto.PublicKey) (string, error) {
+	// need to convert to ssh.PublicKey to be able to use the fingerprint util
+	sshPubKey, err := ssh.NewPublicKey(publicKey)
+	if err != nil {
+		return "", err
+	}
+
+	return ssh.FingerprintSHA256(sshPubKey), nil
 }
