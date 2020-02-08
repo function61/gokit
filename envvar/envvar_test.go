@@ -7,27 +7,27 @@ import (
 )
 
 func TestEnvThatDoesNotExist(t *testing.T) {
-	_, err := Get("DOES_NOT_EXIST")
+	_, err := Required("DOES_NOT_EXIST")
 
 	assert.EqualString(t, err.Error(), "ENV not defined: DOES_NOT_EXIST")
 }
 
 func TestEnvThatExists(t *testing.T) {
-	val, err := Get("PATH")
+	val, err := Required("PATH")
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, len(val) > 1)
 }
 
 func TestBase64Encoded(t *testing.T) {
 	os.Setenv("FOO", "aGkgbW9tIQ==")
 
-	_, err := GetFromBase64Encoded("FOO2")
+	_, err := RequiredFromBase64Encoded("FOO2")
 
 	assert.EqualString(t, err.Error(), "ENV not defined: FOO2")
 
-	fooVal, err := GetFromBase64Encoded("FOO")
+	fooVal, err := RequiredFromBase64Encoded("FOO")
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, string(fooVal), "hi mom!")
 }

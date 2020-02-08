@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func Get(key string) (string, error) {
+func Required(key string) (string, error) {
 	value := os.Getenv(key)
 	if value == "" {
 		return "", errors.New("ENV not defined: " + key)
@@ -16,8 +16,8 @@ func Get(key string) (string, error) {
 	return value, nil
 }
 
-func GetFromBase64Encoded(key string) ([]byte, error) {
-	dataBase64, err := Get(key)
+func RequiredFromBase64Encoded(key string) ([]byte, error) {
+	dataBase64, err := Required(key)
 	if err != nil {
 		return nil, err
 	}
