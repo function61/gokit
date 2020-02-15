@@ -10,12 +10,7 @@ import (
 )
 
 /*
-    +--------+
-    |        |
-    | Source |
-    |        |
-    +---+----+
-        |
+        | source
         |               +------+
       +-v---+           |      |
       |     +-----------> Hash |
@@ -27,19 +22,16 @@ import (
          |    +------+ HashVerify |
 1. until |    |      |            |
  tee EOF |    |      +------------+
-         |    | 2. after tee
-      +--v----v-----+ EOF
+         |    |
+         |    | 2. after tee EOF
+      +--v----v-----+
       |             |
       | MultiReader |
       |             |
       +------+------+
              |
-             |
-        +----v-----+
-        |          |
-        | Consumer |
-        |          |
-        +----------+
+             | consumer of hashverifyreader
+             v
 */
 
 // creates a two-part reader whose first part is connected to source, and the second part
