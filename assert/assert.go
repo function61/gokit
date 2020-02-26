@@ -2,6 +2,7 @@
 package assert
 
 import (
+	"encoding/json"
 	"regexp"
 	"testing"
 )
@@ -22,6 +23,17 @@ func EqualInt(t *testing.T, actual int, expected int) {
 	if actual != expected {
 		t.Fatalf("exp=%v; got=%v", expected, actual)
 	}
+}
+
+func EqualJson(t *testing.T, obj interface{}, expected string) {
+	t.Helper()
+
+	jsonBytes, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+
+	EqualString(t, string(jsonBytes), expected)
 }
 
 func Assert(t *testing.T, expr bool) {
