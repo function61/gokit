@@ -1,5 +1,8 @@
 // Supports starting many cancellable goroutines whose exit and their error codes we can wait on.
 //
+// Works similar to golang.org/x/sync/errgroup but provides richer logging (tasks are
+// named) and errors
+//
 // - The tasks are expected to run forever, until context cancellation (e.g. task stopping
 //   before cancellation even with nil error is considered an error).
 // - If any of the tasks fail, sibling tasks are canceled as well.
