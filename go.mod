@@ -3,6 +3,7 @@ module github.com/function61/gokit
 go 1.13
 
 require (
+	github.com/apex/gateway v1.1.1
 	github.com/aws/aws-lambda-go v1.13.2
 	github.com/aws/aws-sdk-go v1.16.15
 	github.com/beorn7/perks v1.0.1
