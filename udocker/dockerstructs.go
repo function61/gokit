@@ -19,7 +19,17 @@ type ContainerListItem struct {
 
 type Container struct {
 	Id     string          `json:"Id"`
+	Name   string          `json:"Name"`
+	Image  string          `json:"Image"`
 	Config ContainerConfig `json:"Config"`
+	Mounts []Mount         `json:"Mounts"`
+}
+
+type Mount struct {
+	Type   string `json:"Type"`
+	Name   string `json:"Name"`
+	Source string `json:"Source"`
+	Driver string `json:"Driver"`
 }
 
 type ContainerConfig struct {
