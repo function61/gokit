@@ -10,3 +10,4 @@ Deprecations
 - `stopper/` - just use the stdlib `context` for cancellation
   * if you need to wait for single "stopped" just wait for fn to return
   * you could use `taskrunner/` for multiple return waits
+- `tcpkeepalive` - Go's network clients and servers now natively implement keepalives
