@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+func Error(w http.ResponseWriter, statusCode int) {
+	http.Error(w, http.StatusText(statusCode), statusCode)
+}
+
 func RemoveGracefulServerClosedError(httpServerError error) error {
 	if httpServerError == http.ErrServerClosed {
 		return nil
