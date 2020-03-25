@@ -42,13 +42,13 @@ func New(ctx context.Context, logger *log.Logger) *Runner {
 
 // not safe to be called after you call Wait() or Done()
 // not safe for concurrent use
-func (t *Runner) Start(taskName string, fn func(ctx context.Context, taskName string) error) {
+func (t *Runner) Start(taskName string, fn func(ctx context.Context) error) {
 	t.numTasks++
 
 	t.logl.Debug.Printf("starting %s", taskName)
 
 	go func() {
-		err := fn(t.ctx, taskName)
+		err := fn(t.ctx)
 
 		t.taskExited <- taskExit{taskName, err}
 	}()

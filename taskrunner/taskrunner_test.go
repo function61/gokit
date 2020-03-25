@@ -17,19 +17,19 @@ func TestWaitThreeTasks(t *testing.T) {
 
 	// the below tasks don't stop immediately
 
-	runner.Start("stopping takes 20ms", func(taskCtx context.Context, _ string) error {
+	runner.Start("stopping takes 20ms", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		time.Sleep(20 * time.Millisecond)
 		return nil
 	})
 
-	runner.Start("stopping takes 40ms", func(taskCtx context.Context, _ string) error {
+	runner.Start("stopping takes 40ms", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		time.Sleep(40 * time.Millisecond)
 		return nil
 	})
 
-	runner.Start("stopping takes 60ms", func(taskCtx context.Context, _ string) error {
+	runner.Start("stopping takes 60ms", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		time.Sleep(60 * time.Millisecond)
 		return nil
@@ -51,7 +51,7 @@ func TestCancellationStopsTask(t *testing.T) {
 
 	taskStarted := time.Now()
 
-	runner.Start("hangForever", func(taskCtx context.Context, _ string) error {
+	runner.Start("hangForever", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		return nil
 	})
@@ -70,7 +70,7 @@ func TestStoppingFails(t *testing.T) {
 
 	runner := New(ctx, nil)
 
-	runner.Start("hangForever", func(taskCtx context.Context, _ string) error {
+	runner.Start("hangForever", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		return errors.New("i failed stopping :(")
 	})
@@ -85,13 +85,13 @@ func TestTaskErrorShouldStopSiblings(t *testing.T) {
 
 	correctlyWorkingSiblingAlsoStopped := false
 
-	runner.Start("hangForever", func(taskCtx context.Context, _ string) error {
+	runner.Start("hangForever", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
 		correctlyWorkingSiblingAlsoStopped = true
 		return nil
 	})
 
-	runner.Start("fails", func(_ context.Context, _ string) error {
+	runner.Start("fails", func(_ context.Context) error {
 		return errors.New("i fail immediately")
 	})
 
