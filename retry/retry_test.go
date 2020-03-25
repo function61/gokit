@@ -3,10 +3,11 @@ package retry
 import (
 	"context"
 	"errors"
-	"github.com/function61/gokit/assert"
 	"regexp"
 	"testing"
 	"time"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestSucceedsRightAway(t *testing.T) {

@@ -1,8 +1,9 @@
 package cryptoutil
 
 import (
-	"github.com/function61/gokit/assert"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestParsePemX509Certificate(t *testing.T) {

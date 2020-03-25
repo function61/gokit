@@ -3,11 +3,12 @@ package ossignal
 
 import (
 	"context"
-	"github.com/function61/gokit/logex"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/function61/gokit/logex"
 )
 
 // "The SIGINT signal is sent to a process by its controlling terminal when a user wishes to interrupt the process"

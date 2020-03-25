@@ -2,9 +2,10 @@ package bidipipe
 
 import (
 	"errors"
-	"github.com/function61/gokit/assert"
 	"io"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestPipe(t *testing.T) {

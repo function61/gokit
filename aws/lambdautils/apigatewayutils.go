@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/apex/gateway"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"net/http"
 )
 
 // higher level handler adapter. ServeApiGatewayProxyRequestUsingHttpHandler() is lower if

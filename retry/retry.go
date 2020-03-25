@@ -4,8 +4,9 @@ package retry
 import (
 	"context"
 	"fmt"
-	"github.com/function61/gokit/backoff"
 	"time"
+
+	"github.com/function61/gokit/backoff"
 )
 
 func Retry(

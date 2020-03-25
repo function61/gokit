@@ -2,11 +2,12 @@ package httpauth
 
 import (
 	"fmt"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/function61/gokit/assert"
 	"net/http"
 	"testing"
 	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/function61/gokit/assert"
 )
 
 func TestSignAndAuthenticate(t *testing.T) {

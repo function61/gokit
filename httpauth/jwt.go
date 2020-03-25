@@ -4,11 +4,12 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"net/http"
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/function61/gokit/csrf"
 	"github.com/patrickmn/go-cache"
-	"net/http"
-	"time"
 )
 
 type jwtSigner struct {

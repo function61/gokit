@@ -1,8 +1,9 @@
 package cryptorandombytes
 
 import (
-	"github.com/function61/gokit/assert"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestHex(t *testing.T) {

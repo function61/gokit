@@ -2,10 +2,11 @@ package pkencryptedstream
 
 import (
 	"bytes"
-	"github.com/function61/gokit/assert"
-	"github.com/function61/gokit/cryptoutil"
 	"io/ioutil"
 	"testing"
+
+	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/cryptoutil"
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {

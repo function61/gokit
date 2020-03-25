@@ -5,9 +5,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/hcl"
 	"io"
 	"io/ioutil"
+
+	"github.com/hashicorp/hcl"
 )
 
 func Convert(hclContent io.Reader) (io.Reader, error) {

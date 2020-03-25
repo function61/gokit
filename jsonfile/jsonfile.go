@@ -4,9 +4,10 @@ package jsonfile
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/function61/gokit/atomicfilewrite"
 	"io"
 	"os"
+
+	"github.com/function61/gokit/atomicfilewrite"
 )
 
 func Read(path string, data interface{}, disallowUnknownFields bool) error {

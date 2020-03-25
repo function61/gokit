@@ -1,9 +1,10 @@
 package throttle
 
 import (
-	"github.com/function61/gokit/assert"
 	"testing"
 	"time"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestBurstThrottler(t *testing.T) {

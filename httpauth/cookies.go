@@ -1,8 +1,9 @@
 package httpauth
 
 import (
-	"github.com/function61/gokit/csrf"
 	"net/http"
+
+	"github.com/function61/gokit/csrf"
 )
 
 const (

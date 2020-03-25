@@ -3,9 +3,10 @@ package taskrunner
 import (
 	"context"
 	"errors"
-	"github.com/function61/gokit/assert"
 	"testing"
 	"time"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestWaitThreeTasks(t *testing.T) {

@@ -2,12 +2,13 @@ package promconstmetrics
 
 import (
 	"bytes"
-	"github.com/function61/gokit/assert"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/expfmt"
 	"io"
 	"testing"
 	"time"
+
+	"github.com/function61/gokit/assert"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/expfmt"
 )
 
 func TestConstMetrics(t *testing.T) {

@@ -5,10 +5,11 @@ package udocker
 import (
 	"context"
 	"crypto/tls"
-	"github.com/function61/gokit/envvar"
 	"net"
 	"net/http"
 	"net/url"
+
+	"github.com/function61/gokit/envvar"
 )
 
 type certificateLoader func() (*tls.Certificate, error)

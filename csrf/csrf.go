@@ -15,8 +15,9 @@ package csrf
 
 import (
 	"errors"
-	"github.com/function61/gokit/cryptorandombytes"
 	"net/http"
+
+	"github.com/function61/gokit/cryptorandombytes"
 )
 
 const (

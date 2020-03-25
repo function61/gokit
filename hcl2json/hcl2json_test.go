@@ -2,9 +2,10 @@ package hcl2json
 
 import (
 	"bytes"
-	"github.com/function61/gokit/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestConvert(t *testing.T) {

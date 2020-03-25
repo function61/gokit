@@ -11,9 +11,10 @@ package taskrunner
 import (
 	"context"
 	"fmt"
-	"github.com/function61/gokit/logex"
 	"log"
 	"sync"
+
+	"github.com/function61/gokit/logex"
 )
 
 type Runner struct {

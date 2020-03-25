@@ -2,10 +2,11 @@
 package promconstmetrics
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Ref struct {

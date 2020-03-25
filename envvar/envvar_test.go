@@ -1,9 +1,10 @@
 package envvar
 
 import (
-	"github.com/function61/gokit/assert"
 	"os"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestEnvThatDoesNotExist(t *testing.T) {

@@ -1,8 +1,9 @@
 package mac
 
 import (
-	"github.com/function61/gokit/assert"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 const (

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
-	"github.com/function61/gokit/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestReaderGoodHash(t *testing.T) {

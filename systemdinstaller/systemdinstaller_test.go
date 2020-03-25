@@ -1,8 +1,9 @@
 package systemdinstaller
 
 import (
-	"github.com/function61/gokit/assert"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestBasic(t *testing.T) {
