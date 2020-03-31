@@ -14,6 +14,7 @@ type serviceFile struct {
 	args                 []string
 	description          string
 	docs                 []string
+	envs                 []string
 	requireNetworkOnline bool
 	selfAbsolutePath     string
 	err                  error // if error reading selfAbsolutePath
@@ -24,9 +25,12 @@ type optFn func(*serviceFile)
 func SystemdServiceFile(servicename string, description string, opts ...optFn) serviceFile {
 	selfAbsolutePath, err := filepath.Abs(os.Args[0])
 
+	// why LOGGER_SUPPRESS_TIMESTAMPS? journalctl adds its own timestamps to each line,
+	// so this is redundant data. respected by github.com/function61/gokit/logex
 	sf := serviceFile{
 		servicename:      servicename,
 		description:      description,
+		envs:             []string{"LOGGER_SUPPRESS_TIMESTAMPS=1"},
 		selfAbsolutePath: selfAbsolutePath,
 		err:              err,
 	}
@@ -94,9 +98,9 @@ func serialize(sf serviceFile) string {
 	l("WorkingDirectory=" + filepath.Dir(sf.selfAbsolutePath))
 	l("Restart=always")
 	l("RestartSec=10s")
-	l("Environment=LOGGER_SUPPRESS_TIMESTAMPS=1")
-	// why LOGGER_SUPPRESS_TIMESTAMPS? journalctl adds its own timestamps to each line,
-	// so this is redundant data
+	for _, env := range sf.envs {
+		l("Environment=" + env)
+	}
 
 	return strings.Join(lines, "\n") + "\n"
 }
@@ -115,6 +119,12 @@ func Args(args ...string) optFn {
 func Docs(docs ...string) optFn {
 	return func(sf *serviceFile) {
 		sf.docs = docs
+	}
+}
+
+func Env(key string, value string) optFn {
+	return func(sf *serviceFile) {
+		sf.envs = append(sf.envs, key+"="+value)
 	}
 }
 

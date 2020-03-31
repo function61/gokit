@@ -72,6 +72,26 @@ Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 `)
 }
 
+func TestEnv(t *testing.T) {
+	sf := SystemdServiceFile("testservice", "My cool service", Env("HOME", "/root"))
+	sf = fixForTest(sf)
+
+	assert.EqualString(t, serialize(sf), `[Unit]
+Description=My cool service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/dummy/testservice_amd64
+WorkingDirectory=/home/dummy
+Restart=always
+RestartSec=10s
+Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
+Environment=HOME=/root
+`)
+}
+
 func fixForTest(sf serviceFile) serviceFile {
 	sf.selfAbsolutePath = "/home/dummy/testservice_amd64" // need to monkey patch this to get deterministic output
 	return sf
