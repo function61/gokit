@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-lambda-go v1.13.2
 	github.com/aws/aws-sdk-go v1.16.15
 	github.com/beorn7/perks v1.0.1
+	github.com/cubewise-code/go-mime v0.0.0-20190322015324-9c5316ef3e8e
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/protobuf v1.3.2
 	github.com/hashicorp/hcl v1.0.0
