@@ -11,6 +11,10 @@ import (
 	"github.com/prometheus/common/expfmt"
 )
 
+var (
+	t0 = time.Date(2020, 1, 22, 12, 0, 0, 0, time.UTC)
+)
+
 func TestConstMetrics(t *testing.T) {
 	c := NewCollector()
 
@@ -21,8 +25,6 @@ func TestConstMetrics(t *testing.T) {
 		"repo": "varasto",
 		"org":  "function61",
 	})
-
-	t0 := time.Date(2020, 1, 22, 12, 0, 0, 0, time.UTC)
 
 	c.Observe(stars, 3, t0)
 
@@ -42,6 +44,29 @@ stars{org="function61",repo="varasto"} 3 1579694400000
 	assert.EqualString(t, expositionOutput.String(), `# HELP stars Stars in GitHub
 # TYPE stars gauge
 stars{org="function61",repo="varasto"} 11 1579694402000
+`)
+}
+
+func TestVariableLabels(t *testing.T) {
+	c := NewCollector()
+
+	allCollectors := prometheus.NewRegistry()
+	assert.Ok(t, allCollectors.Register(c))
+
+	stars := c.Register("stars", "Stars in GitHub", prometheus.Labels{
+		"org": "function61",
+	}, "repo")
+
+	c.Observe(stars, 11, t0, "varasto")
+	c.Observe(stars, 5, t0, "gokit")
+
+	expositionOutput := &bytes.Buffer{}
+
+	assert.Ok(t, gatherToTextExport(allCollectors, expositionOutput))
+	assert.EqualString(t, expositionOutput.String(), `# HELP stars Stars in GitHub
+# TYPE stars gauge
+stars{org="function61",repo="gokit"} 5 1579694400000
+stars{org="function61",repo="varasto"} 11 1579694400000
 `)
 }
 
