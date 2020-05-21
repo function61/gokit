@@ -31,7 +31,8 @@ func TestSignAndAuthenticate(t *testing.T) {
 		userDetails, err := authenticator.AuthenticateWithCsrfProtection(req)
 
 		if err == nil {
-			return fmt.Sprintf("userid<%s>", userDetails.Id)
+			// cannot print whole JWT token because it contains random data for crypto
+			return fmt.Sprintf("userid<%s> tok<%s>", userDetails.Id, userDetails.AuthTokenJwt[0:8]+"..")
 		}
 
 		return err.Error()
@@ -58,7 +59,7 @@ func TestSignAndAuthenticate(t *testing.T) {
 
 	assert.EqualString(t,
 		authenticateReq(makeReq(bothCookies, onlyCsrfCookie[0].Value)),
-		"userid<123>")
+		"userid<123> tok<eyJhbGci..>")
 
 	assert.EqualString(t,
 		authenticateReq(makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)),
@@ -69,7 +70,7 @@ func TestSignAndAuthenticate(t *testing.T) {
 	reqWithBearerToken := makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)
 	reqWithBearerToken.Header.Set("Authorization", "Bearer "+onlyLoginCookie[0].Value)
 
-	assert.EqualString(t, authenticateReq(reqWithBearerToken), "userid<123>")
+	assert.EqualString(t, authenticateReq(reqWithBearerToken), "userid<123> tok<eyJhbGci..>")
 }
 
 func TestSignAndAuthenticateMismatchingPublicKey(t *testing.T) {

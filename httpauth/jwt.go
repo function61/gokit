@@ -94,9 +94,7 @@ func (j *jwtAuthenticator) AuthenticateJwtString(jwtString string) (*UserDetails
 		return nil, fmt.Errorf("JWT authentication: %w", err)
 	}
 
-	return &UserDetails{
-		Id: claims.Subject,
-	}, nil
+	return NewUserDetails(claims.Subject, jwtString), nil
 }
 
 func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*UserDetails, error) {

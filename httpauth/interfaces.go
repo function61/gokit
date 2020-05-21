@@ -10,11 +10,12 @@ type RequestContext struct {
 }
 
 type UserDetails struct {
-	Id string
+	Id           string
+	AuthTokenJwt string // the JWT token that was used for auth
 }
 
-func NewUserDetails(id string) UserDetails {
-	return UserDetails{id}
+func NewUserDetails(id string, authTokenJwt string) *UserDetails {
+	return &UserDetails{id, authTokenJwt}
 }
 
 type HttpRequestAuthenticator interface {
