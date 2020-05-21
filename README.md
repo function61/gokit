@@ -7,6 +7,4 @@ Frequently needed, stupid simple, packages in Go.
 Deprecations
 ------------
 
-- `stopper/` - just use the stdlib `context` for cancellation
-  * if you need to wait for single "stopped" just wait for fn to return
-  * you could use `taskrunner/` for multiple return waits
+- `csrf/` - just use SameSite cookies
