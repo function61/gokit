@@ -14,6 +14,8 @@ import (
 )
 
 const (
+	PemTypePrivateKey    = "PRIVATE KEY" // PKCS8? type of key parametrized
+	PemTypePublicKey     = "PUBLIC KEY"  // PKCS8? type of key parametrized
 	PemTypeRsaPrivateKey = "RSA PRIVATE KEY"
 	PemTypeRsaPublicKey  = "RSA PUBLIC KEY"
 	PemTypeEcPrivateKey  = "EC PRIVATE KEY"
