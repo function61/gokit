@@ -10,6 +10,11 @@ func Error(w http.ResponseWriter, statusCode int) {
 	http.Error(w, http.StatusText(statusCode), statusCode)
 }
 
+func NoCacheHeaders(w http.ResponseWriter) {
+	// https://stackoverflow.com/a/2068407
+	w.Header().Set("Cache-Control", "no-store, must-revalidate")
+}
+
 func RemoveGracefulServerClosedError(httpServerError error) error {
 	if httpServerError == http.ErrServerClosed {
 		return nil
