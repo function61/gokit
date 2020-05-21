@@ -83,8 +83,8 @@ func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Resp
 	return do(ctx, http.MethodDelete, url, confPieces...)
 }
 
-// returns ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
-// error is not ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
+// returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
 func do(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
 	conf := &Config{
 		Client: http.DefaultClient,
