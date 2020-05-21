@@ -2,9 +2,9 @@ package httpauth
 
 import (
 	"crypto/ecdsa"
-	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -61,24 +61,50 @@ func NewEcJwtAuthenticator(validatorPublicKey []byte) (HttpRequestAuthenticator,
 	}, nil
 }
 
-func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*UserDetails, error) {
-	authCookie, err := r.Cookie(loginCookieName)
-	if err != nil {
-		return nil, errors.New("auth: cookie " + loginCookieName + " missing")
+func (j *jwtAuthenticator) Authenticate(r *http.Request) (*UserDetails, error) {
+	// grab JWT either from:
+	// 1) bearer token OR
+	// 2) cookie
+	jwtString := func() string {
+		// first check if we have an authorization header
+		authorizationHeader := r.Header.Get("Authorization")
+
+		if strings.HasPrefix(authorizationHeader, "Bearer ") {
+			return authorizationHeader[len("Bearer "):]
+		}
+
+		authCookie, err := r.Cookie(loginCookieName)
+		if err != nil {
+			return ""
+		}
+
+		return authCookie.Value
+	}()
+
+	if jwtString == "" {
+		return nil, fmt.Errorf("auth: either specify '%s' cookie or 'Authorization' header", loginCookieName)
 	}
 
-	claims, err := j.getValidatedClaims(authCookie.Value)
-	if err != nil {
-		return nil, err
-	}
+	return j.AuthenticateJwtString(jwtString)
+}
 
-	if err := csrf.Validate(r); err != nil {
-		return nil, err
+func (j *jwtAuthenticator) AuthenticateJwtString(jwtString string) (*UserDetails, error) {
+	claims, err := j.getValidatedClaims(jwtString)
+	if err != nil {
+		return nil, fmt.Errorf("JWT authentication: %w", err)
 	}
 
 	return &UserDetails{
 		Id: claims.Subject,
 	}, nil
+}
+
+func (j *jwtAuthenticator) AuthenticateWithCsrfProtection(r *http.Request) (*UserDetails, error) {
+	if err := csrf.Validate(r); err != nil {
+		return nil, err
+	}
+
+	return j.Authenticate(r)
 }
 
 func (j *jwtAuthenticator) getValidatedClaims(jwtString string) (*jwt.StandardClaims, error) {

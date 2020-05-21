@@ -13,7 +13,14 @@ type UserDetails struct {
 	Id string
 }
 
+func NewUserDetails(id string) UserDetails {
+	return UserDetails{id}
+}
+
 type HttpRequestAuthenticator interface {
+	// authenticates a Request
+	Authenticate(req *http.Request) (*UserDetails, error)
+	AuthenticateJwtString(jwtString string) (*UserDetails, error)
 	// authenticates a Request that has cookies returned by ToCookiesWithCsrfProtection()
 	AuthenticateWithCsrfProtection(req *http.Request) (*UserDetails, error)
 }

@@ -18,7 +18,7 @@ func TestSignAndAuthenticate(t *testing.T) {
 	bothCookies := ToCookiesWithCsrfProtection(token)
 	assert.Assert(t, len(bothCookies) == 2)
 
-	assert.EqualString(t, bothCookies[0].Name, "login")
+	assert.EqualString(t, bothCookies[0].Name, "auth")
 	assert.EqualString(t, bothCookies[0].Value, token)
 	assert.Assert(t, bothCookies[0].HttpOnly)
 	assert.EqualString(t, bothCookies[1].Name, "csrf_token")
@@ -54,11 +54,22 @@ func TestSignAndAuthenticate(t *testing.T) {
 
 	assert.EqualString(t,
 		authenticateReq(makeReq(onlyCsrfCookie, "just something here")),
-		"auth: cookie login missing")
+		"csrf: cookie does not match HTTP header")
 
 	assert.EqualString(t,
-		authenticateReq(makeReq(bothCookies, bothCookies[1].Value)),
+		authenticateReq(makeReq(bothCookies, onlyCsrfCookie[0].Value)),
 		"userid<123>")
+
+	assert.EqualString(t,
+		authenticateReq(makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)),
+		"auth: either specify 'auth' cookie or 'Authorization' header")
+
+	// authenticate via header instead of cookie
+
+	reqWithBearerToken := makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)
+	reqWithBearerToken.Header.Set("Authorization", "Bearer "+onlyLoginCookie[0].Value)
+
+	assert.EqualString(t, authenticateReq(reqWithBearerToken), "userid<123>")
 }
 
 func TestSignAndAuthenticateMismatchingPublicKey(t *testing.T) {
@@ -72,7 +83,7 @@ func TestSignAndAuthenticateMismatchingPublicKey(t *testing.T) {
 
 	_, err := authenticator.AuthenticateWithCsrfProtection(makeReq(bothCookies, bothCookies[1].Value))
 
-	assert.EqualString(t, err.Error(), "crypto/ecdsa: verification error")
+	assert.EqualString(t, err.Error(), "JWT authentication: crypto/ecdsa: verification error")
 }
 
 func TestTokenExpiry(t *testing.T) {
@@ -92,7 +103,7 @@ func TestTokenExpiry(t *testing.T) {
 			assert.Assert(t, err == nil)
 			assert.EqualString(t, userDetails.Id, "123")
 		} else {
-			assert.EqualString(t, err.Error(), "token is expired by 1h0m0s")
+			assert.EqualString(t, err.Error(), "JWT authentication: token is expired by 1h0m0s")
 		}
 	}
 
@@ -127,10 +138,10 @@ func timewarp(t time.Time, f func()) {
 	jwt.TimeFunc = time.Now
 }
 
-func makeReq(cookies []*http.Cookie, tokenForHeader string) *http.Request {
+func makeReq(cookies []*http.Cookie, csrfToken string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, "http://dummy/", nil)
-	if tokenForHeader != "" {
-		req.Header.Set("x-csrf-token", tokenForHeader)
+	if csrfToken != "" {
+		req.Header.Set("x-csrf-token", csrfToken)
 	}
 
 	for _, cookie := range cookies {
