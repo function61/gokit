@@ -17,10 +17,6 @@ import (
 	"time"
 )
 
-const (
-	jsonContentType = "application/json"
-)
-
 var (
 	DefaultTimeout10s = 10 * time.Second
 )

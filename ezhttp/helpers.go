@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+const (
+	jsonContentType = "application/json"
+)
+
 var InsecureTlsClient = &http.Client{
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
