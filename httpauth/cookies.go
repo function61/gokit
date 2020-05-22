@@ -15,9 +15,9 @@ func ToCookiesWithCsrfProtection(tokenString string) []*http.Cookie {
 		Name:     loginCookieName,
 		Value:    tokenString,
 		Path:     "/",
-		HttpOnly: true,                    // = not visible to JavaScript, to protect from XSS
-		SameSite: http.SameSiteStrictMode, // CSRF protection
-		Secure:   true,                    // only submit over https
+		HttpOnly: true,                 // = not visible to JavaScript, to protect from XSS
+		SameSite: http.SameSiteLaxMode, // CSRF protection (no strict b/c cookies+redirects don't work)
+		Secure:   true,                 // only submit over https
 	}
 
 	return []*http.Cookie{
@@ -27,13 +27,14 @@ func ToCookiesWithCsrfProtection(tokenString string) []*http.Cookie {
 }
 
 func ToCookie(tokenString string) *http.Cookie {
+	// https://stackoverflow.com/questions/42216700/how-can-i-redirect-after-oauth2-with-samesite-strict-and-still-get-my-cookies
 	return &http.Cookie{
 		Name:     loginCookieName,
 		Value:    tokenString,
 		Path:     "/",
-		HttpOnly: true,                    // = not visible to JavaScript, to protect from XSS
-		SameSite: http.SameSiteStrictMode, // CSRF protection
-		Secure:   true,                    // only submit over https
+		HttpOnly: true,                 // = not visible to JavaScript, to protect from XSS
+		SameSite: http.SameSiteLaxMode, // CSRF protection (no strict b/c cookies+redirects don't work)
+		Secure:   true,                 // only submit over https
 	}
 }
 
@@ -46,7 +47,7 @@ func DeleteLoginCookie() *http.Cookie {
 		Path:     "/",
 		MaxAge:   -1, // => delete
 		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode, // CSRF protection
-		Secure:   true,                    // only submit over https
+		SameSite: http.SameSiteLaxMode, // CSRF protection (no strict b/c cookies+redirects don't work)
+		Secure:   true,                 // only submit over https
 	}
 }
