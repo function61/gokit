@@ -18,3 +18,13 @@ func TestTypeByExtension(t *testing.T) {
 	assert.EqualString(t, TypeByExtension("doesnotexist", NoFallback), "")
 	assert.EqualString(t, TypeByExtension("doesnotexist", OctetStream), "application/octet-stream")
 }
+
+func TestExtensionByType(t *testing.T) {
+	assert.EqualString(t, ExtensionByType("image/jpeg", "bin"), "jpg")
+	assert.EqualString(t, ExtensionByType("video/x-matroska", "bin"), "mkv")
+	assert.EqualString(t, ExtensionByType("application/json", "bin"), "json")
+
+	assert.EqualString(t, ExtensionByType("dunno/notfound", "bin"), "bin")
+	assert.EqualString(t, ExtensionByType("", "bin"), "bin")
+	assert.EqualString(t, ExtensionByType("", NoFallback), "")
+}
