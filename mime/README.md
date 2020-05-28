@@ -13,7 +13,8 @@ Run:
 $ go generate ./generator
 ```
 
-This updates and code generates our `db.go` from the source's head.
+This updates and code generates our `db.gen.go` from the source's head. Remember to
+`$ go fmt` before committing.
 
 
 Why?
