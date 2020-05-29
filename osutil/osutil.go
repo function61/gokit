@@ -1,5 +1,5 @@
-// Small wrapper for catching SIGINT and SIGTERM
-package ossignal
+// OS-related utilities
+package osutil
 
 import (
 	"context"
