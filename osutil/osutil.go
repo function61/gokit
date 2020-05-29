@@ -12,7 +12,9 @@ import (
 	"github.com/function61/gokit/logex"
 )
 
-// makes (background-derived) context that cancels on SIGINT ("Ctrl + c") or SIGTERM.
+// makes (background-derived) context that cancels on SIGINT ("Ctrl + c") or SIGTERM. it
+// stops signal listening on first received signal, so that if user sends next signal
+// (teardown maybe stuck?), it terminates the process immediately.
 func CancelOnInterruptOrTerminate(logger *log.Logger) context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -26,7 +28,13 @@ func CancelOnInterruptOrTerminate(logger *log.Logger) context.Context {
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		logex.Levels(logger).Info.Printf("got %s; stopping", <-InterruptOrTerminate())
+		logex.Levels(logger).Info.Printf("Got %s: STOPPING. (If stuck, send signal again for immediate termination.)", <-ch)
+
+		// stop accepting signals on the channel. this undoes the effect of this func,
+		// and thus makes the process terminate on the next received signal (so you can stop
+		// your program if the cleanup code gets stuck)
+		signal.Stop(ch)
+
 		cancel()
 	}()
 
