@@ -28,7 +28,7 @@ func CancelOnInterruptOrTerminate(logger *log.Logger) context.Context {
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		logex.Levels(logger).Info.Printf("Got %s: STOPPING. (If stuck, send signal again for immediate termination.)", <-ch)
+		logex.Levels(logger).Info.Printf("Got %s: STOPPING. (If stuck, send sig again to force exit.)", <-ch)
 
 		// stop accepting signals on the channel. this undoes the effect of this func,
 		// and thus makes the process terminate on the next received signal (so you can stop
