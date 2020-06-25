@@ -11,6 +11,22 @@ const (
 	NoFallback  = ""
 )
 
+type Type string
+
+// taken from https://en.wikipedia.org/wiki/Media_type
+const (
+	TypeApplication Type = "application"
+	TypeAudio       Type = "audio"
+	TypeExample     Type = "example"
+	TypeFont        Type = "font"
+	TypeImage       Type = "image"
+	TypeMessage     Type = "message"
+	TypeModel       Type = "model"
+	TypeMultipart   Type = "multipart"
+	TypeText        Type = "text"
+	TypeVideo       Type = "video"
+)
+
 // JSON tags are defined due to importing in code generation phase,
 // but please do not rely on those (don't JSON-marshal this spec)
 type Spec struct {
@@ -54,7 +70,7 @@ func ExtensionByType(contentType string, fallback string) string {
 	// some overrides
 	switch contentType {
 	case "image/jpeg":
-		return "jpg" // first extension is jpeg, but jpg is the most universally used
+		return "jpg" // first extension in DB is jpeg which is less universally used
 	}
 
 	spec, found := mimeTypes[contentType]
@@ -63,4 +79,10 @@ func ExtensionByType(contentType string, fallback string) string {
 	}
 
 	return spec.Extensions[0]
+}
+
+// Is("image/jpeg", TypeImage) => true
+// Is("text/plain", TypeImage) => false
+func Is(contentType string, typ Type) bool {
+	return strings.HasPrefix(contentType, string(typ)+"/")
 }

@@ -28,3 +28,8 @@ func TestExtensionByType(t *testing.T) {
 	assert.EqualString(t, ExtensionByType("", "bin"), "bin")
 	assert.EqualString(t, ExtensionByType("", NoFallback), "")
 }
+
+func TestIs(t *testing.T) {
+	assert.Assert(t, Is("image/jpeg", TypeImage))
+	assert.Assert(t, !Is("text/plain", TypeImage))
+}
