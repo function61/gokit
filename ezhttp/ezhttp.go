@@ -125,6 +125,11 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 		return resp, err // this is a transport-level error
 	}
 
+	// 304 is an error unless caller is expecting such response by sending caching headers
+	if resp.StatusCode == http.StatusNotModified && req.Header.Get("If-None-Match") != "" {
+		return resp, nil
+	}
+
 	// handle application-level errors
 	if !conf.TolerateNon2xxResponse && (resp.StatusCode < 200 || resp.StatusCode > 299) {
 		defer resp.Body.Close()

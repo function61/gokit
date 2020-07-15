@@ -180,3 +180,18 @@ func TestCookie(t *testing.T) {
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `Echoing Cookie: cookiemonster="says nom nom"`)
 }
+
+func TestExpectedVsUnexpectedNotModified(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "", http.StatusNotModified)
+	}))
+	defer ts.Close()
+
+	_, err := Get(context.TODO(), ts.URL)
+	assert.EqualString(t, err.Error(), "304 Not Modified; <no response body>")
+
+	// it's not an error however, if "expecting caching" headers are sent
+
+	_, err = Get(context.TODO(), ts.URL, Header("If-None-Match", `"myCoolETag"`))
+	assert.Ok(t, err)
+}
