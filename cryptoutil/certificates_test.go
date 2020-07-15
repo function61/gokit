@@ -8,7 +8,7 @@ import (
 
 func TestParsePemX509Certificate(t *testing.T) {
 	cert, err := ParsePemX509Certificate([]byte(testValidCertificate))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	assert.EqualString(t, cert.Subject.CommonName, "godoc.org")
 	assert.EqualString(t, Identity(*cert), "godoc.org")

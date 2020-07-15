@@ -101,7 +101,7 @@ func TestTokenExpiry(t *testing.T) {
 		userDetails, err := authenticator.AuthenticateWithCsrfProtection(makeReq(bothCookies, bothCookies[1].Value))
 
 		if should {
-			assert.Assert(t, err == nil)
+			assert.Ok(t, err)
 			assert.EqualString(t, userDetails.Id, "123")
 		} else {
 			assert.EqualString(t, err.Error(), "JWT authentication: token is expired by 1h0m0s")

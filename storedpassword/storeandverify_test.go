@@ -8,11 +8,11 @@ import (
 
 func TestStoreAndVerify(t *testing.T) {
 	stored, err := Store("hunter2", CurrentBestDerivationStrategy)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, len(stored) == 107)
 
 	strategyId, _, _, err := deserialize(stored)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, strategyId, "pbkdf2-sha256-100k")
 
 	// pretend above strategy is not found
@@ -22,7 +22,7 @@ func TestStoreAndVerify(t *testing.T) {
 
 	// strategy should now be found
 	upgrade, err = Verify(stored, "hunter2", BuiltinStrategies)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, upgrade == "")
 
 	upgrade, err = Verify(stored, "hunter INCORRECT", BuiltinStrategies)
@@ -31,17 +31,17 @@ func TestStoreAndVerify(t *testing.T) {
 
 	// Verify() should now suggest upgrade with this resolver
 	upgrade, err = Verify(stored, "hunter2", downgradingResolver)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, upgrade != "")
 
 	// upgraded password should now use the ridiculously insecure strategy
 	strategyId, _, _, err = deserialize(upgrade)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, strategyId, "pbkdf2-sha256-1")
 
 	// verify upgraded password
 	upgrade, err = Verify(upgrade, "hunter2", downgradingResolver)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, upgrade == "")
 }
 

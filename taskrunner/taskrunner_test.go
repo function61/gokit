@@ -40,7 +40,7 @@ func TestWaitThreeTasks(t *testing.T) {
 	// now expect all tasks to have exited after 70ms mark
 	cancel()
 
-	assert.Assert(t, runner.Wait() == nil)
+	assert.Ok(t, runner.Wait())
 	assert.Assert(t, time.Since(taskStarted) > 69*time.Millisecond)
 }
 
@@ -60,7 +60,7 @@ func TestCancellationStopsTask(t *testing.T) {
 
 	cancel()
 
-	assert.Assert(t, <-runner.Done() == nil)
+	assert.Ok(t, <-runner.Done())
 
 	assert.Assert(t, time.Since(taskStarted) > 59*time.Millisecond)
 }

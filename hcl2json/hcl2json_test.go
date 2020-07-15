@@ -23,10 +23,10 @@ person {
 }
 `
 	jsonBytesReader, err := Convert(bytes.NewBufferString(demo))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	jsonBytes, err := ioutil.ReadAll(jsonBytesReader)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	assert.EqualString(t, string(jsonBytes), `{
   "person": [

@@ -18,7 +18,7 @@ func TestAuthenticate(t *testing.T) {
 
 	assert.EqualString(t, signature, "bo4dqebLiFXPTpqv")
 
-	assert.Assert(t, New(key1, msg).Authenticate(signature) == nil)
+	assert.Ok(t, New(key1, msg).Authenticate(signature))
 	assert.Assert(t, New(key1, msg).Authenticate("wrong signature") == ErrMacValidationFailed)
 }
 

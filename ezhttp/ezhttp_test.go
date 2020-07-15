@@ -46,7 +46,7 @@ func TestPostJson(t *testing.T) {
 
 	req := ExampleJsonPayload{Hello: "hello good sir"}
 	resp, err := Post(context.TODO(), ts.URL, SendJson(&req))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `{"Hello":"hello good sir"}`)
 }
@@ -66,7 +66,7 @@ func TestPostArbitraryData(t *testing.T) {
 	reqBody := bytes.NewBufferString("why\nhello there\nmy good sir")
 	resp, err := Post(context.TODO(), ts.URL, SendBody(reqBody, "text/awesome"))
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `received Content-Type: text/awesome
 
@@ -90,14 +90,14 @@ func TestRespondsJson(t *testing.T) {
 
 	responseBody := &ExampleJsonPayload{}
 	_, err := Get(context.TODO(), ts.URL+"/valid-json", RespondsJson(responseBody, false))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, responseBody.Hello, "World")
 
 	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, false))
 	assert.EqualString(t, err.Error(), `json: unknown field "got"`)
 
 	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, true))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 }
 
 func TestRespondsJsonFails(t *testing.T) {
@@ -121,7 +121,7 @@ func TestNon200x(t *testing.T) {
 	assert.EqualString(t, err.Error(), "500 Internal Server Error; I failed you :(\n")
 
 	_, err = Get(context.TODO(), ts.URL, TolerateNon2xxResponse)
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 }
 
 func TestHeader(t *testing.T) {
@@ -131,7 +131,7 @@ func TestHeader(t *testing.T) {
 	defer ts.Close()
 
 	resp, err := Get(context.TODO(), ts.URL, Header("User-Agent", "Sausage"))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing User-Agent: Sausage")
@@ -144,7 +144,7 @@ func TestAuthBearer(t *testing.T) {
 	defer ts.Close()
 
 	resp, err := Get(context.TODO(), ts.URL, AuthBearer("LOLOLOLOL"))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing Authorization: Bearer LOLOLOLOL")
@@ -157,7 +157,7 @@ func TestAuthBasic(t *testing.T) {
 	defer ts.Close()
 
 	resp, err := Get(context.TODO(), ts.URL, AuthBasic("AzureDiamond", "hunter2"))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing Authorization: Basic QXp1cmVEaWFtb25kOmh1bnRlcjI=")
@@ -175,7 +175,7 @@ func TestCookie(t *testing.T) {
 	}
 
 	resp, err := Get(context.TODO(), ts.URL, Cookie(cmCookie))
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 
 	respBody, _ := ioutil.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `Echoing Cookie: cookiemonster="says nom nom"`)

@@ -23,7 +23,7 @@ func TestSucceedsRightAway(t *testing.T) {
 		return nil
 	}, DefaultBackoff(), ifFailed)
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, attempts == 1)
 }
 
@@ -48,7 +48,7 @@ func TestSucceedsOnThirdTry(t *testing.T) {
 		return nil
 	}, DefaultBackoff(), ifFailed)
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.Assert(t, attempts == 3)
 	assert.Assert(t, len(receivedErrors) == 2)
 	// use regex to work around variable timing ("failed in 270ns")

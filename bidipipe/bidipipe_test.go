@@ -14,7 +14,7 @@ func TestPipe(t *testing.T) {
 
 	err := Pipe(person1, "person1", person2, "person2")
 
-	assert.Assert(t, err == nil)
+	assert.Ok(t, err)
 	assert.EqualString(t, person2.received, "Nice to meet you, Person2")
 	assert.EqualString(t, person1.received, "Thanks Person1, pleasure is all mine")
 }
