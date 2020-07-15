@@ -55,21 +55,31 @@ func (t *Runner) Start(taskName string, fn func(ctx context.Context) error) {
 }
 
 // same semantics as Wait(), but returns chan so you can do other stuff while waiting.
-// this is safe to be called more than once, but if you call this you must not call Wait().
+//
+// NOTE: same note as for Wait()
 func (t *Runner) Done() <-chan error {
 	t.startWaiting.Do(func() {
 		go func() {
-			t.allTasksExited <- t.Wait()
+			t.allTasksExited <- t.waitInternal()
+			close(t.allTasksExited)
 		}()
 	})
 
 	return t.allTasksExited
 }
 
-// - Call Wait() only once
-// - returns nil if all task exits were expected and errors were nil
-// - returns err if any of the tasks exited unexpectedly or exit was expected but errored
+// Returns:
+// - nil if all task exits were expected and errors were nil
+// - err if any of the tasks exited unexpectedly or exit was expected but errored
+//
+// NOTE: don't have multiple goroutines concurrently use Done() or Wait(). i.e. you can
+//   call Done() and even after that call Wait(), but don't do it concurrently (the
+//   channel only sends one value)
 func (t *Runner) Wait() error {
+	return <-t.Done()
+}
+
+func (t *Runner) waitInternal() error {
 	// this is Wait()'s return value as described in method comment
 	var firstErr error
 
