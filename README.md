@@ -3,6 +3,9 @@
 
 Frequently needed, stupid simple, packages in Go.
 
+Directory structure follows [Go's stdlib](https://pkg.go.dev/std?tab=packages) where there
+are equivalents. E.g. `httputils` is found in [net/http/httputils](net/http/httputils/).
+
 
 Deprecations
 ------------
