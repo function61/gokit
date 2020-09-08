@@ -195,3 +195,16 @@ func TestExpectedVsUnexpectedNotModified(t *testing.T) {
 	_, err = Get(context.TODO(), ts.URL, Header("If-None-Match", `"myCoolETag"`))
 	assert.Ok(t, err)
 }
+
+func TestErrorIs(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "I failed you :(", http.StatusInternalServerError)
+	}))
+	defer ts.Close()
+
+	_, err := Get(context.TODO(), ts.URL)
+
+	assert.Assert(t, ErrorIs(err, http.StatusInternalServerError))
+	assert.Assert(t, !ErrorIs(err, http.StatusNotModified))
+	assert.Assert(t, !ErrorIs(nil, http.StatusNotModified))
+}
