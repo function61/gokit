@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/function61/gokit/cryptoutil"
+	"github.com/function61/gokit/crypto/cryptoutil"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 

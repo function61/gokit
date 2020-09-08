@@ -3,8 +3,20 @@
 
 Frequently needed, stupid simple, packages in Go.
 
+
+Directory structure
+-------------------
+
+### Low-level packages
+
 Directory structure follows [Go's stdlib](https://pkg.go.dev/std?tab=packages) where there
-are equivalents. E.g. `httputils` is found in [net/http/httputils](net/http/httputils/).
+are equivalents. E.g. `httputils` is found in [net/http/httputils/](net/http/httputils/).
+
+
+### Higher-level, "app", packages
+
+Non-stdlib things are in [app/](app/) like backoff/retry algorithms or external service
+related things like AWS wrappers or Prometheus helpers.
 
 
 Deprecations

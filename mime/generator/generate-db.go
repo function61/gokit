@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/function61/gokit/ezhttp"
+	"github.com/function61/gokit/net/http/ezhttp"
 	"github.com/function61/gokit/mime"
 )
 

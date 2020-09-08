@@ -7,7 +7,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/function61/gokit/cryptoutil"
+	"github.com/function61/gokit/crypto/cryptoutil"
 	"github.com/function61/gokit/testing/assert"
 	"golang.org/x/crypto/nacl/secretbox"
 )
