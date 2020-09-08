@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/function61/gokit/net/http/ezhttp"
 	"github.com/function61/gokit/mime"
+	"github.com/function61/gokit/net/http/ezhttp"
 )
 
 //go:generate go run generate-db.go
