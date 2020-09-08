@@ -2,7 +2,7 @@
 package systemdinstaller
 
 import (
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -58,7 +58,7 @@ func Install(sf serviceFile) error {
 	}
 
 	if _, errStat := os.Stat(unitfilePath(sf)); errStat == nil || !os.IsNotExist(errStat) {
-		return errors.New("systemd service file already exists!")
+		return fmt.Errorf("systemd service file %s already exists", unitfilePath(sf))
 	}
 
 	// https://unix.stackexchange.com/questions/433886/what-are-the-correct-permissions-for-a-systemd-service
