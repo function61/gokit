@@ -97,6 +97,15 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 		return nil, conf.Abort
 	}
 
+	// "Request has body = No" for:
+	// - https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET
+	// - https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
+	if conf.RequestBody != nil && (method == http.MethodGet || method == http.MethodHead) {
+		// Technically, these can have body, but it's usually a mistake so if we need it we'll
+		// make it an opt-in flag.
+		return nil, fmt.Errorf("ezhttp: %s with non-nil body is usually a mistake", method)
+	}
+
 	req, err := http.NewRequest(
 		method,
 		url,

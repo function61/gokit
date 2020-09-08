@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -207,4 +208,15 @@ func TestErrorIs(t *testing.T) {
 	assert.Assert(t, ErrorIs(err, http.StatusInternalServerError))
 	assert.Assert(t, !ErrorIs(err, http.StatusNotModified))
 	assert.Assert(t, !ErrorIs(nil, http.StatusNotModified))
+}
+
+func TestRequestBodyForNonBodyMethods(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	defer ts.Close()
+
+	_, err := Get(context.TODO(), ts.URL, SendBody(strings.NewReader("huh?"), "text/plain"))
+	assert.EqualString(t, err.Error(), "ezhttp: GET with non-nil body is usually a mistake")
+
+	_, err = Head(context.TODO(), ts.URL, SendBody(strings.NewReader("huh?"), "text/plain"))
+	assert.EqualString(t, err.Error(), "ezhttp: HEAD with non-nil body is usually a mistake")
 }
