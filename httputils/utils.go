@@ -3,6 +3,7 @@ package httputils
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 )
 
@@ -34,5 +35,16 @@ func ServerShutdownTask(server *http.Server) func(context.Context) error {
 		<-ctx.Done()
 		// can't use task ctx b/c it'd cancel the Shutdown() itself
 		return server.Shutdown(context.Background())
+	}
+}
+
+// helper for setting JSON header and JSON-marshaling a struct into the HTTP response
+func RespondJson(w http.ResponseWriter, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		// writing this error probably fails, because the probability of above Encode() failing
+		// due to broken conn is much more than JSON marshalling failing
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
