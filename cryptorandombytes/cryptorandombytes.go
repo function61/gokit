@@ -17,12 +17,12 @@ func Base64Url(bytesLen int) string {
 
 // CLI arguments beginning with dash are problematic (which base64 URL variant can produce),
 // so we'll be nice guys and guarantee that the ID won't start with one.
-func Base64UrlWithoutLeadingDash(length int) string {
-	id := Base64Url(length)
+func Base64UrlWithoutLeadingDash(bytesLen int) string {
+	id := Base64Url(bytesLen)
 
 	if id[0] == '-' {
 		// try again. the odds should exponentially decrease for recursion level to increase
-		return Base64UrlWithoutLeadingDash(length)
+		return Base64UrlWithoutLeadingDash(bytesLen)
 	}
 
 	return id
