@@ -1,6 +1,7 @@
 package logex
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -24,4 +25,10 @@ func Levels(parent *log.Logger) *Leveled {
 
 		Original: parent,
 	}
+}
+
+// sometimes you may need to pipe log output from logging interfaces with more levels than
+// what we have declared here. prefer uppercase: Prefix(CustomLevelPrefix("WARN"))
+func CustomLevelPrefix(levelName string) string {
+	return fmt.Sprintf("[%s]", levelName)
 }
