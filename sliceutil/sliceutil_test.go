@@ -3,7 +3,7 @@ package sliceutil
 import (
 	"testing"
 
-	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/testing/assert"
 )
 
 func TestContainsString(t *testing.T) {

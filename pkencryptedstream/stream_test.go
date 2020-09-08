@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/function61/gokit/assert"
 	"github.com/function61/gokit/cryptoutil"
+	"github.com/function61/gokit/testing/assert"
 )
 
 func TestEncryptAndDecrypt(t *testing.T) {

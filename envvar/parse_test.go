@@ -3,7 +3,7 @@ package envvar
 import (
 	"testing"
 
-	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/testing/assert"
 )
 
 func TestParse(t *testing.T) {

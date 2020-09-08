@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/testing/assert"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/expfmt"
 )
