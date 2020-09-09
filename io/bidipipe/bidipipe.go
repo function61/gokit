@@ -5,48 +5,76 @@ import (
 	"fmt"
 	"io"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
-func Pipe(party1 io.ReadWriteCloser, party1Name string, party2 io.ReadWriteCloser, party2Name string) error {
-	allIoFinished := &sync.WaitGroup{}
-
-	// take note of the first error to happen when Copy()ing to both directions. since when
-	// encountering error, we close both ends and that Close() will cause other (expected) error
-	// so we are not interested in that.
-	firstErrorCh := make(chan error, 2)
-
-	go pipeOneDir(party1, party1Name, party2, party2Name, waiterAdd(allIoFinished), firstErrorCh)
-	go pipeOneDir(party2, party2Name, party1, party1Name, waiterAdd(allIoFinished), firstErrorCh)
-
-	allIoFinished.Wait()
-
-	select {
-	case firstError := <-firstErrorCh:
-		return firstError
-	default:
-		return nil
-	}
-}
-
-func pipeOneDir(dst io.ReadWriteCloser, dstName string, src io.ReadWriteCloser, srcName string, done *sync.WaitGroup, firstErrorCh chan error) {
-	defer done.Done()
-
-	if _, err := io.Copy(dst, src); err != nil {
-		firstErrorCh <- fmt.Errorf(
-			"bidipipe: %s -> %s error: %s",
-			srcName,
-			dstName,
-			err.Error())
-	}
+// make two parties talk to each other (usually for proxying use cases). for debugging purposes
+// you can optionally name the endpoints (see WithName(), Unnamed() )
+func Pipe(
+	party1 NamedEndpoint,
+	party2 NamedEndpoint,
+) error {
+	party1.nameIfUnnamed("party1")
+	party2.nameIfUnnamed("party2")
 
 	// we have two goroutines Copy() to different directions. either goroutine could encounter
 	// the error either from its read (source) or write (destination) side, so irregardless
 	// of direction we should try to close both ends
-	src.Close()
-	dst.Close()
+	var closeBothOnce sync.Once
+	closeBoth := func() {
+		closeBothOnce.Do(func() {
+			// since when encountering I/O error, we close both ends and at least one Close()
+			// is expected to error, so we just ignore close errors
+			party1.endpoint.Close()
+			party2.endpoint.Close()
+		})
+	}
+
+	var pipes errgroup.Group
+
+	pipes.Go(func() error {
+		defer closeBoth()
+
+		return pipeOneDir(party1, party2)
+	})
+	pipes.Go(func() error {
+		defer closeBoth()
+
+		return pipeOneDir(party2, party1)
+	})
+
+	// returns first non-nil error to be returned from either call to pipeOneDir()
+	return pipes.Wait()
 }
 
-func waiterAdd(wg *sync.WaitGroup) *sync.WaitGroup {
-	wg.Add(1)
-	return wg
+func pipeOneDir(dst NamedEndpoint, src NamedEndpoint) error {
+	if _, err := io.Copy(dst.endpoint, src.endpoint); err != nil {
+		return fmt.Errorf(
+			"bidipipe: %s -> %s error: %s",
+			src.name,
+			dst.name,
+			err.Error())
+	}
+
+	return nil
+}
+
+type NamedEndpoint struct {
+	name     string
+	endpoint io.ReadWriteCloser
+}
+
+func (n *NamedEndpoint) nameIfUnnamed(name string) {
+	if n.name == "" {
+		n.name = name
+	}
+}
+
+func WithName(name string, endpoint io.ReadWriteCloser) NamedEndpoint {
+	return NamedEndpoint{name, endpoint}
+}
+
+func Unnamed(endpoint io.ReadWriteCloser) NamedEndpoint {
+	return WithName("", endpoint)
 }
