@@ -2,7 +2,6 @@ package envelopeenc
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"encoding/hex"
 	"io"
 	"testing"
@@ -13,33 +12,33 @@ import (
 )
 
 func TestDecryptionRequiresCorrectLabel(t *testing.T) {
-	kek1Private, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(testKek1))
+	kek1PrivateKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(testKek1))
 	assert.Ok(t, err)
 
-	kek1Public := []*rsa.PublicKey{&kek1Private.PublicKey}
+	kek1Private := RsaOaepSha256Decrypter(kek1PrivateKey)
 
 	envelope, err := Encrypt(
 		[]byte("hunter2"),
-		kek1Public,
+		[]SlotEncrypter{kek1Private},
 		"foo")
 	assert.Ok(t, err)
 
 	// decryption works
-	_, err = envelope.Decrypt(SingleKey(kek1Private))
+	_, err = envelope.Decrypt(kek1Private)
 	assert.Ok(t, err)
 
 	// tamper with label -> decryption should fail
 	envelope.Label = "foo2"
 
-	_, err = envelope.Decrypt(SingleKey(kek1Private))
+	_, err = envelope.Decrypt(kek1Private)
 	assert.EqualString(t, err.Error(), "decryptWithSlot DecryptOAEP: crypto/rsa: decryption error")
 }
 
 func TestEncryptAndDecrypt(t *testing.T) {
-	kek1Private, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(testKek1))
+	kek1PrivateKey, err := cryptoutil.ParsePemPkcs1EncodedRsaPrivateKey([]byte(testKek1))
 	assert.Ok(t, err)
 
-	kek1Public := []*rsa.PublicKey{&kek1Private.PublicKey}
+	kek1Private := RsaOaepSha256Decrypter(kek1PrivateKey)
 
 	// we can observe from expected outputs that nonce is at front of EncryptedContent
 	tcs := []struct {
@@ -70,7 +69,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 		t.Run(tc.expectedOutput, func(t *testing.T) {
 			pwdEnvelope, err := encryptWithRand(
 				[]byte("hunter2"),
-				kek1Public,
+				[]SlotEncrypter{kek1Private},
 				"",
 				deterministicRand(tc.encryptionKey, tc.nonce))
 			assert.Ok(t, err)
@@ -84,7 +83,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 
 			assert.Assert(t, len(pwdEnvelope.EncryptedContent)-nonceLen == len("hunter2")+secretbox.Overhead)
 
-			decrypted, err := pwdEnvelope.Decrypt(SingleKey(kek1Private))
+			decrypted, err := pwdEnvelope.Decrypt(kek1Private)
 			assert.Ok(t, err)
 
 			assert.EqualString(t, string(decrypted), "hunter2")

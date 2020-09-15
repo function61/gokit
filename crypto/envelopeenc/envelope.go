@@ -4,15 +4,20 @@ package envelopeenc
 
 import (
 	"crypto/rand"
-	"crypto/rsa"
-	"crypto/sha256"
 	"errors"
-	"fmt"
 	"io"
 
-	"github.com/function61/gokit/crypto/cryptoutil"
 	"golang.org/x/crypto/nacl/secretbox"
 )
+
+type SlotEncrypter interface {
+	EncryptSlot(dek []byte, label string) (*KeySlot, error)
+}
+
+type SlotDecrypter interface {
+	DecryptSlot(slot *KeySlot, label string) ([]byte, error)
+	CanDecrypt(kind SlotKind, kekId string) bool
+}
 
 // Protects its content with a DEK. the DEK is also contained in the envelope, but encrypted
 // with multiple possible KEKs (public keys) as recipients, therefore the envelope can
@@ -28,24 +33,25 @@ type SlotKind uint8
 
 const (
 	SlotKindRsaOaepSha256 SlotKind = 1
+	SlotKindNaclSecretBox SlotKind = 2
 )
 
 // The envelope is locked with several locks. Any of the KEKs can open the envelope
 type KeySlot struct {
 	Kind         SlotKind `json:"kind"`          // what kind of a key slot this is
-	KekId        string   `json:"kek_id"`        // Kind=1 => SHA256-fingerprint of RSA public key
-	DekEncrypted []byte   `json:"dek_encrypted"` // Kind=1 => RSA_OAEP_SHA256(kekPub, secretboxSecretKey, label)
+	KekId        string   `json:"kek_id"`        // Kind=1 => SHA256-fingerprint of RSA public key, Kind=2 => name for key
+	DekEncrypted []byte   `json:"dek_encrypted"` // Kind=1 => RSA_OAEP_SHA256(kekPub, dek, label), Kind=2 => nonceSeed || naclSecretBoxSeal(dek, deriveNonce(nonceSeed, label), kek)
 }
 
-type KekResolver func(kekId string) *rsa.PrivateKey
+type KekResolver func(kind SlotKind, kekId string) SlotDecrypter
 
-func Encrypt(plaintext []byte, keks []*rsa.PublicKey, label string) (*Envelope, error) {
-	return encryptWithRand(plaintext, keks, label, rand.Reader)
+func Encrypt(plaintext []byte, slotEncrypters []SlotEncrypter, label string) (*Envelope, error) {
+	return encryptWithRand(plaintext, slotEncrypters, label, rand.Reader)
 }
 
 func encryptWithRand(
 	plaintext []byte,
-	keks []*rsa.PublicKey,
+	slotEncrypters []SlotEncrypter,
 	label string,
 	cryptoRandReader io.Reader,
 ) (*Envelope, error) {
@@ -61,8 +67,8 @@ func encryptWithRand(
 
 	keySlots := []KeySlot{}
 
-	for _, kek := range keks {
-		keySlot, err := makeKeySlot(secretKey[:], kek, label)
+	for _, kek := range slotEncrypters {
+		keySlot, err := kek.EncryptSlot(secretKey[:], label)
 		if err != nil {
 			return nil, err
 		}
@@ -80,35 +86,36 @@ func encryptWithRand(
 	}, nil
 }
 
-func (e *Envelope) Decrypt(resolveKey KekResolver) ([]byte, error) {
-	for _, slot := range e.KeySlots {
-		// currently we only support one kind
-		if slot.Kind != SlotKindRsaOaepSha256 {
-			return nil, fmt.Errorf("unsupported slot kind: %d", slot.Kind)
-		}
-
-		if privKey := resolveKey(slot.KekId); privKey != nil {
-			return e.decryptWithSlot(&slot, privKey)
-		}
-	}
-
-	return nil, errors.New("no suitable private key found for any key slots")
+func (e *Envelope) Decrypt(decrypters ...SlotDecrypter) ([]byte, error) {
+	return e.DecryptWithResolver(NewKekResolver(decrypters...))
 }
 
-func (e *Envelope) decryptWithSlot(slot *KeySlot, privKey *rsa.PrivateKey) ([]byte, error) {
-	dek, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privKey, slot.DekEncrypted, []byte(e.Label))
-	if err != nil {
-		return nil, fmt.Errorf("decryptWithSlot DecryptOAEP: %w", err)
+// use this when you want to manage resolving the KEK yourself
+func (e *Envelope) DecryptWithResolver(resolveKek KekResolver) ([]byte, error) {
+	for _, slot := range e.KeySlots {
+		if decrypter := resolveKek(slot.Kind, slot.KekId); decrypter != nil {
+			slot := slot // pin
+
+			dek, err := decrypter.DecryptSlot(&slot, e.Label)
+			if err != nil {
+				return nil, err
+			}
+
+			return e.decryptData(dek)
+		}
 	}
 
+	return nil, errors.New("no suitable KEK found for any key slots")
+}
+
+func (e *Envelope) decryptData(dek []byte) ([]byte, error) {
 	var nonce [24]byte
 	copy(nonce[:], e.EncryptedContent[:24])
 
 	var dekStatic [32]byte
 	copy(dekStatic[:], dek)
 
-	plaintext := []byte{}
-	plaintext, ok := secretbox.Open(plaintext, e.EncryptedContent[24:], &nonce, &dekStatic)
+	plaintext, ok := secretbox.Open(nil, e.EncryptedContent[24:], &nonce, &dekStatic)
 	if !ok {
 		return nil, errors.New("secretbox.Open failed")
 	}
@@ -116,36 +123,14 @@ func (e *Envelope) decryptWithSlot(slot *KeySlot, privKey *rsa.PrivateKey) ([]by
 	return plaintext, nil
 }
 
-func makeKeySlot(dek []byte, kekPub *rsa.PublicKey, label string) (*KeySlot, error) {
-	kekId, err := cryptoutil.Sha256FingerprintForPublicKey(kekPub)
-	if err != nil {
-		return nil, err
-	}
-
-	dekCiphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, kekPub, dek, []byte(label))
-	if err != nil {
-		return nil, err
-	}
-
-	return &KeySlot{
-		Kind:         SlotKindRsaOaepSha256,
-		KekId:        kekId,
-		DekEncrypted: dekCiphertext,
-	}, nil
-}
-
-// helper for making a KEK resolver that only matches a single key that we possess
-func SingleKey(privKey *rsa.PrivateKey) KekResolver {
-	ourKekId, err := cryptoutil.Sha256FingerprintForPublicKey(&privKey.PublicKey)
-	if err != nil {
-		panic(err)
-	}
-
-	return func(slotKekId string) *rsa.PrivateKey {
-		if slotKekId == ourKekId {
-			return privKey
-		} else {
-			return nil
+func NewKekResolver(decrypters ...SlotDecrypter) KekResolver {
+	return func(kind SlotKind, kekId string) SlotDecrypter {
+		for _, decrypter := range decrypters {
+			if decrypter.CanDecrypt(kind, kekId) {
+				return decrypter
+			}
 		}
+
+		return nil
 	}
 }
