@@ -76,6 +76,10 @@ func encryptWithRand(
 		keySlots = append(keySlots, *keySlot)
 	}
 
+	if len(keySlots) == 0 {
+		return nil, errors.New("envelope with zero slots not supported")
+	}
+
 	// return is basically append(nonce, ciphertext...)
 	nonceAndCiphertext := secretbox.Seal(nonce[:], plaintext, &nonce, &secretKey)
 
