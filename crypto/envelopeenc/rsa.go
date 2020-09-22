@@ -16,16 +16,16 @@ type rsaPublicKey struct {
 
 var _ SlotEncrypter = (*rsaPublicKey)(nil)
 
-func RsaOaepSha256Encryptor(pubKey *rsa.PublicKey) *rsaPublicKey {
+func RsaOaepSha256Encrypter(pubKey *rsa.PublicKey) *rsaPublicKey {
 	kekId, err := cryptoutil.Sha256FingerprintForPublicKey(pubKey)
 	if err != nil {
 		panic(err)
 	}
 
-	return newRsaOaepSha256Encryptor(pubKey, kekId)
+	return newRsaOaepSha256Encrypter(pubKey, kekId)
 }
 
-func newRsaOaepSha256Encryptor(pubKey *rsa.PublicKey, kekId string) *rsaPublicKey {
+func newRsaOaepSha256Encrypter(pubKey *rsa.PublicKey, kekId string) *rsaPublicKey {
 	return &rsaPublicKey{
 		pubKey: pubKey,
 		kekId:  kekId,
@@ -60,7 +60,7 @@ func RsaOaepSha256Decrypter(privKey *rsa.PrivateKey) *rsaPrivateKey {
 	}
 
 	return &rsaPrivateKey{
-		rsaPublicKey: newRsaOaepSha256Encryptor(&privKey.PublicKey, kekId),
+		rsaPublicKey: newRsaOaepSha256Encrypter(&privKey.PublicKey, kekId),
 		privKey:      privKey,
 	}
 }
