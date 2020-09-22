@@ -53,6 +53,14 @@ func ParsePemPkcs1EncodedRsaPublicKey(pemBytes []byte) (*rsa.PublicKey, error) {
 	return pubKey, nil
 }
 
+func MarshalPemPkcs1EncodedRsaPublicKey(pubKey *rsa.PublicKey) []byte {
+	return MarshalPemBytes(x509.MarshalPKCS1PublicKey(pubKey), PemTypeRsaPublicKey)
+}
+
+func MarshalPemPkcs1EncodedRsaPrivateKey(privKey *rsa.PrivateKey) []byte {
+	return MarshalPemBytes(x509.MarshalPKCS1PrivateKey(privKey), PemTypeRsaPrivateKey)
+}
+
 func MarshalPemBytes(content []byte, pemType string) []byte {
 	return pem.EncodeToMemory(
 		&pem.Block{
