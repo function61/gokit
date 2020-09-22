@@ -17,6 +17,8 @@ func TestDecryptionRequiresCorrectLabel(t *testing.T) {
 
 	kek1Private := RsaOaepSha256Decrypter(kek1PrivateKey)
 
+	assert.EqualString(t, kek1Private.KekId(), "SHA256:P+E7i8cwgczvWmvPKV68wbhvHjrM4hgvq6gobxGiWrY")
+
 	envelope, err := Encrypt(
 		[]byte("hunter2"),
 		[]SlotEncrypter{kek1Private},

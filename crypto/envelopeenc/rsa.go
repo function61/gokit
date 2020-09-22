@@ -32,6 +32,10 @@ func newRsaOaepSha256Encrypter(pubKey *rsa.PublicKey, kekId string) *rsaPublicKe
 	}
 }
 
+func (r *rsaPublicKey) KekId() string {
+	return r.kekId
+}
+
 func (r *rsaPublicKey) EncryptSlot(dek []byte, label string) (*KeySlot, error) {
 	dekCiphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, r.pubKey, dek, []byte(label))
 	if err != nil {
@@ -40,7 +44,7 @@ func (r *rsaPublicKey) EncryptSlot(dek []byte, label string) (*KeySlot, error) {
 
 	return &KeySlot{
 		Kind:         SlotKindRsaOaepSha256,
-		KekId:        r.kekId,
+		KekId:        r.KekId(),
 		DekEncrypted: dekCiphertext,
 	}, nil
 }

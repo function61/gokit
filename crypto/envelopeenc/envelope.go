@@ -11,10 +11,12 @@ import (
 )
 
 type SlotEncrypter interface {
+	KekId() string
 	EncryptSlot(dek []byte, label string) (*KeySlot, error)
 }
 
 type SlotDecrypter interface {
+	KekId() string
 	DecryptSlot(slot *KeySlot, label string) ([]byte, error)
 	CanDecrypt(kind SlotKind, kekId string) bool
 }

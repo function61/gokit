@@ -26,6 +26,10 @@ func NaclSecretBoxEncrypter(kek [32]byte, kekId string) *naclSecretBox {
 	}
 }
 
+func (r *naclSecretBox) KekId() string {
+	return r.kekId
+}
+
 func (r *naclSecretBox) EncryptSlot(dek []byte, label string) (*KeySlot, error) {
 	var nonceSeed [24]byte
 	if _, err := io.ReadFull(rand.Reader, nonceSeed[:]); err != nil {
@@ -39,7 +43,7 @@ func (r *naclSecretBox) EncryptSlot(dek []byte, label string) (*KeySlot, error) 
 
 	return &KeySlot{
 		Kind:         SlotKindNaclSecretBox,
-		KekId:        r.kekId,
+		KekId:        r.KekId(),
 		DekEncrypted: dekEncrypted,
 	}, nil
 }
