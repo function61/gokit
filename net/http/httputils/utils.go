@@ -16,25 +16,35 @@ func NoCacheHeaders(w http.ResponseWriter) {
 	w.Header().Set("Cache-Control", "no-store, must-revalidate")
 }
 
-func RemoveGracefulServerClosedError(httpServerError error) error {
-	if httpServerError == http.ErrServerClosed {
-		return nil
+// helper for adapting context cancellation to shutdown the HTTP listener
+func CancelableServer(ctx context.Context, srv *http.Server, listener func() error) error {
+	shutdownerCtx, cancel := context.WithCancel(ctx)
+
+	shutdownResult := make(chan error, 1)
+
+	// this is the actual shutdowner
+	go func() {
+		// triggered by parent cancellation
+		// (or below for cleanup if ListenAndServe() failed by itself)
+		<-shutdownerCtx.Done()
+
+		// can't use parent ctx b/c it'd cancel the Shutdown() itself
+		shutdownResult <- srv.Shutdown(context.Background())
+	}()
+
+	err := listener()
+
+	// ask shutdowner to stop. this is useful only for cleanup where listener failed before
+	// it was requested to shut down b/c parent cancellation didn't happen and thus the
+	// shutdowner would still wait.
+	cancel()
+
+	if err == http.ErrServerClosed { // expected for graceful shutdown (not actually error)
+		return <-shutdownResult // should be nil, unless shutdown fails
 	} else {
 		// some other error
 		// (or nil, but http server should always exit with non-nil error)
-		return httpServerError
-	}
-}
-
-// helper for making HTTP shutdown task (as in compatible with gokit/taskrunner)
-//
-// Go's http.Server is weird that we cannot use context cancellation to stop it, but instead
-// we have to call srv.Shutdown()
-func ServerShutdownTask(server *http.Server) func(context.Context) error {
-	return func(ctx context.Context) error {
-		<-ctx.Done()
-		// can't use task ctx b/c it'd cancel the Shutdown() itself
-		return server.Shutdown(context.Background())
+		return err
 	}
 }
 
