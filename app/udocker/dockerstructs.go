@@ -86,3 +86,9 @@ type Node struct {
 type NodeDescription struct {
 	Hostname string `json:"Hostname"`
 }
+
+type NetworkInspectOutput struct {
+	Containers map[string]*struct {
+		IPv4Address string `json:"IPv4Address"` // looks like 10.0.1.7/24
+	} `json:"Containers"`
+}

@@ -10,3 +10,7 @@ const (
 func ContainerInspectEndpoint(containerId string) string {
 	return "/v1.24/containers/" + containerId + "/json"
 }
+
+func NetworkInspectEndpoint(networkId string) string {
+	return "/v1.24/networks/" + networkId
+}
