@@ -1,5 +1,8 @@
 // Use public key crypto to encrypt a data stream in a way, that the encrypting party can
 // not necessarily decrypt the same data (unless she possesses the private key as well).
+//
+// DEPRECATED: this provides confidentiality, but is malleable (ciphertext is not authenticated)
+//             use Age instead
 package pkencryptedstream
 
 /*	Public key (RSA) encrypted stream:

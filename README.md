@@ -25,3 +25,4 @@ Deprecations
 ------------
 
 - `csrf/` - just use SameSite cookies
+- `crypto/pkencryptedstream/` - provides confidentiality, but is malleable (ciphertext is not authenticated). Use Age instead.
