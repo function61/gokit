@@ -4,6 +4,7 @@ package cryptoutil
 import (
 	"crypto"
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
@@ -12,78 +13,6 @@ import (
 
 	"golang.org/x/crypto/ssh"
 )
-
-const (
-	PemTypePrivateKey    = "PRIVATE KEY" // PKCS8? type of key parametrized
-	PemTypePublicKey     = "PUBLIC KEY"  // PKCS8? type of key parametrized
-	PemTypeRsaPrivateKey = "RSA PRIVATE KEY"
-	PemTypeRsaPublicKey  = "RSA PUBLIC KEY"
-	PemTypeEcPrivateKey  = "EC PRIVATE KEY"
-	PemTypeEcPublicKey   = "EC PUBLIC KEY"
-	PemTypeCertificate   = "CERTIFICATE"
-)
-
-// PEM(PKCS1(rsa.PrivateKey))
-func ParsePemPkcs1EncodedRsaPrivateKey(pemBytes []byte) (*rsa.PrivateKey, error) {
-	privKeyBytes, err := ParsePemBytes(pemBytes, PemTypeRsaPrivateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	privKey, err := x509.ParsePKCS1PrivateKey(privKeyBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return privKey, nil
-}
-
-// PEM(PKCS1(rsa.PublicKey))
-func ParsePemPkcs1EncodedRsaPublicKey(pemBytes []byte) (*rsa.PublicKey, error) {
-	pubKeyBytes, err := ParsePemBytes(pemBytes, PemTypeRsaPublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	pubKey, err := x509.ParsePKCS1PublicKey(pubKeyBytes)
-	if err != nil {
-		return nil, err
-	}
-
-	return pubKey, nil
-}
-
-func MarshalPemPkcs1EncodedRsaPublicKey(pubKey *rsa.PublicKey) []byte {
-	return MarshalPemBytes(x509.MarshalPKCS1PublicKey(pubKey), PemTypeRsaPublicKey)
-}
-
-func MarshalPemPkcs1EncodedRsaPrivateKey(privKey *rsa.PrivateKey) []byte {
-	return MarshalPemBytes(x509.MarshalPKCS1PrivateKey(privKey), PemTypeRsaPrivateKey)
-}
-
-func MarshalPemBytes(content []byte, pemType string) []byte {
-	return pem.EncodeToMemory(
-		&pem.Block{
-			Type:  pemType,
-			Bytes: content,
-		},
-	)
-}
-
-func ParsePemBytes(pemBytes []byte, expectedType string) ([]byte, error) {
-	pemParsed, _ := pem.Decode(pemBytes)
-	if pemParsed == nil {
-		return nil, errors.New("PEM decode failed")
-	}
-	if pemParsed.Type != expectedType {
-		return nil, fmt.Errorf(
-			"unexpected PEM block type: %s; expecting %s",
-			pemParsed.Type,
-			expectedType)
-	}
-
-	return pemParsed.Bytes, nil
-}
 
 func ParsePemEncodedPrivateKey(serialized []byte) (crypto.PrivateKey, error) {
 	block, _ := pem.Decode(serialized)
@@ -96,6 +25,8 @@ func ParsePemEncodedPrivateKey(serialized []byte) (crypto.PrivateKey, error) {
 		return x509.ParsePKCS1PrivateKey(block.Bytes)
 	case PemTypeEcPrivateKey:
 		return x509.ParseECPrivateKey(block.Bytes)
+	case PemTypePrivateKey: // PKCS #8
+		return x509.ParsePKCS8PrivateKey(block.Bytes)
 	default:
 		return nil, fmt.Errorf("unknown private key type: %s", block.Type)
 	}
@@ -107,6 +38,8 @@ func PublicKeyFromPrivateKey(priv crypto.PrivateKey) (crypto.PublicKey, error) {
 		return &p.PublicKey, nil
 	case *ecdsa.PrivateKey:
 		return &p.PublicKey, nil
+	case *ed25519.PrivateKey:
+		return p.Public(), nil
 	default:
 		return nil, errors.New("failed to get public key from private key")
 	}
@@ -119,6 +52,8 @@ func PublicKeyHumanReadableDescription(pubkey crypto.PublicKey) (string, error) 
 		return fmt.Sprintf("RSA-%d", p.Size()*8), nil
 	case *ecdsa.PublicKey:
 		return "ECDSA", nil
+	case *ed25519.PublicKey:
+		return "Ed25519", nil
 	default:
 		return "", errors.New("unknown public key algorithm")
 	}
