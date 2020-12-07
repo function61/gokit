@@ -21,7 +21,6 @@ ExecStart=/home/dummy/testservice_amd64 start
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
-Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 `)
 
 	assert.EqualString(t, GetHints(sf), `Wrote unit file to /etc/systemd/system/testservice.service
@@ -48,7 +47,6 @@ ExecStart=/home/dummy/testservice_amd64 start
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
-Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 `)
 }
 
@@ -68,7 +66,6 @@ ExecStart=/home/dummy/testservice_amd64
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
-Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 `)
 }
 
@@ -87,7 +84,6 @@ ExecStart=/home/dummy/testservice_amd64
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
-Environment=LOGGER_SUPPRESS_TIMESTAMPS=1
 Environment=HOME=/root
 `)
 }

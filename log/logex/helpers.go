@@ -30,7 +30,15 @@ func StandardLogger() *log.Logger {
 func StandardLoggerTo(sink io.Writer) *log.Logger {
 	flags := log.LstdFlags
 
-	if os.Getenv("LOGGER_SUPPRESS_TIMESTAMPS") == "1" {
+	// "This permits invoked processes to safely detect whether their standard output or standard
+	// error output are connected to the journal."
+	// https://www.freedesktop.org/software/systemd/man/systemd.exec.html#%24JOURNAL_STREAM
+	systemdJournal := os.Getenv("JOURNAL_STREAM") != ""
+
+	// explicitly asked, e.g. set by orchestrator when running in Docker with log redirection taken care of
+	explicitSuppress := os.Getenv("LOGGER_SUPPRESS_TIMESTAMPS") == "1"
+
+	if systemdJournal || explicitSuppress {
 		flags = 0 // LstdFlags were "Ldate | Ltime"
 	}
 

@@ -25,12 +25,9 @@ type optFn func(*serviceFile)
 func SystemdServiceFile(servicename string, description string, opts ...optFn) serviceFile {
 	selfAbsolutePath, err := filepath.Abs(os.Args[0])
 
-	// why LOGGER_SUPPRESS_TIMESTAMPS? journalctl adds its own timestamps to each line,
-	// so this is redundant data. respected by gokit/log/logex
 	sf := serviceFile{
 		servicename:      servicename,
 		description:      description,
-		envs:             []string{"LOGGER_SUPPRESS_TIMESTAMPS=1"},
 		selfAbsolutePath: selfAbsolutePath,
 		err:              err,
 	}
