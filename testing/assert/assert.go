@@ -9,7 +9,7 @@ import (
 
 // waiting for generics to arrive to Go..
 
-func EqualString(t *testing.T, actual string, expected string) {
+func EqualString(t testing.TB, actual string, expected string) {
 	t.Helper()
 
 	if actual != expected {
@@ -17,7 +17,7 @@ func EqualString(t *testing.T, actual string, expected string) {
 	}
 }
 
-func EqualInt(t *testing.T, actual int, expected int) {
+func EqualInt(t testing.TB, actual int, expected int) {
 	t.Helper()
 
 	if actual != expected {
@@ -25,7 +25,7 @@ func EqualInt(t *testing.T, actual int, expected int) {
 	}
 }
 
-func EqualJson(t *testing.T, obj interface{}, expected string) {
+func EqualJson(t testing.TB, obj interface{}, expected string) {
 	t.Helper()
 
 	jsonBytes, err := json.MarshalIndent(obj, "", "  ")
@@ -36,7 +36,7 @@ func EqualJson(t *testing.T, obj interface{}, expected string) {
 	EqualString(t, string(jsonBytes), expected)
 }
 
-func Assert(t *testing.T, expr bool) {
+func Assert(t testing.TB, expr bool) {
 	t.Helper()
 
 	if !expr {
@@ -44,7 +44,7 @@ func Assert(t *testing.T, expr bool) {
 	}
 }
 
-func Ok(t *testing.T, err error) {
+func Ok(t testing.TB, err error) {
 	t.Helper()
 
 	if err != nil {
@@ -52,7 +52,7 @@ func Ok(t *testing.T, err error) {
 	}
 }
 
-func Matches(t *testing.T, actual string, pattern string) {
+func Matches(t testing.TB, actual string, pattern string) {
 	t.Helper()
 
 	if !regexp.MustCompile(pattern).MatchString(actual) {
