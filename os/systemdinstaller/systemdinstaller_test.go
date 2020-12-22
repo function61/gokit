@@ -1,13 +1,14 @@
 package systemdinstaller
 
 import (
+	"os"
 	"testing"
 
 	"github.com/function61/gokit/testing/assert"
 )
 
 func TestBasic(t *testing.T) {
-	sf := SystemdServiceFile("testservice", "My cool service", Args("start"))
+	sf := Service("testservice", "My cool service", Args("start"))
 	sf = fixForTest(sf)
 
 	assert.EqualString(t, serialize(sf), `[Unit]
@@ -23,15 +24,41 @@ Restart=always
 RestartSec=10s
 `)
 
-	assert.EqualString(t, GetHints(sf), `Wrote unit file to /etc/systemd/system/testservice.service
+	assert.EqualString(t, EnableAndStartCommandHints(sf), `Wrote unit file to /etc/systemd/system/testservice.service
 Run to enable on boot & to start now:
 	$ systemctl enable testservice
 	$ systemctl start testservice
 	$ systemctl status testservice`)
 }
 
+func TestUserService(t *testing.T) {
+	defer envVariableDuringTest("HOME", "/home/foobar")()
+
+	sf := UserService("testservice", "My cool service", Args("start"))
+	sf = fixForTest(sf)
+
+	assert.EqualString(t, serialize(sf), `[Unit]
+Description=My cool service
+
+[Install]
+WantedBy=default.target
+
+[Service]
+ExecStart=/home/dummy/testservice_amd64 start
+WorkingDirectory=/home/dummy
+Restart=always
+RestartSec=10s
+`)
+
+	assert.EqualString(t, EnableAndStartCommandHints(sf), `Wrote unit file to /home/foobar/.config/systemd/user/testservice.service
+Run to enable on boot & to start now:
+	$ systemctl --user enable testservice
+	$ systemctl --user start testservice
+	$ systemctl --user status testservice`)
+}
+
 func TestRequireNetworkOnline(t *testing.T) {
-	sf := SystemdServiceFile("testservice", "My cool service", Args("start"), RequireNetworkOnline)
+	sf := Service("testservice", "My cool service", Args("start"), RequireNetworkOnline)
 	sf = fixForTest(sf)
 
 	assert.EqualString(t, serialize(sf), `[Unit]
@@ -51,7 +78,7 @@ RestartSec=10s
 }
 
 func TestDocs(t *testing.T) {
-	sf := SystemdServiceFile("testservice", "My cool service", Docs("https://function61.com/", "https://github.com/function61/gokit"))
+	sf := Service("testservice", "My cool service", Docs("https://function61.com/", "https://github.com/function61/gokit"))
 	sf = fixForTest(sf)
 
 	assert.EqualString(t, serialize(sf), `[Unit]
@@ -70,7 +97,7 @@ RestartSec=10s
 }
 
 func TestEnv(t *testing.T) {
-	sf := SystemdServiceFile("testservice", "My cool service", Env("HOME", "/root"))
+	sf := Service("testservice", "My cool service", Env("HOME", "/root"))
 	sf = fixForTest(sf)
 
 	assert.EqualString(t, serialize(sf), `[Unit]
@@ -91,4 +118,26 @@ Environment=HOME=/root
 func fixForTest(sf serviceFile) serviceFile {
 	sf.selfAbsolutePath = "/home/dummy/testservice_amd64" // need to monkey patch this to get deterministic output
 	return sf
+}
+
+func envVariableDuringTest(key string, value string) func() {
+	oldValue, oldValueExisted := os.LookupEnv(key)
+
+	// change for the duration of the test
+	if err := os.Setenv(key, value); err != nil {
+		panic(err)
+	}
+
+	// cleanup returns variable to old state
+	return func() {
+		if oldValueExisted {
+			if err := os.Setenv(key, oldValue); err != nil {
+				panic(err)
+			}
+		} else { // did not exist (not same as empty value)
+			if err := os.Unsetenv(key); err != nil {
+				panic(err)
+			}
+		}
+	}
 }
