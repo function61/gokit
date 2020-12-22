@@ -2,12 +2,12 @@
 package systemdinstaller
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"errors"
 )
 
 type serviceFile struct {
@@ -76,8 +76,8 @@ func Install(sf serviceFile) error {
 	// https://unix.stackexchange.com/questions/433886/what-are-the-correct-permissions-for-a-systemd-service
 	if err := ioutil.WriteFile(filePath, []byte(serialize(sf)), 0644); err != nil {
 		// try to improve UX
-		if errors.Is(err,os.ErrPermission) {
-			return fmt.Errorf("%w\nHint: try prefix with '$ sudo ...'",err)
+		if errors.Is(err, os.ErrPermission) {
+			return fmt.Errorf("%w\nHint: try prefix with '$ sudo ...'", err)
 		} else {
 			return err
 		}
