@@ -103,9 +103,9 @@ func EnableAndStartCommandHints(sf serviceFile) string {
 
 	return strings.Join([]string{
 		"Wrote unit file to " + filePath,
-		"Run to enable on boot & to start now:",
-		"	$ systemctl" + maybeUserArg + " enable " + sf.serviceName,
-		"	$ systemctl" + maybeUserArg + " start " + sf.serviceName,
+		"Run to enable on boot & to start (--)now:",
+		"	$ systemctl" + maybeUserArg + " enable --now " + sf.serviceName,
+		"Verify successful start:",
 		"	$ systemctl" + maybeUserArg + " status " + sf.serviceName,
 	}, "\n")
 }

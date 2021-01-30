@@ -25,9 +25,9 @@ RestartSec=10s
 `)
 
 	assert.EqualString(t, EnableAndStartCommandHints(sf), `Wrote unit file to /etc/systemd/system/testservice.service
-Run to enable on boot & to start now:
-	$ systemctl enable testservice
-	$ systemctl start testservice
+Run to enable on boot & to start (--)now:
+	$ systemctl enable --now testservice
+Verify successful start:
 	$ systemctl status testservice`)
 }
 
@@ -51,9 +51,9 @@ RestartSec=10s
 `)
 
 	assert.EqualString(t, EnableAndStartCommandHints(sf), `Wrote unit file to /home/foobar/.config/systemd/user/testservice.service
-Run to enable on boot & to start now:
-	$ systemctl --user enable testservice
-	$ systemctl --user start testservice
+Run to enable on boot & to start (--)now:
+	$ systemctl --user enable --now testservice
+Verify successful start:
 	$ systemctl --user status testservice`)
 }
 
