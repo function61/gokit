@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/function61/gokit/os/atomicfilewrite"
+	"github.com/function61/gokit/os/osutil"
 )
 
 func Read(path string, data interface{}, disallowUnknownFields bool) error {
@@ -25,7 +25,7 @@ func Read(path string, data interface{}, disallowUnknownFields bool) error {
 }
 
 func Write(path string, data interface{}) error {
-	return atomicfilewrite.Write(path, func(writer io.Writer) error {
+	return osutil.WriteFileAtomic(path, func(writer io.Writer) error {
 		return Marshal(writer, data)
 	})
 }

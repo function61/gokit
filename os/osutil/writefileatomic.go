@@ -1,6 +1,6 @@
 // Writes a file to FS using temp-filename scheme, so destination filename should only
 // appear when file write is atomically "ok"
-package atomicfilewrite
+package osutil
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 // - rename temp filename to filename if everything went OK
 //
 // If encountering any errors, remove the partial file
-func Write(filename string, produce func(io.Writer) error) error {
+func WriteFileAtomic(filename string, produce func(io.Writer) error) error {
 	tempFilename := filename + ".part"
 
 	tempFile, err := os.Create(tempFilename)
