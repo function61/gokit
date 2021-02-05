@@ -6,29 +6,29 @@ import (
 	"github.com/function61/gokit/testing/assert"
 )
 
-func TestParseEnvs(t *testing.T) {
-	key, val := ParseEnvs("FOO=bar")
+func TestParseEnv(t *testing.T) {
+	key, val := ParseEnv("FOO=bar")
 
 	assert.EqualString(t, key, "FOO")
 	assert.EqualString(t, val, "bar")
 }
 
-func TestParseEnvsEmptyValue(t *testing.T) {
-	key, val := ParseEnvs("FOO=")
+func TestParseEnvEmptyValue(t *testing.T) {
+	key, val := ParseEnv("FOO=")
 
 	assert.EqualString(t, key, "FOO")
 	assert.EqualString(t, val, "")
 }
 
-func TestParseEnvsSyntaxError(t *testing.T) {
-	key, val := ParseEnvs("=")
+func TestParseEnvSyntaxError(t *testing.T) {
+	key, val := ParseEnv("=")
 
 	assert.EqualString(t, key, "")
 	assert.EqualString(t, val, "")
 }
 
-func TestParseEnvsEmptyString(t *testing.T) {
-	key, val := ParseEnvs("")
+func TestParseEnvEmptyString(t *testing.T) {
+	key, val := ParseEnv("")
 
 	assert.EqualString(t, key, "")
 	assert.EqualString(t, val, "")

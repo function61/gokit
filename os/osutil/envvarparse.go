@@ -9,7 +9,7 @@ import (
 
 var envParseRe = regexp.MustCompile("^([^=]+)=(.*)")
 
-func ParseEnvs(serialized string) (string, string) {
+func ParseEnv(serialized string) (string, string) {
 	matches := envParseRe.FindStringSubmatch(serialized)
 	if matches == nil {
 		return "", ""
