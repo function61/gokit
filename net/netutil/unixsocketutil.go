@@ -1,4 +1,4 @@
-// Net utilities
+// Net utilities - there's quite a lot of ceremony setting up a unix socket in a robust way.
 package netutil
 
 import (
@@ -14,17 +14,29 @@ import (
 // => RW for each desired (owner/group/other)
 // not adding permutations that don't make sense: (), (group, other) and (other)
 var (
-	UnixAllowOwner         = osutil.FileMode(osutil.OwnerRW, osutil.GroupNone, osutil.OtherNone)
-	UnixAllowOwnerAndGroup = osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherNone)
-	UnixAllowEveryone      = osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherRW)
+	allowOwner         = osutil.FileMode(osutil.OwnerRW, osutil.GroupNone, osutil.OtherNone)
+	allowOwnerAndGroup = osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherNone)
+	allowEveryone      = osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherRW)
 )
 
-// there's quite a lot of ceremony setting up a unix socket in a robust way.
-func ListenUnix(
+func ListenUnixAllowOwner(ctx context.Context, sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(ctx, sockPath, &allowOwner, with)
+}
+
+func ListenUnixAllowOwnerAndGroup(ctx context.Context, sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(ctx, sockPath, &allowOwnerAndGroup, with)
+}
+
+func ListenUnixAllowEveryone(ctx context.Context, sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(ctx, sockPath, &allowEveryone, with)
+}
+
+// pass nil os.FileMode if you don't want to Chmod() the socket file
+func ListenUnixWithMode(
 	ctx context.Context,
 	sockPath string,
 	mode *os.FileMode,
-	with func(listener net.Listener) error,
+	with func(net.Listener) error,
 ) error {
 	exists, err := osutil.Exists(sockPath)
 	if err != nil {
