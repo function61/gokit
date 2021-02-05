@@ -15,6 +15,8 @@ import (
 // makes (background-derived) context that cancels on SIGINT ("Ctrl + c") or SIGTERM. it
 // stops signal listening on first received signal, so that if user sends next signal
 // (teardown maybe stuck?), it terminates the process immediately.
+//
+// TODO: will signal.NotifyContext() cover our needs?
 func CancelOnInterruptOrTerminate(logger *log.Logger) context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
 
