@@ -1,4 +1,4 @@
-// I got tired of writing the same readConfigFile(), writeConfigFile() magic over and over again..
+// I got tired of writing the same readConfigFile(), writeConfigFile() boilerplate over and over again..
 package jsonfile
 
 import (
@@ -10,14 +10,22 @@ import (
 	"github.com/function61/gokit/os/osutil"
 )
 
-func Read(path string, data interface{}, disallowUnknownFields bool) error {
+func ReadDisallowUnknownFields(path string, data interface{}) error {
+	return read(path, data, UnmarshalDisallowUnknownFields)
+}
+
+func ReadAllowUnknownFields(path string, data interface{}) error {
+	return read(path, data, UnmarshalAllowUnknownFields)
+}
+
+func read(path string, data interface{}, unmarshal func(io.Reader, interface{}) error) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	if err := Unmarshal(file, data, disallowUnknownFields); err != nil {
+	if err := unmarshal(file, data); err != nil {
 		return fmt.Errorf("%s: %s", path, err.Error())
 	}
 
@@ -30,7 +38,15 @@ func Write(path string, data interface{}) error {
 	})
 }
 
-func Unmarshal(source io.Reader, data interface{}, disallowUnknownFields bool) error {
+func UnmarshalDisallowUnknownFields(source io.Reader, data interface{}) error {
+	return unmarshalInternal(source, data, true)
+}
+
+func UnmarshalAllowUnknownFields(source io.Reader, data interface{}) error {
+	return unmarshalInternal(source, data, false)
+}
+
+func unmarshalInternal(source io.Reader, data interface{}, disallowUnknownFields bool) error {
 	jsonDecoder := json.NewDecoder(source)
 	if disallowUnknownFields {
 		jsonDecoder.DisallowUnknownFields()
