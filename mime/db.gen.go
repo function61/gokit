@@ -120,7 +120,7 @@ var mimeTypes = map[string]*Spec{
 	"application/ecmascript": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
-		Extensions:   []string{"ecma", "es"},
+		Extensions:   []string{"es", "ecma"},
 	},
 	"application/emma+xml": &Spec{
 		Source:       "iana",
@@ -327,16 +327,6 @@ var mimeTypes = map[string]*Spec{
 	"application/mp4": &Spec{
 		Source:     "iana",
 		Extensions: []string{"mp4s", "m4p"},
-	},
-	"application/mrb-consumer+xml": &Spec{
-		Source:       "iana",
-		Compressible: &trueVal,
-		Extensions:   []string{"xdf"},
-	},
-	"application/mrb-publish+xml": &Spec{
-		Source:       "iana",
-		Compressible: &trueVal,
-		Extensions:   []string{"xdf"},
 	},
 	"application/msword": &Spec{
 		Source:       "iana",
@@ -672,10 +662,19 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"ttml"},
 	},
+	"application/ubjson": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"ubj"},
+	},
 	"application/urc-ressheet+xml": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"rsheet"},
+	},
+	"application/urc-targetdesc+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"td"},
 	},
 	"application/vnd.1000minds.decision-model+xml": &Spec{
 		Source:       "iana",
@@ -934,6 +933,10 @@ var mimeTypes = map[string]*Spec{
 	"application/vnd.data-vision.rdz": &Spec{
 		Source:     "iana",
 		Extensions: []string{"rdz"},
+	},
+	"application/vnd.dbf": &Spec{
+		Source:     "iana",
+		Extensions: []string{"dbf"},
 	},
 	"application/vnd.dece.data": &Spec{
 		Source:     "iana",
@@ -1868,6 +1871,10 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"qxd", "qxt", "qwd", "qwt", "qxl", "qxb"},
 	},
+	"application/vnd.rar": &Spec{
+		Source:     "iana",
+		Extensions: []string{"rar"},
+	},
 	"application/vnd.realvnc.bed": &Spec{
 		Source:     "iana",
 		Extensions: []string{"bed"},
@@ -2789,11 +2796,6 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"xel"},
 	},
-	"application/xcap-error+xml": &Spec{
-		Source:       "iana",
-		Compressible: &trueVal,
-		Extensions:   []string{"xer"},
-	},
 	"application/xcap-ns+xml": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
@@ -2837,7 +2839,7 @@ var mimeTypes = map[string]*Spec{
 	"application/xslt+xml": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
-		Extensions:   []string{"xslt"},
+		Extensions:   []string{"xsl", "xslt"},
 	},
 	"application/xspf+xml": &Spec{
 		Source:       "apache",
@@ -2872,6 +2874,10 @@ var mimeTypes = map[string]*Spec{
 		Source:     "apache",
 		Extensions: []string{"adp"},
 	},
+	"audio/amr": &Spec{
+		Source:     "iana",
+		Extensions: []string{"amr"},
+	},
 	"audio/basic": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
@@ -2902,7 +2908,7 @@ var mimeTypes = map[string]*Spec{
 	"audio/ogg": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
-		Extensions:   []string{"oga", "ogg", "spx"},
+		Extensions:   []string{"oga", "ogg", "spx", "opus"},
 	},
 	"audio/s3m": &Spec{
 		Source:     "apache",
@@ -3081,6 +3087,11 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &falseVal,
 		Extensions:   []string{"apng"},
 	},
+	"image/avif": &Spec{
+		Source:       "iana",
+		Compressible: &falseVal,
+		Extensions:   []string{"avif"},
+	},
 	"image/bmp": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
@@ -3203,6 +3214,10 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"ktx"},
 	},
+	"image/ktx2": &Spec{
+		Source:     "iana",
+		Extensions: []string{"ktx2"},
+	},
 	"image/png": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
@@ -3305,6 +3320,10 @@ var mimeTypes = map[string]*Spec{
 	"image/vnd.net-fpx": &Spec{
 		Source:     "iana",
 		Extensions: []string{"npx"},
+	},
+	"image/vnd.pco.b16": &Spec{
+		Source:     "iana",
+		Extensions: []string{"b16"},
 	},
 	"image/vnd.tencent.tap": &Spec{
 		Source:     "iana",
@@ -3509,6 +3528,10 @@ var mimeTypes = map[string]*Spec{
 	"model/vnd.parasolid.transmit.text": &Spec{
 		Source:     "iana",
 		Extensions: []string{"x_t"},
+	},
+	"model/vnd.sap.vds": &Spec{
+		Source:     "iana",
+		Extensions: []string{"vds"},
 	},
 	"model/vnd.usdz+zip": &Spec{
 		Source:       "iana",
@@ -3835,6 +3858,10 @@ var mimeTypes = map[string]*Spec{
 	"video/h264": &Spec{
 		Source:     "iana",
 		Extensions: []string{"h264"},
+	},
+	"video/iso.segment": &Spec{
+		Source:     "iana",
+		Extensions: []string{"m4s"},
 	},
 	"video/jpeg": &Spec{
 		Source:     "iana",
