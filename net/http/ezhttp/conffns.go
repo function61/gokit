@@ -54,7 +54,20 @@ func SendBody(body io.Reader, contentType string) ConfigPiece {
 	}
 }
 
+func RespondsJsonAllowUnknownFields(obj interface{}) ConfigPiece {
+	return respondsJson(obj, true)
+}
+
+func RespondsJsonDisallowUnknownFields(obj interface{}) ConfigPiece {
+	return respondsJson(obj, false)
+}
+
+// Deprecated: use explicit allow/disallow instead
 func RespondsJson(ref interface{}, allowUnknownFields bool) ConfigPiece {
+	return respondsJson(ref, allowUnknownFields)
+}
+
+func respondsJson(ref interface{}, allowUnknownFields bool) ConfigPiece {
 	return After(func(conf *Config) {
 		conf.Request.Header.Set("Accept", jsonContentType)
 
