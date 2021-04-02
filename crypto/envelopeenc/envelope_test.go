@@ -6,7 +6,7 @@ import (
 	"github.com/function61/gokit/testing/assert"
 )
 
-func TestEncryptFailsWithoutSlots(t *testing.T) {
-	_, err := Encrypt([]byte("sekrit"), []SlotEncrypter{}, "label")
-	assert.EqualString(t, err.Error(), "envelope with zero slots not supported")
+func TestEncryptFailsWithoutRecipient(t *testing.T) {
+	_, _, err := GenerateAndEncryptDek("label")
+	assert.EqualString(t, err.Error(), "envelope with zero recipients not supported")
 }
