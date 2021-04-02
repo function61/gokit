@@ -1,130 +1,13 @@
 package envelopeenc
 
 import (
-	"bufio"
 	"bytes"
-	"crypto/hmac"
-	"crypto/sha256"
-	"crypto/subtle"
-	"encoding/base64"
-	"encoding/json"
-	"errors"
+	"encoding/binary"
 	"fmt"
 	"io"
-
-	"golang.org/x/crypto/hkdf"
 )
 
-// func (e *EnvelopeBundle) Marshal(label string, recipients ...Recipient) ([]byte, []byte, error) {
-
-func Marshal(label string, recipients ...Recipient) ([]byte, []byte, error) {
-	bundle, dek, err := GenerateAndEncryptDek(label, recipients...)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	bundleJson, err := json.Marshal(bundle)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	headerMac, err := calculateHeaderMac(dek, bundleJson)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	headerAndMac := fmt.Sprintf(
-		"%s\n%s",
-		bundleJson,
-		headerMac)
-
-	return []byte(headerAndMac), dek, nil
-}
-
-type Unmarshaled struct {
-	// all fields private to force decryption via API that forces MAC validation
-
-	bundle     EnvelopeBundle
-	jsonToHash []byte
-	claimedMac []byte
-}
-
-/*
-func (e *EnvelopeBundle) DecryptWithResolver(resolveKek KekResolver) ([]byte, error) {
-	for _, env := range e.Envelopes {
-		if decrypter := resolveKek(env.Kind, env.KekId); decrypter != nil {
-			return decrypter.DecryptSlot(&env, e.Label)
-		}
-	}
-
-	return nil, errors.New("no suitable KEK found for any key slots")
-}*/
-
-func (u *Unmarshaled) Decrypt(decrypters ...Decrypter) ([]byte, error) {
-	dek, err := u.bundle.Decrypt(decrypters...)
-	if err != nil {
-		return nil, err
-	}
-
-	// now that we know the key, we can calculate this
-	expectedMac, err := calculateHeaderMac(dek, u.jsonToHash)
-	if err != nil {
-		return nil, fmt.Errorf("Decrypt: %w", err)
-	}
-
-	if subtle.ConstantTimeCompare(u.claimedMac, expectedMac) != 1 {
-		return nil, errors.New("Decrypt: invalid MAC")
-	}
-
-	return dek, nil
-}
-
-func Unmarshal(marshaled []byte) (*Unmarshaled, error) {
-	scanner := bufio.NewScanner(bytes.NewReader(marshaled))
-	if !scanner.Scan() {
-		return nil, fmt.Errorf("failed to scan first line: %w", scanner.Err())
-	}
-	jsonToHash := scanner.Bytes()
-
-	if !scanner.Scan() {
-		return nil, fmt.Errorf("failed to scan second line: %w", scanner.Err())
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failure scanning second line: %w", scanner.Err())
-	}
-
-	claimedMac := scanner.Bytes()
-
-	bundle := EnvelopeBundle{}
-	if err := json.Unmarshal(jsonToHash, &bundle); err != nil {
-		return nil, fmt.Errorf("failure parsing JSON: %w", err)
-	}
-
-	// TODO: assert for no extra data?
-
-	return &Unmarshaled{
-		bundle:     bundle,
-		jsonToHash: jsonToHash,
-		claimedMac: claimedMac,
-	}, nil
-}
-
-func calculateHeaderMac(dek []byte, bundleJson []byte) ([]byte, error) {
-	headerMacKey := make([]byte, 32)
-	if _, err := io.ReadFull(hkdf.New(sha256.New, dek, nil, ourSalts.Header), headerMacKey); err != nil {
-		return nil, err
-	}
-
-	headerMac := hmac.New(sha256.New, headerMacKey)
-	if _, err := headerMac.Write(bundleJson); err != nil {
-		return nil, err
-	}
-
-	return []byte(base64.RawURLEncoding.EncodeToString(headerMac.Sum(nil))), nil
-}
-
-// const marshalVersion = 1
+const marshalVersion = 1
 
 /*	Format:
 
@@ -144,10 +27,9 @@ func calculateHeaderMac(dek []byte, bundleJson []byte) ([]byte, error) {
 	      imported (even runtime) code to use it.
 */
 
-/*
 // Marshals an envelope into a compact byte structure
 // TODO: missing label and slot kind (DON'T USE)
-func (e *Box) MarshalDONTUSE() ([]byte, error) {
+func (e *Envelope) MarshalDONTUSE() ([]byte, error) {
 	out := bytes.Buffer{}
 
 	var err error
@@ -186,7 +68,7 @@ func (e *Box) MarshalDONTUSE() ([]byte, error) {
 	return out.Bytes(), err
 }
 
-func UnmarshalDONTUSE(buf []byte) (*Box, error) {
+func UnmarshalDONTUSE(buf []byte) (*Envelope, error) {
 	bufReader := bytes.NewBuffer(buf)
 
 	version, err := binary.ReadUvarint(bufReader)
@@ -245,9 +127,8 @@ func UnmarshalDONTUSE(buf []byte) (*Box, error) {
 		})
 	}
 
-	return &Box{
+	return &Envelope{
 		EncryptedContent: encryptedContent,
 		KeySlots:         keySlots,
 	}, nil
 }
-*/

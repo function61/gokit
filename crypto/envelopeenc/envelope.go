@@ -7,110 +7,130 @@ import (
 	"errors"
 	"io"
 
-	"golang.org/x/crypto/chacha20poly1305"
+	"golang.org/x/crypto/nacl/secretbox"
 )
 
-type Recipient interface {
+type SlotEncrypter interface {
 	KekId() string
-	EncryptSlot(dek []byte, label string) (*Envelope, error)
+	EncryptSlot(dek []byte, label string) (*KeySlot, error)
 }
 
-type Decrypter interface {
+type SlotDecrypter interface {
 	KekId() string
-	DecryptSlot(slot *Envelope, label string) ([]byte, error)
-	// CanDecrypt(kind RecipientKind, kekId string) bool
+	DecryptSlot(slot *KeySlot, label string) ([]byte, error)
+	CanDecrypt(kind SlotKind, kekId string) bool
 }
 
 // Protects its content with a DEK. the DEK is also contained in the envelope, but encrypted
 // with multiple possible KEKs (public keys) as recipients, therefore the envelope can
 // only be opened by any of the KEK private keys
-type EnvelopeBundle struct {
-	Recipients map[string]EnvelopeRaw `json:"recip"`           // keyed by recipient's KEK ID
-	Label      string                 `json:"label,omitempty"` // non-malleable through constructions in each RecipientKind
+type Envelope struct {
+	KeySlots         []KeySlot `json:"key_slots"`
+	Label            string    `json:"label,omitempty"` // non-malleable through RSA_OAEP_SHA256
+	EncryptedContent []byte    `json:"content"`         // nonce || secretbox_ciphertext
 }
 
-type EnvelopeRaw []byte
-
-/*
-type RecipientKind uint8
+// currently supports only one kind, but this is for extensibility
+type SlotKind uint8
 
 const (
-	RecipientKindX25519        RecipientKind = 1 // X25519, anchored to Age
-	RecipientKindElliptic      RecipientKind = 2 // P-256/P-384/P-512
-	RecipientKindSymmetric     RecipientKind = 3
-	RecipientKindPassword      RecipientKind = 4 // scrypt, anchored to Age
-	RecipientKindRsaOaepSha256 RecipientKind = 5 // RSA, anchored to Age
+	SlotKindRsaOaepSha256 SlotKind = 1
+	SlotKindNaclSecretBox SlotKind = 2
 )
-*/
 
 // The envelope is locked with several locks. Any of the KEKs can open the envelope
-type Envelope struct {
-	// Kind         RecipientKind `json:"kind"`
-	KekId        string `json:"recip"`
-	DekEncrypted []byte `json:"env"`
+type KeySlot struct {
+	Kind         SlotKind `json:"kind"`          // what kind of a key slot this is
+	KekId        string   `json:"kek_id"`        // Kind=1 => SHA256-fingerprint of RSA public key, Kind=2 => name for key
+	DekEncrypted []byte   `json:"dek_encrypted"` // Kind=1 => RSA_OAEP_SHA256(kekPub, dek, label), Kind=2 => nonceSeed || naclSecretBoxSeal(dek, deriveNonce(nonceSeed, label), kek)
 }
 
-// type KekResolver func(kind RecipientKind, kekId string) Decrypter
+type KekResolver func(kind SlotKind, kekId string) SlotDecrypter
 
-// generates & encrypts a DEK
-func GenerateAndEncryptDek(
+func Encrypt(plaintext []byte, slotEncrypters []SlotEncrypter, label string) (*Envelope, error) {
+	return encryptWithRand(plaintext, slotEncrypters, label, rand.Reader)
+}
+
+func encryptWithRand(
+	plaintext []byte,
+	slotEncrypters []SlotEncrypter,
 	label string,
-	recipients ...Recipient,
-) (*EnvelopeBundle, []byte, error) {
-	dek := make([]byte, chacha20poly1305.KeySize)
-	if _, err := io.ReadFull(rand.Reader, dek); err != nil {
-		return nil, nil, err
+	cryptoRandReader io.Reader,
+) (*Envelope, error) {
+	var secretKey [32]byte
+	if _, err := io.ReadFull(cryptoRandReader, secretKey[:]); err != nil {
+		return nil, err
 	}
 
-	recipientEnvelopes := map[string]EnvelopeRaw{}
+	var nonce [24]byte
+	if _, err := io.ReadFull(cryptoRandReader, nonce[:]); err != nil {
+		return nil, err
+	}
 
-	for _, kek := range recipients {
-		env, err := kek.EncryptSlot(dek, label)
+	keySlots := []KeySlot{}
+
+	for _, kek := range slotEncrypters {
+		keySlot, err := kek.EncryptSlot(secretKey[:], label)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
-		recipientEnvelopes[kek.KekId()] = env.DekEncrypted
+		keySlots = append(keySlots, *keySlot)
 	}
 
-	// prevent accidents from resulting in effectively lost data
-	if len(recipientEnvelopes) == 0 {
-		return nil, nil, errors.New("envelope with zero recipients not supported")
+	if len(keySlots) == 0 {
+		return nil, errors.New("envelope with zero slots not supported")
 	}
 
-	return &EnvelopeBundle{
-		Recipients: recipientEnvelopes,
-		Label:      label,
-	}, dek, nil
+	// return is basically append(nonce, ciphertext...)
+	nonceAndCiphertext := secretbox.Seal(nonce[:], plaintext, &nonce, &secretKey)
+
+	return &Envelope{
+		KeySlots:         keySlots,
+		Label:            label,
+		EncryptedContent: nonceAndCiphertext,
+	}, nil
 }
 
-func (e *EnvelopeBundle) Decrypt(decrypters ...Decrypter) ([]byte, error) {
-	for _, decrypter := range decrypters {
-		if recipient, found := e.Recipients[decrypter.KekId()]; found {
-			return decrypter.DecryptSlot(&Envelope{
-				DekEncrypted: recipient,
-			}, e.Label)
+func (e *Envelope) Decrypt(decrypters ...SlotDecrypter) ([]byte, error) {
+	return e.DecryptWithResolver(NewKekResolver(decrypters...))
+}
+
+// use this when you want to manage resolving the KEK yourself
+func (e *Envelope) DecryptWithResolver(resolveKek KekResolver) ([]byte, error) {
+	for _, slot := range e.KeySlots {
+		if decrypter := resolveKek(slot.Kind, slot.KekId); decrypter != nil {
+			slot := slot // pin
+
+			dek, err := decrypter.DecryptSlot(&slot, e.Label)
+			if err != nil {
+				return nil, err
+			}
+
+			return e.decryptData(dek)
 		}
 	}
 
 	return nil, errors.New("no suitable KEK found for any key slots")
-
-	// return e.DecryptWithResolver(NewKekResolver(decrypters...))
 }
 
-/*
-func (e *EnvelopeBundle) DecryptWithResolver(resolveKek KekResolver) ([]byte, error) {
-	for kekId, env := range e.Recipients {
-		if decrypter := resolveKek(env.Kind, kekId); decrypter != nil {
-			return decrypter.DecryptSlot(&env, e.Label)
-		}
+func (e *Envelope) decryptData(dek []byte) ([]byte, error) {
+	var nonce [24]byte
+	copy(nonce[:], e.EncryptedContent[:24])
+
+	var dekStatic [32]byte
+	copy(dekStatic[:], dek)
+
+	plaintext, ok := secretbox.Open(nil, e.EncryptedContent[24:], &nonce, &dekStatic)
+	if !ok {
+		return nil, errors.New("secretbox.Open failed")
 	}
 
-	return nil, errors.New("no suitable KEK found for any key slots")
+	return plaintext, nil
 }
 
-func NewKekResolver(decrypters ...Decrypter) KekResolver {
-	return func(kind RecipientKind, kekId string) Decrypter {
+func NewKekResolver(decrypters ...SlotDecrypter) KekResolver {
+	return func(kind SlotKind, kekId string) SlotDecrypter {
 		for _, decrypter := range decrypters {
 			if decrypter.CanDecrypt(kind, kekId) {
 				return decrypter
@@ -119,15 +139,4 @@ func NewKekResolver(decrypters ...Decrypter) KekResolver {
 
 		return nil
 	}
-}
-*/
-
-func concatSlices(slices ...[]byte) []byte {
-	concat := []byte{}
-
-	for _, slice := range slices {
-		concat = append(concat, slice...)
-	}
-
-	return concat
 }
