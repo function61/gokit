@@ -81,6 +81,9 @@ type TaskNetworkAttachmentNetworkSpec struct {
 type Node struct {
 	ID          string          `json:"ID"`
 	Description NodeDescription `json:"Description"`
+	Status      struct {
+		Addr string `json:"Addr"`
+	} `json:"Status"`
 }
 
 type NodeDescription struct {
