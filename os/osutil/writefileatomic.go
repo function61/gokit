@@ -56,7 +56,7 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 	}
 
 	if opts.uid != nil {
-		if err := tempFile.Chown(*opts.uid, *opts.gid); err != nil {
+		if err := tempFile.Chown(*opts.uid, *opts.gid); err != nil && !opts.ignoreIfChownErrors {
 			return err
 		}
 	}
@@ -91,11 +91,12 @@ func newWriteNopCloser(w io.Writer) io.WriteCloser {
 }
 
 type writeFileOptions struct {
-	mode  *fs.FileMode
-	uid   *int
-	gid   *int
-	atime *time.Time
-	mtime *time.Time
+	mode                *fs.FileMode
+	uid                 *int
+	gid                 *int
+	ignoreIfChownErrors bool
+	atime               *time.Time
+	mtime               *time.Time
 }
 
 type WriteFileOption func(opt *writeFileOptions)
@@ -110,6 +111,16 @@ func WriteFileChown(uid int, gid int) WriteFileOption {
 	return func(opt *writeFileOptions) {
 		opt.uid = &uid
 		opt.gid = &gid
+	}
+}
+
+// same as WriteFileChown() but if copying to filesystem that doesn't support Chown(), we'll get an
+// error which we'll ignore
+func WriteFileChownAndIgnoreIfErrors(uid int, gid int) WriteFileOption {
+	return func(opt *writeFileOptions) {
+		opt.uid = &uid
+		opt.gid = &gid
+		opt.ignoreIfChownErrors = true
 	}
 }
 

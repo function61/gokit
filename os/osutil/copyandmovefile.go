@@ -31,7 +31,7 @@ func CopyFile(sourcePath string, destinationPath string) error {
 	if statT, ok := metadata.Sys().(*syscall.Stat_t); ok {
 		opts = append(
 			opts,
-			WriteFileChown(int(statT.Uid), int(statT.Gid)),
+			WriteFileChownAndIgnoreIfErrors(int(statT.Uid), int(statT.Gid)),
 			WriteFileTimes(timespecToTime(statT.Atim), timespecToTime(statT.Mtim), timespecToTime(statT.Ctim)),
 		)
 	} else {
