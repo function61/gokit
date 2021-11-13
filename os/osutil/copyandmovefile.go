@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"syscall"
 	"time"
 )
 
@@ -28,11 +27,11 @@ func CopyFile(sourcePath string, destinationPath string) error {
 	}
 
 	// not all platforms have uid/gid + atime + ctime available
-	if statT, ok := metadata.Sys().(*syscall.Stat_t); ok {
+	if stat := getExtendedFileInfo(metadata); stat != nil {
 		opts = append(
 			opts,
-			WriteFileChownAndIgnoreIfErrors(int(statT.Uid), int(statT.Gid)),
-			WriteFileTimes(timespecToTime(statT.Atim), timespecToTime(statT.Mtim), timespecToTime(statT.Ctim)),
+			WriteFileChownAndIgnoreIfErrors(stat.Uid, stat.Gid),
+			WriteFileTimes(stat.Atim, stat.Mtim, stat.Ctim),
 		)
 	} else {
 		opts = append(
@@ -77,6 +76,11 @@ func MoveFile(sourcePath string, destinationPath string) error {
 	return nil
 }
 
-func timespecToTime(ts syscall.Timespec) time.Time {
-	return time.Unix(int64(ts.Sec), int64(ts.Nsec))
+type extendedFileInfo struct {
+	// fields are basically copied from syscall.Stat_t (only the fields we need)
+	Uid  int
+	Gid  int
+	Atim time.Time
+	Mtim time.Time
+	Ctim time.Time
 }
