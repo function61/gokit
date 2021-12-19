@@ -22,18 +22,18 @@ type serviceFile struct {
 	err                  error // if error reading selfAbsolutePath
 }
 
-type optFn func(*serviceFile)
+type Option func(*serviceFile)
 
-func Service(serviceName string, description string, opts ...optFn) serviceFile {
+func Service(serviceName string, description string, opts ...Option) serviceFile {
 	return newService(serviceName, description, opts, false)
 }
 
 // user-level service
-func UserService(serviceName string, description string, opts ...optFn) serviceFile {
+func UserService(serviceName string, description string, opts ...Option) serviceFile {
 	return newService(serviceName, description, opts, true)
 }
 
-func newService(serviceName string, description string, opts []optFn, userService bool) serviceFile {
+func newService(serviceName string, description string, opts []Option, userService bool) serviceFile {
 	selfAbsolutePath, err := filepath.Abs(os.Args[0])
 
 	sf := serviceFile{
@@ -173,19 +173,19 @@ func unitfilePath(sf serviceFile) (string, error) {
 }
 
 // FIXME(security): args are not shell escaped - DO NOT TAKE THIS FROM USER INPUT
-func Args(args ...string) optFn {
+func Args(args ...string) Option {
 	return func(sf *serviceFile) {
 		sf.args = args
 	}
 }
 
-func Docs(docs ...string) optFn {
+func Docs(docs ...string) Option {
 	return func(sf *serviceFile) {
 		sf.docs = docs
 	}
 }
 
-func Env(key string, value string) optFn {
+func Env(key string, value string) Option {
 	return func(sf *serviceFile) {
 		sf.envs = append(sf.envs, key+"="+value)
 	}
