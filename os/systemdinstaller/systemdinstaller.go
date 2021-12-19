@@ -11,15 +11,17 @@ import (
 )
 
 type serviceFile struct {
-	serviceName          string
-	args                 []string
-	description          string
-	docs                 []string
-	envs                 []string
-	requireNetworkOnline bool
-	userService          bool // systemd user-level service
-	selfAbsolutePath     string
-	err                  error // if error reading selfAbsolutePath
+	serviceName      string
+	args             []string
+	description      string
+	docs             []string
+	envs             []string
+	wants            []string
+	after            []string
+	bindsTo          []string
+	userService      bool // systemd user-level service
+	selfAbsolutePath string
+	err              error // if error reading selfAbsolutePath
 }
 
 type Option func(*serviceFile)
@@ -124,10 +126,16 @@ func serialize(sf serviceFile) string {
 		l("Documentation=" + strings.Join(sf.docs, " "))
 	}
 
-	// https://unix.stackexchange.com/a/126146
-	if sf.requireNetworkOnline {
-		l("Wants=network-online.target")
-		l("After=network-online.target")
+	for _, wants := range sf.wants {
+		l("Wants=" + wants)
+	}
+
+	for _, after := range sf.after {
+		l("After=" + after)
+	}
+
+	for _, bindsTo := range sf.bindsTo {
+		l("BindsTo=" + bindsTo)
 	}
 
 	wantedBy := func() string {
@@ -191,6 +199,43 @@ func Env(key string, value string) Option {
 	}
 }
 
+// https://unix.stackexchange.com/a/126146
 func RequireNetworkOnline(sf *serviceFile) {
-	sf.requireNetworkOnline = true
+	Wants("network-online.target")(sf)
+	After("network-online.target")(sf)
+}
+
+// https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Wants=
+func Wants(wants string) Option {
+	return func(sf *serviceFile) {
+		sf.wants = append(sf.wants, wants)
+	}
+}
+
+// https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Before=
+func After(after string) Option {
+	return func(sf *serviceFile) {
+		sf.after = append(sf.after, after)
+	}
+}
+
+// https://www.freedesktop.org/software/systemd/man/systemd.unit.html#BindsTo=
+func BindsTo(to string) Option {
+	return func(sf *serviceFile) {
+		sf.bindsTo = append(sf.bindsTo, to)
+	}
+}
+
+// systemd automatically dynamically generates units for network devices, so we can wait + bind to them.
+// you can find interesting units by invoking $ systemctl list-unit
+func WaitNetworkInterface(interfaceName string) Option {
+	return func(sf *serviceFile) {
+		interfaceDeviceUnit := fmt.Sprintf("sys-subsystem-net-devices-%s.device", interfaceName)
+
+		// https://unix.stackexchange.com/a/417839
+		// *BindsTo* makes the *After* even stronger. bind means that if the bound dependency goes
+		// down, so should us go too. which is desirable with networked dependencies.
+		BindsTo(interfaceDeviceUnit)(sf)
+		After(interfaceDeviceUnit)(sf)
+	}
 }

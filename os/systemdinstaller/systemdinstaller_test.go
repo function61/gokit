@@ -115,6 +115,26 @@ Environment=HOME=/root
 `)
 }
 
+func TestWaitNetworkInterface(t *testing.T) {
+	sf := Service("testservice", "My cool service", WaitNetworkInterface("tailscale0"))
+	sf = fixForTest(sf)
+
+	assert.EqualString(t, serialize(sf), `[Unit]
+Description=My cool service
+After=sys-subsystem-net-devices-tailscale0.device
+BindsTo=sys-subsystem-net-devices-tailscale0.device
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/dummy/testservice_amd64
+WorkingDirectory=/home/dummy
+Restart=always
+RestartSec=10s
+`)
+}
+
 func fixForTest(sf serviceFile) serviceFile {
 	sf.selfAbsolutePath = "/home/dummy/testservice_amd64" // need to monkey patch this to get deterministic output
 	return sf
