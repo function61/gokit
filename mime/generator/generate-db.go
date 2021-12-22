@@ -26,7 +26,7 @@ func logic() error {
 	if _, err := ezhttp.Get(
 		context.Background(),
 		"https://raw.githubusercontent.com/jshttp/mime-db/master/db.json",
-		ezhttp.RespondsJsonDisallowUnknownFields(&remoteDb),
+		ezhttp.RespondsJSONDisallowUnknownFields(&remoteDb),
 	); err != nil {
 		return err
 	}
