@@ -16,3 +16,13 @@ func IgnoreErrorIfCanceled(ctx context.Context, err error) error {
 		return err
 	}
 }
+
+// returns a pointer to the given string.
+//
+// will soon benefit from generics love.
+//
+// Go is so silly, we need to do this.
+// AWS has similar helpers: https://pkg.go.dev/github.com/aws/aws-sdk-go/aws#String
+func Pointer(str string) *string {
+	return &str
+}

@@ -20,3 +20,9 @@ func TestIgnoreErrorIfCanceled(t *testing.T) {
 
 	assert.Assert(t, IgnoreErrorIfCanceled(ctx, anError) == nil)
 }
+
+func TestPointer(t *testing.T) {
+	ptr := Pointer("foo")
+
+	assert.EqualString(t, *ptr, "foo")
+}
