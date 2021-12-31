@@ -38,3 +38,8 @@ func TestFirstError(t *testing.T) {
 	assert.Assert(t, FirstError(errA, errB) == errA)
 	assert.Assert(t, FirstError(errB, errA) == errB)
 }
+
+func TestErrorIfUnset(t *testing.T) {
+	assert.Assert(t, ErrorIfUnset(false, "foo") == nil)
+	assert.EqualString(t, ErrorIfUnset(true, "foo").Error(), "'foo' is required")
+}

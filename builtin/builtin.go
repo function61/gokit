@@ -4,6 +4,7 @@ package builtin
 
 import (
 	"context"
+	"fmt"
 )
 
 // ignores error in situations where context was canceled and thus errors are to be expected
@@ -36,4 +37,13 @@ func FirstError(errs ...error) error {
 	}
 
 	return nil
+}
+
+// errors if a field is unset. it is up to the caller to evaluate if the field is unset
+func ErrorIfUnset(isUnset bool, fieldName string) error {
+	if isUnset {
+		return fmt.Errorf("'%s' is required", fieldName)
+	} else {
+		return nil
+	}
 }
