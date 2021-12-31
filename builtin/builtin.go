@@ -26,3 +26,14 @@ func IgnoreErrorIfCanceled(ctx context.Context, err error) error {
 func Pointer(str string) *string {
 	return &str
 }
+
+// returns first error, or nil if no errors
+func FirstError(errs ...error) error {
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

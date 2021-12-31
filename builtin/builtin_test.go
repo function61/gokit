@@ -26,3 +26,15 @@ func TestPointer(t *testing.T) {
 
 	assert.EqualString(t, *ptr, "foo")
 }
+
+func TestFirstError(t *testing.T) {
+	var errA = errors.New("error A")
+	var errB = errors.New("error B")
+
+	assert.Assert(t, FirstError() == nil)
+	assert.Assert(t, FirstError(nil) == nil)
+	assert.Assert(t, FirstError(errA, nil) == errA)
+	assert.Assert(t, FirstError(nil, errA) == errA)
+	assert.Assert(t, FirstError(errA, errB) == errA)
+	assert.Assert(t, FirstError(errB, errA) == errB)
+}
