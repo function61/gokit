@@ -25,7 +25,7 @@ func EqualInt(t testing.TB, actual int, expected int) {
 	}
 }
 
-func EqualJson(t testing.TB, obj interface{}, expected string) {
+func EqualJSON(t testing.TB, obj interface{}, expected string) {
 	t.Helper()
 
 	jsonBytes, err := json.MarshalIndent(obj, "", "  ")
@@ -58,4 +58,11 @@ func Matches(t testing.TB, actual string, pattern string) {
 	if !regexp.MustCompile(pattern).MatchString(actual) {
 		t.Fatalf("expected %s to match %s", pattern, actual)
 	}
+}
+
+// Deprecated: use fn with JSON uppercased
+func EqualJson(t testing.TB, obj interface{}, expected string) {
+	t.Helper()
+
+	EqualJSON(t, obj, expected)
 }

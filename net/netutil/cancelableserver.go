@@ -3,9 +3,12 @@ package netutil
 import (
 	"context"
 	"errors"
+	"log"
 	"net"
 	"sync"
 
+	. "github.com/function61/gokit/builtin"
+	"github.com/function61/gokit/log/logex"
 	"github.com/function61/gokit/sync/syncutil"
 )
 
@@ -42,4 +45,23 @@ func CancelableServe(ctx context.Context, listener net.Listener, serve func(conn
 
 		return err
 	}
+}
+
+// wraps use of net.Listener with context cancellation.
+// ignores listen error if context was canceled (Accept()-related errors are expected then)
+func CancelableListen(
+	ctx context.Context,
+	listener net.Listener,
+	listen func() error,
+	logger *log.Logger,
+) error {
+	go func() {
+		<-ctx.Done()
+
+		if err := listener.Close(); err != nil {
+			logex.Levels(logger).Error.Println(err.Error())
+		}
+	}()
+
+	return IgnoreErrorIfCanceled(ctx, listen()) // actual listening happens here
 }

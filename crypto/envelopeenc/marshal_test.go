@@ -23,7 +23,7 @@ func TestMarshalUnmarshal(t *testing.T) {
 	assert.Ok(t, err)
 
 	// TODO: fix kind=0, missing label support
-	assert.EqualJson(t, env, `{
+	assert.EqualJSON(t, env, `{
   "key_slots": [
     {
       "kind": 0,
