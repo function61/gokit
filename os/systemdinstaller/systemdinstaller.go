@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -36,7 +37,8 @@ func UserService(serviceName string, description string, opts ...Option) service
 }
 
 func newService(serviceName string, description string, opts []Option, userService bool) serviceFile {
-	selfAbsolutePath, err := filepath.Abs(os.Args[0])
+	// filepath.Abs(os.Args[0]) fails with PATH-expanded lookups, os.Executable() resolves symlinks (bad for us)
+	selfAbsolutePath, err := currentExecutableNoFollowSymlink()
 
 	sf := serviceFile{
 		userService:      userService,
@@ -238,4 +240,16 @@ func WaitNetworkInterface(interfaceName string) Option {
 		BindsTo(interfaceDeviceUnit)(sf)
 		After(interfaceDeviceUnit)(sf)
 	}
+}
+
+// same as os.Executable() but does not follow symlinks (i.e. if /usr/bin/bob is returned even if it is a symlink to /tmp/bob).
+// (the stdlib function follows symlinks on Linux)
+func currentExecutableNoFollowSymlink() (string, error) {
+	pathResolved, err := exec.LookPath(os.Args[0])
+	if err != nil {
+		return "", err
+	}
+
+	// LookPath() may still return relative path
+	return filepath.Abs(pathResolved)
 }
