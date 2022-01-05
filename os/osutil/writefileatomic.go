@@ -21,58 +21,71 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 		option(&opts)
 	}
 
-	tempFilename := filename + ".part"
+	return FileAtomicOperationByRename(filename, func(filenameTemp string) error {
+		file, err := os.Create(filenameTemp)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
 
-	tempFile, err := os.Create(tempFilename)
-	if err != nil {
-		return err
-	}
+		// why WriteNopCloser? while we appreciate that some producers are good citizens, when
+		// given io.Writer they still might check for io.Closer and call Close(), messing
+		// up our cleanup since we return error if close failed. and it'd be messy to try to
+		// check for Close() error being "already closed"
+		if err := produce(newWriteNopCloser(file)); err != nil {
+			return err
+		}
 
-	cleanup := func(errRet error, fileClosed bool) error {
-		if !fileClosed {
-			if err := tempFile.Close(); err != nil {
-				errRet = fmt.Errorf("%v; also failed closing: %v", errRet, err)
+		if opts.mode != nil {
+			if err := file.Chmod(*opts.mode); err != nil {
+				return err
 			}
 		}
-		if err := os.Remove(tempFilename); err != nil {
-			errRet = fmt.Errorf("%v; also failed removing temp file: %v", errRet, err)
+
+		if opts.uid != nil {
+			if err := file.Chown(*opts.uid, *opts.gid); err != nil && !opts.ignoreIfChownErrors {
+				return err
+			}
 		}
 
-		return errRet
-	}
+		if err := file.Close(); err != nil { // double close intentional
+			return err
+		}
 
-	// why WriteNopCloser? while we appreciate that some producers are good citizens, when
-	// given io.Writer they still might check for io.Closer and call Close(), messing
-	// up our cleanup since we return error if close failed. and it'd be messy to try to
-	// check for Close() error being "already closed"
-	if err := produce(newWriteNopCloser(tempFile)); err != nil {
-		return cleanup(err, false)
-	}
+		if opts.atime != nil { // Chtimes() can't be done on the handle so this has to be done after Close()
+			if err := os.Chtimes(filenameTemp, *opts.atime, *opts.mtime); err != nil {
+				return err
+			}
+		}
 
-	if opts.mode != nil {
-		if err := tempFile.Chmod(*opts.mode); err != nil {
+		return nil
+	})
+}
+
+// - ensures a file with given name only appears on the filesystem if all its file operations succeed
+// - tries to clean up temp file on failure of *operations* or the atomic rename
+func FileAtomicOperationByRename(path string, operations func(pathTemp string) error) error {
+	pathTemp := path + ".part"
+
+	retErrorWithCleanup := func(err error) error { // err is non-nil here
+		if errCleanup := os.Remove(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
+			// IsNotExist is acceptable from remove, the *operations* didn't manage to start creating
+			// the temp file (or was not authorized so)
+
+			return fmt.Errorf("%w; additionally FileAtomicOperationByRename failed cleaning up: %v", err, errCleanup)
+		} else {
 			return err
 		}
 	}
 
-	if opts.uid != nil {
-		if err := tempFile.Chown(*opts.uid, *opts.gid); err != nil && !opts.ignoreIfChownErrors {
-			return err
-		}
+	// the heavy lifting happens here: *operations* tries to produce <file>.part, and only if it succeeds
+	// we'll try to rename the temp file to the actual requested filename
+	if err := operations(pathTemp); err != nil {
+		return retErrorWithCleanup(err)
 	}
 
-	if err := tempFile.Close(); err != nil {
-		return cleanup(err, true) // do not try closing again
-	}
-
-	if opts.atime != nil { // unfortunately this has to be done after Close()
-		if err := os.Chtimes(tempFilename, *opts.atime, *opts.mtime); err != nil {
-			return err
-		}
-	}
-
-	if err := os.Rename(tempFilename, filename); err != nil {
-		return cleanup(err, true)
+	if err := os.Rename(pathTemp, path); err != nil {
+		return retErrorWithCleanup(err)
 	}
 
 	return nil
