@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -143,4 +144,38 @@ func WriteFileTimes(atime time.Time, mtime time.Time, ctime time.Time) WriteFile
 		opt.atime = &atime
 		opt.mtime = &mtime
 	}
+}
+
+// if running under '$ sudo', set the sudo-invoking "original" user as the UID & GID
+func WriteFileIfSudoPreserveInvokingUsersUIDAndGID() WriteFileOption {
+	uid, gid := getInvokingUserUidAndGidIfRunningInSudo()
+
+	return func(opt *writeFileOptions) {
+		opt.uid = &uid
+		opt.gid = &gid
+	}
+}
+
+// if running under '$ sudo', return invoking user's uid:gid pair.
+func getInvokingUserUidAndGidIfRunningInSudo() (int, int) {
+	standardUidAndGid := func() (int, int) {
+		return os.Getuid(), os.Getgid()
+	}
+
+	// documented in https://www.sudo.ws/docs/man/sudo.man/#SUDO_UID
+	if os.Getenv("SUDO_UID") == "" { // not running under sudo
+		return standardUidAndGid()
+	}
+
+	uidSudo, err := strconv.Atoi(os.Getenv("SUDO_UID"))
+	if err != nil {
+		return standardUidAndGid()
+	}
+
+	gidSudo, err := strconv.Atoi(os.Getenv("SUDO_GID"))
+	if err != nil {
+		return standardUidAndGid()
+	}
+
+	return uidSudo, gidSudo
 }
