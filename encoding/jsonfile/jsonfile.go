@@ -32,10 +32,10 @@ func read(path string, data interface{}, unmarshal func(io.Reader, interface{}) 
 	return nil
 }
 
-func Write(path string, data interface{}) error {
+func Write(path string, data interface{}, options ...osutil.WriteFileOption) error {
 	return osutil.WriteFileAtomic(path, func(writer io.Writer) error {
 		return Marshal(writer, data)
-	})
+	}, options...)
 }
 
 func UnmarshalDisallowUnknownFields(source io.Reader, data interface{}) error {
