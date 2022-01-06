@@ -39,6 +39,11 @@ func TestFirstError(t *testing.T) {
 	assert.Assert(t, FirstError(errB, errA) == errB)
 }
 
+func TestErrorWrap(t *testing.T) {
+	assert.EqualString(t, ErrorWrap("myprefix", errors.New("unknown error occurred")).Error(), "myprefix: unknown error occurred")
+	assert.Assert(t, ErrorWrap("myprefix", nil) == nil)
+}
+
 func TestErrorIfUnset(t *testing.T) {
 	assert.Assert(t, ErrorIfUnset(false, "foo") == nil)
 	assert.EqualString(t, ErrorIfUnset(true, "foo").Error(), "'foo' is required")

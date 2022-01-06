@@ -1,4 +1,7 @@
 // Helpers so generic & useful they "could/should be" language-level features.
+//
+// The name "builtin" is to align with Go's "builtin = predeclared identifiers", see https://pkg.go.dev/builtin
+//
 // This package is intended to be imported with .  so they can be used in non-qualified way.
 package builtin
 
@@ -37,6 +40,16 @@ func FirstError(errs ...error) error {
 	}
 
 	return nil
+}
+
+// helper for wrapping an error with error prefix.
+// if error is nil, nil is returned.
+func ErrorWrap(prefix string, err error) error {
+	if err != nil {
+		return fmt.Errorf("%s: %w", prefix, err)
+	} else {
+		return nil
+	}
 }
 
 // errors if a field is unset. it is up to the caller to evaluate if the field is unset
