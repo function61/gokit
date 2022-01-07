@@ -9,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/pkg/xattr"
 )
 
 // - creates a <filename>.part file to write to
@@ -46,6 +48,12 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 		if opts.uid != nil {
 			if err := file.Chown(*opts.uid, *opts.gid); err != nil && !opts.ignoreIfChownErrors {
 				return err
+			}
+		}
+
+		for _, attr := range opts.xattrs {
+			if err := xattr.FSet(file, attr.fullKey, attr.value); err != nil {
+				return err // has error context
 			}
 		}
 
@@ -111,6 +119,7 @@ type writeFileOptions struct {
 	ignoreIfChownErrors bool
 	atime               *time.Time
 	mtime               *time.Time
+	xattrs              []xattrItem
 }
 
 type WriteFileOption func(opt *writeFileOptions)
@@ -154,6 +163,21 @@ func WriteFileIfSudoPreserveInvokingUsersUIDAndGID() WriteFileOption {
 		opt.uid = &uid
 		opt.gid = &gid
 	}
+}
+
+// write an extended attribute, in user namespace. See https://man7.org/linux/man-pages/man7/xattr.7.html
+func WriteFileXattrUser(key string, value []byte) WriteFileOption {
+	return func(opt *writeFileOptions) {
+		opt.xattrs = append(opt.xattrs, xattrItem{
+			fullKey: "user." + key,
+			value:   value,
+		})
+	}
+}
+
+type xattrItem struct {
+	fullKey string
+	value   []byte
 }
 
 // if running under '$ sudo', return invoking user's uid:gid pair.
