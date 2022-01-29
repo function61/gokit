@@ -89,6 +89,11 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"cdmiq"},
 	},
+	"application/cpl+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"cpl"},
+	},
 	"application/cu-seeme": &Spec{
 		Source:     "apache",
 		Extensions: []string{"cu"},
@@ -97,6 +102,11 @@ var mimeTypes = map[string]*Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"mpd"},
+	},
+	"application/dash-patch+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"mpp"},
 	},
 	"application/davmount+xml": &Spec{
 		Source:       "iana",
@@ -289,6 +299,11 @@ var mimeTypes = map[string]*Spec{
 	"application/mbox": &Spec{
 		Source:     "iana",
 		Extensions: []string{"mbox"},
+	},
+	"application/media-policy-dataset+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"mpf"},
 	},
 	"application/mediaservercontrol+xml": &Spec{
 		Source:       "iana",
@@ -2257,6 +2272,11 @@ var mimeTypes = map[string]*Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"wasm"},
+	},
+	"application/watcherinfo+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"wif"},
 	},
 	"application/widget": &Spec{
 		Source:     "iana",
