@@ -10,7 +10,7 @@
 			"mount_destination": "/workspace",
 			"workdir": "/workspace",
 			"commands": {
-				"build": ["bin/build.sh"],
+				"build": ["build-go-project.sh"],
 				"dev": ["bash"]
 			}
 		}
