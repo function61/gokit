@@ -24,5 +24,6 @@ func getExtendedFileInfo(fi fs.FileInfo) *extendedFileInfo {
 }
 
 func timespecToTime(ts syscall.Timespec) time.Time {
-	return time.Unix(ts.Sec, ts.Nsec)
+	//nolint:unconvert // lint thinks these are already int64 even though they're int32
+	return time.Unix(int64(ts.Sec), int64(ts.Nsec))
 }
