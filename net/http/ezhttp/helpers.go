@@ -12,6 +12,7 @@ const (
 var InsecureTlsClient = &http.Client{
 	Transport: &http.Transport{
 		TLSClientConfig: &tls.Config{
+			//nolint:gosec // ok as this is explicit opt-in
 			InsecureSkipVerify: true,
 		},
 	},

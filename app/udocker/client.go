@@ -41,7 +41,8 @@ func Client(
 	}
 
 	tlsConfig := &tls.Config{
-		Certificates:       []tls.Certificate{*clientCertificate},
+		Certificates: []tls.Certificate{*clientCertificate},
+		//nolint:gosec // ok as explicit opt-in
 		InsecureSkipVerify: insecureSkipVerify,
 	}
 

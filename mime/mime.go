@@ -68,6 +68,7 @@ func TypeByExtension(ext string, fallback string) string {
 // image/jpeg => jpg
 func ExtensionByType(contentType string, fallback string) string {
 	// some overrides
+	//nolint:gocritic // singleCaseSwitch, looks fine for this use case
 	switch contentType {
 	case "image/jpeg":
 		return "jpg" // first extension in DB is jpeg which is less universally used

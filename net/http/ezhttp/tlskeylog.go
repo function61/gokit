@@ -47,6 +47,7 @@ var EnableTLSKeyLog = After(func(conf *Config) {
 			if keyLogWriter != nil {
 				return &http.Client{
 					Transport: &http.Transport{
+						//nolint:gosec // due to nature of this facility ok to use Go default
 						TLSClientConfig: &tls.Config{
 							KeyLogWriter: keyLogWriter,
 						},

@@ -52,7 +52,7 @@ func (r *naclSecretBox) DecryptSlot(slot *KeySlot, label string) ([]byte, error)
 	nonceSeed := slot.DekEncrypted[:24]
 
 	// plaintext, ok := secretbox.Open(plaintext, e.EncryptedContent[24:], &nonce, &dekStatic)
-	dek, ok := secretbox.Open([]byte{}, slot.DekEncrypted[24:], deriveNonce(nonceSeed[:], label), &r.kek)
+	dek, ok := secretbox.Open([]byte{}, slot.DekEncrypted[24:], deriveNonce(nonceSeed, label), &r.kek)
 	if !ok {
 		return nil, errors.New("secretbox.Open failed")
 	}

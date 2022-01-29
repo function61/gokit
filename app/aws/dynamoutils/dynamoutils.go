@@ -17,6 +17,7 @@ func EventImageToRecord(eventRecord map[string]events.DynamoDBAttributeValue) Re
 	ret := Record{}
 
 	for key, valWrapper := range eventRecord {
+		//nolint:exhaustive // panic handles non-exhaustive cases
 		switch valWrapper.DataType() {
 		case events.DataTypeString:
 			ret[key] = String(valWrapper.String())

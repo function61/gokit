@@ -85,7 +85,7 @@ func logic() error {
 		extensionsAsCode := ""
 
 		for _, ext := range spec.Extensions {
-			extensionsAsCode = extensionsAsCode + fmt.Sprintf(`"%s",`, ext)
+			extensionsAsCode += fmt.Sprintf(`"%s",`, ext)
 		}
 
 		code(fmt.Sprintf("Extensions: []string{%s},", extensionsAsCode))
@@ -97,5 +97,5 @@ func logic() error {
 
 	generated := strings.Join(codeLines, "\n")
 
-	return ioutil.WriteFile("../db.gen.go", []byte(generated), 0755)
+	return ioutil.WriteFile("../db.gen.go", []byte(generated), 0600)
 }

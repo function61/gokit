@@ -59,7 +59,7 @@ func (m *ReaderWriterMock) Read(p []byte) (int, error) {
 		return 0, io.EOF
 	}
 
-	copy(p[:], m.writes)
+	copy(p, m.writes)
 	m.readAlready = true
 	return len(m.writes), nil
 }
