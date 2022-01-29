@@ -10,6 +10,11 @@ import (
 	"fmt"
 )
 
+// empty struct with a semantic name, meaning no information is conveyed. example use cases:
+// - https://pkg.go.dev/context?utm_source=godoc#Context.Done
+// - visitedItems := map[string]Void{}
+type Void struct{}
+
 // ignores error in situations where context was canceled and thus errors are to be expected
 // and thus are non-interesting
 func IgnoreErrorIfCanceled(ctx context.Context, err error) error {
