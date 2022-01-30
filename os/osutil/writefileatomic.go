@@ -25,7 +25,12 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 	}
 
 	return FileAtomicOperationByRename(filename, func(filenameTemp string) error {
-		file, err := os.Create(filenameTemp)
+		// O_EXCL = file must not exist. if we'd allow the file to exist, we could have this race:
+		// 1) process 1 starts producing file.part
+		// 2) process 2 starts producing file.part, overwriting process 1's progress
+		// 3) process 1 is ready to complete, it renames file.part -> file thinking "rename from" is
+		//    its finished progress, but instead it is process 2's partial progress (2 is not ready yet)
+		file, err := os.OpenFile(filenameTemp, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0666)
 		if err != nil {
 			return err
 		}
