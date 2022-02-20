@@ -13,15 +13,16 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/function61/gokit/log/logex"
 )
 
 type Runner struct {
-	numTasks       int             // incremented per each Start()
+	runningTasks   []*taskItem
 	ctx            context.Context // canceled by parent context or by us if any sibling task fails
 	cancelAllTasks context.CancelFunc
-	taskExited     chan taskExit
+	taskExited     chan *taskItem
 	logl           *logex.Leveled
 	allTasksExited chan error
 	startWaiting   sync.Once
@@ -31,11 +32,11 @@ func New(ctx context.Context, logger *log.Logger) *Runner {
 	ctx, cancel := context.WithCancel(ctx)
 
 	return &Runner{
-		numTasks:       0,
+		runningTasks:   []*taskItem{},
 		ctx:            ctx,
 		cancelAllTasks: cancel,
 		logl:           logex.Levels(logger),
-		taskExited:     make(chan taskExit),
+		taskExited:     make(chan *taskItem),
 		allTasksExited: make(chan error),
 	}
 }
@@ -43,14 +44,16 @@ func New(ctx context.Context, logger *log.Logger) *Runner {
 // not safe to be called after you call Wait() or Done()
 // not safe for concurrent use
 func (t *Runner) Start(taskName string, fn func(ctx context.Context) error) {
-	t.numTasks++
-
 	t.logl.Debug.Printf("starting %s", taskName)
 
-	go func() {
-		err := fn(t.ctx)
+	task := &taskItem{name: taskName}
 
-		t.taskExited <- taskExit{taskName, err}
+	t.runningTasks = append(t.runningTasks, task)
+
+	go func() {
+		task.result = fn(t.ctx)
+
+		t.taskExited <- task
 	}()
 }
 
@@ -79,34 +82,46 @@ func (t *Runner) Wait() error {
 	return <-t.Done()
 }
 
+// the caller has ensured that there is only one instance of this function running
 func (t *Runner) waitInternal() error {
 	// this is Wait()'s return value as described in method comment
 	var firstErr error
 
-	processOneExit := func(taskExit taskExit) {
-		if err := taskExit.err; err != nil {
-			errWrapped := fmt.Errorf("task '%s' exited with: %w", taskExit.taskName, err)
+	processOneExit := func(task *taskItem) {
+		t.removeFromRunningTasks(task)
+
+		if err := task.result; err != nil {
+			errWrapped := fmt.Errorf("task '%s' exited with: %w", task.name, err)
 			t.logl.Error.Println(errWrapped.Error())
 
 			if firstErr == nil {
 				firstErr = errWrapped
 			}
 		} else {
-			t.logl.Debug.Printf("%s exited", taskExit.taskName)
+			t.logl.Debug.Printf("%s exited", task.name)
 		}
 	}
 
-	drainExits := func(numTasks int) error {
-		for i := 0; i < numTasks; i++ {
-			processOneExit(<-t.taskExited)
+	waitRunningTasksToExit := func() error {
+		for len(t.runningTasks) > 0 {
+			select {
+			case <-time.After(3 * time.Second):
+				for _, stuckTask := range t.runningTasks {
+					t.logl.Error.Printf("waiting for stuck task '%s' to exit", stuckTask.name)
+				}
+
+				// go back to waiting
+			case exit := <-t.taskExited:
+				processOneExit(exit)
+			}
 		}
 
-		return firstErr
+		return firstErr // nil in happy case
 	}
 
 	select {
 	case <-t.ctx.Done():
-		return drainExits(t.numTasks)
+		return waitRunningTasksToExit()
 	case maybeUnexpectedExit := <-t.taskExited: // handle unexpected exits
 		// why maybeUnexpectedExit?
 		// there might be race when this runner's ctx is cancelled because its cancellation
@@ -116,7 +131,7 @@ func (t *Runner) waitInternal() error {
 		case <-t.ctx.Done(): // handle the race here
 			definitelyExpectedExit := maybeUnexpectedExit
 			processOneExit(definitelyExpectedExit)
-			return drainExits(t.numTasks - 1) // -1 because we already consumed one
+			return waitRunningTasksToExit()
 		default:
 			// was not a race, continue
 		}
@@ -124,18 +139,31 @@ func (t *Runner) waitInternal() error {
 		// got unexpected exit => bring sibling tasks down because they all fail as one
 		unexpectedExit := maybeUnexpectedExit
 
-		firstErr = fmt.Errorf("unexpected exit of %s: %v", unexpectedExit.taskName, unexpectedExit.err)
+		t.removeFromRunningTasks(unexpectedExit)
+
+		firstErr = fmt.Errorf("unexpected exit of %s: %v", unexpectedExit.name, unexpectedExit.result)
 
 		t.logl.Error.Println(firstErr.Error())
 
 		// all sibling tasks fail on first unexpected exit
 		t.cancelAllTasks()
 
-		return drainExits(t.numTasks - 1)
+		return waitRunningTasksToExit()
 	}
 }
 
-type taskExit struct {
-	taskName string
-	err      error
+func (t *Runner) removeFromRunningTasks(task *taskItem) {
+	for idx, waiting := range t.runningTasks { // remove from waiting
+		if task == waiting {
+			t.runningTasks = append(t.runningTasks[:idx], t.runningTasks[idx+1:]...)
+			return
+		}
+	}
+
+	panic(fmt.Errorf("taskrunner removeFromRunningTasks: shouldn't happen: %s", task.name))
+}
+
+type taskItem struct {
+	name   string
+	result error // filled when task exits
 }
