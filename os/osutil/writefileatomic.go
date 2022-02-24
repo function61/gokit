@@ -13,6 +13,14 @@ import (
 	"github.com/pkg/xattr"
 )
 
+// helper for the most common case of pumping content to file from a reader
+func WriteFileAtomicFromReader(filename string, content io.Reader, options ...WriteFileOption) error {
+	return WriteFileAtomic(filename, func(sink io.Writer) error {
+		_, err := io.Copy(sink, content)
+		return err
+	}, options...)
+}
+
 // - creates a <filename>.part file to write to
 // - write all requested content to it (content produced by callback)
 // - rename temp filename to filename if everything went OK
