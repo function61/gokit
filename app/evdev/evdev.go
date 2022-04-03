@@ -104,11 +104,14 @@ func (d *Device) SetLedOff(led Led) error {
 }
 
 func (d *Device) writeEvent(evType EventType, code uint16, value int32) error {
-	return binary.Write(d.handle, binary.LittleEndian, &InputEvent{
+	event := &InputEvent{
+		// TODO: we're sending time as zero?
 		Type:  evType,
 		Code:  code,
 		Value: value,
-	})
+	}
+	_, err := d.handle.Write(event.AsBytes())
+	return err
 }
 
 func readOneInputEvent(inputDevice *os.File) (*InputEvent, error) {
@@ -121,7 +124,7 @@ func readOneInputEvent(inputDevice *os.File) (*InputEvent, error) {
 	if n <= 0 {
 		return nil, nil
 	}
-	return eventFromBuffer(buffer)
+	return InputEventFromBytes(buffer)
 }
 
 func grabExclusiveInputDeviceAccess(inputDevice *os.File) error {
@@ -133,7 +136,7 @@ func grabExclusiveInputDeviceAccess(inputDevice *os.File) error {
 	return nil
 }
 
-func eventFromBuffer(buffer []byte) (*InputEvent, error) {
+func InputEventFromBytes(buffer []byte) (*InputEvent, error) {
 	event := &InputEvent{}
 	err := binary.Read(bytes.NewBuffer(buffer), binary.LittleEndian, event)
 	return event, err
