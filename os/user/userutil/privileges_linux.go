@@ -4,14 +4,16 @@ package userutil
 // to unprivileged user with the possibility to re-enter root again for short durations of privileged work.
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"os/user"
 	"strconv"
+	"strings"
 	"syscall"
 
 	. "github.com/function61/gokit/builtin"
+	"github.com/function61/gokit/sliceutil"
 )
 
 func RequireRoot() (*ProofOfRunningAsRoot, error) {
@@ -244,30 +246,48 @@ func getInvokingUserUidAndGidIfRunningInSudoWithSupplementary() (*UserAndGroup, 
 	return &UserAndGroup{uidSudo, gidSudo, gidsSupplementarySudo}, nil
 }
 
+// FIXME: copy-pasted from function22
 func resolveSupplementaryGids(username string) ([]int, error) {
 	if err := ErrorIfUnset(username == "", "username"); err != nil {
 		return nil, err
 	}
 
-	usr, err := user.Lookup(username)
+	// NOTE: Go deceptively has https://pkg.go.dev/os/user?utm_source=godoc#User.GroupIds
+	//       which looks like something that we could use, BUT it only works with cgo.
+	//       See https://github.com/golang/go/issues/19395
+
+	groups := []int{}
+
+	groupFile, err := os.Open("/etc/group")
 	if err != nil {
 		return nil, err
 	}
+	defer groupFile.Close()
 
-	gidStrs, err := usr.GroupIds()
-	if err != nil {
-		return nil, err
-	}
+	groupLines := bufio.NewScanner(groupFile)
 
-	gids := []int{}
-	for _, gidStr := range gidStrs {
-		gid, err := strconv.Atoi(gidStr)
-		if err != nil {
-			return nil, err
+	for groupLines.Scan() {
+		// docker:x:129:joonas
+		// docker:x:129:joonas,anotheruser
+		parts := strings.Split(groupLines.Text(), ":")
+		if len(parts) < 4 {
+			return nil, fmt.Errorf("/etc/group invalid parts number: %d", len(parts))
 		}
 
-		gids = append(gids, gid)
+		// "joonas,anotheruser" => ["joonas", "anotheruser"]
+		lineUsernames := strings.Split(parts[3], ",")
+		if sliceutil.ContainsString(lineUsernames, username) {
+			gid, err := strconv.Atoi(parts[2])
+			if err != nil {
+				return nil, err
+			}
+
+			groups = append(groups, gid)
+		}
+	}
+	if err := groupLines.Err(); err != nil {
+		return nil, err
 	}
 
-	return gids, nil
+	return groups, nil
 }
