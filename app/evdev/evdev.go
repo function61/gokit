@@ -56,11 +56,19 @@ func OpenWithChan(dev string, ch chan InputEvent) (*Device, func() error, error)
 // https://stackoverflow.com/a/1550320
 func (d *Device) ScanInputGrabbed(ctx context.Context) error {
 	// other programs won't receive input while we have this file handle open
-	if err := grabExclusiveInputDeviceAccess(d.handle); err != nil {
+	if err := d.Grab(); err != nil {
 		return err
 	}
 
 	return d.ScanInput(ctx)
+}
+
+func (d *Device) Grab() error {
+	return grabExclusiveInputDeviceAccess(d.handle, true)
+}
+
+func (d *Device) Ungrab() error {
+	return grabExclusiveInputDeviceAccess(d.handle, false)
 }
 
 // ScanInput() may close the given channel
@@ -127,9 +135,17 @@ func readOneInputEvent(inputDevice *os.File) (*InputEvent, error) {
 	return InputEventFromBytes(buffer)
 }
 
-func grabExclusiveInputDeviceAccess(inputDevice *os.File) error {
+func grabExclusiveInputDeviceAccess(inputDevice *os.File, grab bool) error {
 	// 1 for grab, 0 for un-grab
-	if err := unix.IoctlSetInt(int(inputDevice.Fd()), EVIOCGRAB, 1); err != nil {
+	grabNum := func() int {
+		if grab {
+			return 1
+		} else {
+			return 0
+		}
+	}()
+
+	if err := unix.IoctlSetInt(int(inputDevice.Fd()), EVIOCGRAB, grabNum); err != nil {
 		return fmt.Errorf("grabExclusiveInputDeviceAccess: IOCTL(EVIOCGRAB): %w", err)
 	}
 
