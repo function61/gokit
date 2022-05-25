@@ -1,8 +1,28 @@
 package udocker
 
+import (
+	"time"
+)
+
 const (
 	SwarmServiceNameLabelKey = "com.docker.swarm.service.name"
 )
+
+type ContainerHealth struct {
+	Status        string // "none" | "starting" | "healthy" | "unhealthy"
+	FailingStreak int
+	Log           []struct { // latest health check results (latest first)
+		Start    time.Time
+		End      time.Time
+		ExitCode int
+		Output   string
+	}
+}
+
+type ContainerState struct {
+	Status string           `json:"Status"` // "created" | "running" | "paused" | "restarting" | "removing" | "exited" | "dead"
+	Health *ContainerHealth `json:"Health,omitempty"`
+}
 
 // stupid Docker requires "inspect" to get actually interesting details
 type ContainerListItem struct {
@@ -10,6 +30,7 @@ type ContainerListItem struct {
 	Names           []string          `json:"Names"`
 	Image           string            `json:"Image"`
 	Labels          map[string]string `json:"Labels"`
+	State           ContainerState    `json:"State"`
 	NetworkSettings struct {
 		Networks map[string]struct {
 			IPAddress string `json:"IPAddress"`
