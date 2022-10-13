@@ -49,7 +49,7 @@ func CancelableServer(ctx context.Context, srv *http.Server, listener func() err
 }
 
 // helper for setting JSON header and JSON-marshaling a struct into the HTTP response
-func RespondJson(w http.ResponseWriter, data interface{}) {
+func RespondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(w).Encode(data); err != nil {
@@ -57,4 +57,9 @@ func RespondJson(w http.ResponseWriter, data interface{}) {
 		// due to broken conn is much more than JSON marshalling failing
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+// Deprecated: use RespondJSON()
+func RespondJson(w http.ResponseWriter, data interface{}) {
+	RespondJSON(w, data)
 }
