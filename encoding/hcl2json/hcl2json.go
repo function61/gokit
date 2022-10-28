@@ -6,13 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 
 	"github.com/hashicorp/hcl"
 )
 
 func Convert(hclContent io.Reader) (io.Reader, error) {
-	hclBuffer, err := ioutil.ReadAll(hclContent)
+	hclBuffer, err := io.ReadAll(hclContent)
 	if err != nil {
 		return nil, err
 	}

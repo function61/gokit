@@ -2,14 +2,13 @@ package logex
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
 )
 
 // pipes Logger's output (io.Writer) into another Logger
 func OutputToAnotherLog(another *log.Logger) io.Writer {
 	if another == nil {
-		return ioutil.Discard
+		return io.Discard
 	}
 
 	return &anotherLogWriter{another}

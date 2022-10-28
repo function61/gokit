@@ -2,7 +2,7 @@ package pkencryptedstream
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/function61/gokit/crypto/cryptoutil"
@@ -27,7 +27,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	plaintextReader, err := Reader(ciphertextStream, testPrivateKey)
 	assert.Ok(t, err)
 
-	plaintext, err := ioutil.ReadAll(plaintextReader)
+	plaintext, err := io.ReadAll(plaintextReader)
 	assert.Ok(t, err)
 	assert.EqualString(t, string(plaintext), "this will be encrypted")
 }

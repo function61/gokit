@@ -2,13 +2,12 @@ package logex
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 )
 
 // a logger that discards its output
-var Discard = log.New(ioutil.Discard, "", 0)
+var Discard = log.New(io.Discard, "", 0)
 
 // helper for libraries in getting an alwas non-nil logger. if a logger given to you was
 // nil, you get a Discard logger back, which you can call safely - it doesn't write anywhere

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strings"
@@ -99,5 +98,5 @@ func logic() error {
 
 	generated := strings.Join(codeLines, "\n")
 
-	return ioutil.WriteFile("../db.gen.go", []byte(generated), 0600)
+	return os.WriteFile("../db.gen.go", []byte(generated), 0600)
 }

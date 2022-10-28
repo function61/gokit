@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -168,7 +167,7 @@ func errorWithResponseBodySample(resp *http.Response) error {
 	truncatedIndicator := ""
 
 	// .Body is documented as always non-nil
-	errContent, err := ioutil.ReadAll(io.LimitReader(resp.Body, int64(errContentSampleLength)))
+	errContent, err := io.ReadAll(io.LimitReader(resp.Body, int64(errContentSampleLength)))
 	if err != nil {
 		errContent = []byte(fmt.Sprintf("<failed reading response body: %v>", err))
 	} else if len(errContent) == errContentSampleLength {

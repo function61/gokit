@@ -2,7 +2,7 @@ package hcl2json
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/function61/gokit/testing/assert"
@@ -25,7 +25,7 @@ person {
 	jsonBytesReader, err := Convert(bytes.NewBufferString(demo))
 	assert.Ok(t, err)
 
-	jsonBytes, err := ioutil.ReadAll(jsonBytesReader)
+	jsonBytes, err := io.ReadAll(jsonBytesReader)
 	assert.Ok(t, err)
 
 	assert.EqualString(t, string(jsonBytes), `{

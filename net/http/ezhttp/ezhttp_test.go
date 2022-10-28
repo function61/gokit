@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -48,7 +47,7 @@ func TestPostJson(t *testing.T) {
 	req := ExampleJsonPayload{Hello: "hello good sir"}
 	resp, err := Post(context.TODO(), ts.URL, SendJson(&req))
 	assert.Ok(t, err)
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `{"Hello":"hello good sir"}`)
 }
 
@@ -68,7 +67,7 @@ func TestPostArbitraryData(t *testing.T) {
 	resp, err := Post(context.TODO(), ts.URL, SendBody(reqBody, "text/awesome"))
 
 	assert.Ok(t, err)
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `received Content-Type: text/awesome
 
 why
@@ -134,7 +133,7 @@ func TestHeader(t *testing.T) {
 	resp, err := Get(context.TODO(), ts.URL, Header("User-Agent", "Sausage"))
 	assert.Ok(t, err)
 
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing User-Agent: Sausage")
 }
 
@@ -147,7 +146,7 @@ func TestAuthBearer(t *testing.T) {
 	resp, err := Get(context.TODO(), ts.URL, AuthBearer("LOLOLOLOL"))
 	assert.Ok(t, err)
 
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing Authorization: Bearer LOLOLOLOL")
 }
 
@@ -160,7 +159,7 @@ func TestAuthBasic(t *testing.T) {
 	resp, err := Get(context.TODO(), ts.URL, AuthBasic("AzureDiamond", "hunter2"))
 	assert.Ok(t, err)
 
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), "Echoing Authorization: Basic QXp1cmVEaWFtb25kOmh1bnRlcjI=")
 }
 
@@ -178,7 +177,7 @@ func TestCookie(t *testing.T) {
 	resp, err := Get(context.TODO(), ts.URL, Cookie(cmCookie))
 	assert.Ok(t, err)
 
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(resp.Body)
 	assert.EqualString(t, string(respBody), `Echoing Cookie: cookiemonster="says nom nom"`)
 }
 

@@ -4,7 +4,6 @@ package systemdinstaller
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -78,7 +77,7 @@ func Install(sf serviceFile) error {
 	}
 
 	//nolint:gosec // https://unix.stackexchange.com/questions/433886/what-are-the-correct-permissions-for-a-systemd-service
-	if err := ioutil.WriteFile(filePath, []byte(serialize(sf)), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(serialize(sf)), 0644); err != nil {
 		// try to improve UX
 		if errors.Is(err, os.ErrPermission) {
 			return fmt.Errorf("%w\nHint: try prefix with '$ sudo ...'", err)
