@@ -88,6 +88,8 @@ func logic() error {
 			extensionsAsCode += fmt.Sprintf(`"%s",`, ext)
 		}
 
+		// NOTE: when has multiple extensions, sometimes their order get swapped. shouldn't be our
+		// code's fault though. maybe their order were explicitly changed at source? keep tabs on this.
 		code(fmt.Sprintf("Extensions: []string{%s},", extensionsAsCode))
 
 		code("},")
