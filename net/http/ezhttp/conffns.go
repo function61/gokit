@@ -68,7 +68,9 @@ func RespondsJSONDisallowUnknownFields(obj interface{}) ConfigPiece {
 
 func respondsJSON(ref interface{}, allowUnknownFields bool) ConfigPiece {
 	return After(func(conf *Config) {
-		conf.Request.Header.Set("Accept", jsonContentType)
+		if conf.Request.Header.Get("Accept") == "" { // don't override if we have explicit `Accept` header
+			conf.Request.Header.Set("Accept", jsonContentType)
+		}
 
 		conf.OutputsJson = true
 		conf.OutputsJsonRef = ref

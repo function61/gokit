@@ -150,6 +150,23 @@ func TestAuthBearer(t *testing.T) {
 	assert.EqualString(t, string(respBody), "Echoing Authorization: Bearer LOLOLOLOL")
 }
 
+func TestRespondsJSONDoesntOverrideExplicitAccept(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"AcceptEchoed": "%s"}`, r.Header.Get("Accept"))
+	}))
+	defer ts.Close()
+
+	respJSON := struct {
+		AcceptEchoed string
+	}{}
+
+	// before the fix, RespondsJSONDisallowUnknownFields() used to override explicit header
+	_, err := Get(context.TODO(), ts.URL, Header("Accept", "text/foobar"), RespondsJSONDisallowUnknownFields(&respJSON))
+	assert.Ok(t, err)
+
+	assert.EqualString(t, respJSON.AcceptEchoed, "text/foobar")
+}
+
 func TestAuthBasic(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Echoing Authorization: %s", r.Header.Get("Authorization"))
