@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/apex/gateway v1.1.1
 	github.com/aws/aws-lambda-go v1.13.2
-	github.com/aws/aws-sdk-go v1.16.15
+	github.com/aws/aws-sdk-go v1.34.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/hashicorp/hcl v1.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
@@ -22,9 +22,9 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
-	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
+	github.com/jmespath/go-jmespath v0.3.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/procfs v0.0.8 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
