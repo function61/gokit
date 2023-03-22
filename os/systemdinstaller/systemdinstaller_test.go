@@ -135,7 +135,7 @@ RestartSec=10s
 `)
 }
 
-func fixForTest(sf serviceFile) serviceFile {
+func fixForTest(sf ServiceDefinition) ServiceDefinition {
 	sf.selfAbsolutePath = "/home/dummy/testservice_amd64" // need to monkey patch this to get deterministic output
 	return sf
 }

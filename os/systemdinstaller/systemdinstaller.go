@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-type serviceFile struct {
+type ServiceDefinition struct {
 	serviceName      string
 	args             []string
 	description      string
@@ -24,22 +24,22 @@ type serviceFile struct {
 	err              error // if error reading selfAbsolutePath
 }
 
-type Option func(*serviceFile)
+type Option func(*ServiceDefinition)
 
-func Service(serviceName string, description string, opts ...Option) serviceFile {
+func Service(serviceName string, description string, opts ...Option) ServiceDefinition {
 	return newService(serviceName, description, opts, false)
 }
 
 // user-level service
-func UserService(serviceName string, description string, opts ...Option) serviceFile {
+func UserService(serviceName string, description string, opts ...Option) ServiceDefinition {
 	return newService(serviceName, description, opts, true)
 }
 
-func newService(serviceName string, description string, opts []Option, userService bool) serviceFile {
+func newService(serviceName string, description string, opts []Option, userService bool) ServiceDefinition {
 	// filepath.Abs(os.Args[0]) fails with PATH-expanded lookups, os.Executable() resolves symlinks (bad for us)
 	selfAbsolutePath, err := currentExecutableNoFollowSymlink()
 
-	sf := serviceFile{
+	sf := ServiceDefinition{
 		userService:      userService,
 		serviceName:      serviceName,
 		description:      description,
@@ -55,7 +55,7 @@ func newService(serviceName string, description string, opts []Option, userServi
 }
 
 // installs the service
-func Install(sf serviceFile) error {
+func Install(sf ServiceDefinition) error {
 	if sf.err != nil {
 		return sf.err
 	}
@@ -90,7 +90,7 @@ func Install(sf serviceFile) error {
 }
 
 // gives, among others, command hints for how to start the installed service
-func EnableAndStartCommandHints(sf serviceFile) string {
+func EnableAndStartCommandHints(sf ServiceDefinition) string {
 	maybeUserArg := func() string {
 		if sf.userService {
 			return " --user"
@@ -113,7 +113,7 @@ func EnableAndStartCommandHints(sf serviceFile) string {
 	}, "\n")
 }
 
-func serialize(sf serviceFile) string {
+func serialize(sf ServiceDefinition) string {
 	lines := []string{}
 
 	l := func(line string) {
@@ -163,7 +163,7 @@ func serialize(sf serviceFile) string {
 	return strings.Join(lines, "\n") + "\n"
 }
 
-func unitfilePath(sf serviceFile) (string, error) {
+func unitfilePath(sf ServiceDefinition) (string, error) {
 	// "example.service"
 	unitFilename := sf.serviceName + ".service"
 
@@ -183,46 +183,46 @@ func unitfilePath(sf serviceFile) (string, error) {
 
 // FIXME(security): args are not shell escaped - DO NOT TAKE THIS FROM USER INPUT
 func Args(args ...string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.args = args
 	}
 }
 
 func Docs(docs ...string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.docs = docs
 	}
 }
 
 func Env(key string, value string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.envs = append(sf.envs, key+"="+value)
 	}
 }
 
 // https://unix.stackexchange.com/a/126146
-func RequireNetworkOnline(sf *serviceFile) {
+func RequireNetworkOnline(sf *ServiceDefinition) {
 	Wants("network-online.target")(sf)
 	After("network-online.target")(sf)
 }
 
 // https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Wants=
 func Wants(wants string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.wants = append(sf.wants, wants)
 	}
 }
 
 // https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Before=
 func After(after string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.after = append(sf.after, after)
 	}
 }
 
 // https://www.freedesktop.org/software/systemd/man/systemd.unit.html#BindsTo=
 func BindsTo(to string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		sf.bindsTo = append(sf.bindsTo, to)
 	}
 }
@@ -230,7 +230,7 @@ func BindsTo(to string) Option {
 // systemd automatically dynamically generates units for network devices, so we can wait + bind to them.
 // you can find interesting units by invoking $ systemctl list-unit
 func WaitNetworkInterface(interfaceName string) Option {
-	return func(sf *serviceFile) {
+	return func(sf *ServiceDefinition) {
 		interfaceDeviceUnit := fmt.Sprintf("sys-subsystem-net-devices-%s.device", interfaceName)
 
 		// https://unix.stackexchange.com/a/417839
