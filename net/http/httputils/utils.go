@@ -56,6 +56,16 @@ func CancelableServer(ctx context.Context, srv *http.Server, listener func() err
 	}
 }
 
+// creates an http.HandlerFunc wrapper of an inner func that returns an error.
+// if an error is returned, it is responded to as an HTTP error.
+func WrapWithErrorHandling(inner func(http.ResponseWriter, *http.Request) error) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := inner(w, r); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
 // helper for setting JSON header and JSON-marshaling a struct into the HTTP response
 func RespondJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
