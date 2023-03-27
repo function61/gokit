@@ -54,3 +54,24 @@ func TestErrorIfUnset(t *testing.T) {
 	assert.Assert(t, ErrorIfUnset(false, "foo") == nil)
 	assert.EqualString(t, ErrorIfUnset(true, "foo").Error(), "'foo' is required")
 }
+
+func TestFirstNonEmptyWithString(t *testing.T) {
+	assert.EqualString(t, FirstNonEmpty("foo", "bar"), "foo")
+	assert.EqualString(t, FirstNonEmpty("", "bar"), "bar")
+	assert.EqualString(t, FirstNonEmpty(""), "")
+}
+
+func TestFirstNonEmptyWithInt(t *testing.T) {
+	var zero int
+	pi := int(314)
+
+	assert.Assert(t, FirstNonEmpty(zero, pi) == 314)
+	assert.Assert(t, FirstNonEmpty(pi, zero) == 314)
+}
+
+func TestFirstNonEmptyWithError(t *testing.T) {
+	var nilError error = nil
+	actualError := errors.New("actual")
+
+	assert.EqualString(t, FirstNonEmpty(nilError, actualError).Error(), "actual")
+}

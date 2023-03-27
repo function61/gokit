@@ -34,17 +34,6 @@ func Pointer[T any](val T) *T {
 	return &val
 }
 
-// returns first error, or nil if no errors
-func FirstError(errs ...error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // helper for wrapping an error with error prefix.
 // if error is nil, nil is returned.
 func ErrorWrap(prefix string, err error) error {
@@ -62,4 +51,27 @@ func ErrorIfUnset(isUnset bool, fieldName string) error {
 	} else {
 		return nil
 	}
+}
+
+// returns the first non-empty value.
+func FirstNonEmpty[T comparable](values ...T) T {
+	var empty T
+	for _, value := range values {
+		if value != empty {
+			return value
+		}
+	}
+	return empty
+}
+
+// returns first error, or nil if no errors
+// Deprecated: use `FirstNonEmpty()`
+func FirstError(errs ...error) error {
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
