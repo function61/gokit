@@ -74,4 +74,5 @@ func TestFirstNonEmptyWithError(t *testing.T) {
 	actualError := errors.New("actual")
 
 	assert.EqualString(t, FirstNonEmpty(nilError, actualError).Error(), "actual")
+	assert.Assert(t, FirstNonEmpty(nilError, nilError) == nil)
 }
