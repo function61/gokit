@@ -36,6 +36,7 @@ func Pointer[T any](val T) *T {
 
 // helper for wrapping an error with error prefix.
 // if error is nil, nil is returned.
+// Deprecated: this doesn't carry its own weight - just use `fmt.Errorf()`
 func ErrorWrap(prefix string, err error) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", prefix, err)
@@ -62,6 +63,16 @@ func FirstNonEmpty[T comparable](values ...T) T {
 		}
 	}
 	return empty
+}
+
+// for a function that returns two values, you can get the value with `Must(fn())` to convert it to
+// the value, panicking if producing the value caused an error
+func Must[T any](value T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+
+	return value
 }
 
 // returns first error, or nil if no errors
