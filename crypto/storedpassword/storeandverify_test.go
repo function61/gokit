@@ -13,11 +13,11 @@ func TestStoreAndVerify(t *testing.T) {
 
 	strategyId, _, _, err := deserialize(stored)
 	assert.Ok(t, err)
-	assert.EqualString(t, strategyId, "pbkdf2-sha256-100k")
+	assert.Equal(t, strategyId, "pbkdf2-sha256-100k")
 
 	// pretend above strategy is not found
 	upgrade, err := Verify(stored, "hunter2", alwaysFailingResolver)
-	assert.EqualString(t, err.Error(), "unknown strategy")
+	assert.Equal(t, err.Error(), "unknown strategy")
 	assert.Assert(t, upgrade == "")
 
 	// strategy should now be found
@@ -37,7 +37,7 @@ func TestStoreAndVerify(t *testing.T) {
 	// upgraded password should now use the ridiculously insecure strategy
 	strategyId, _, _, err = deserialize(upgrade)
 	assert.Ok(t, err)
-	assert.EqualString(t, strategyId, "pbkdf2-sha256-1")
+	assert.Equal(t, strategyId, "pbkdf2-sha256-1")
 
 	// verify upgraded password
 	upgrade, err = Verify(upgrade, "hunter2", downgradingResolver)

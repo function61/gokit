@@ -59,7 +59,7 @@ func TestHumanizeDuration(t *testing.T) {
 		tc := tc // pin
 
 		t.Run(tc.output, func(t *testing.T) {
-			assert.EqualString(t, HumanizeDuration(tc.input), tc.output)
+			assert.Equal(t, HumanizeDuration(tc.input), tc.output)
 		})
 	}
 }

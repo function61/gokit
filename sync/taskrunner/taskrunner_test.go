@@ -77,7 +77,7 @@ func TestStoppingFails(t *testing.T) {
 
 	cancel()
 
-	assert.EqualString(t, runner.Wait().Error(), "task 'hangForever' exited with: i failed stopping :(")
+	assert.Equal(t, runner.Wait().Error(), "task 'hangForever' exited with: i failed stopping :(")
 }
 
 func TestTaskErrorShouldStopSiblings(t *testing.T) {
@@ -95,6 +95,6 @@ func TestTaskErrorShouldStopSiblings(t *testing.T) {
 		return errors.New("i fail immediately")
 	})
 
-	assert.EqualString(t, runner.Wait().Error(), "unexpected exit of fails: i fail immediately")
+	assert.Equal(t, runner.Wait().Error(), "unexpected exit of fails: i fail immediately")
 	assert.Assert(t, correctlyWorkingSiblingAlsoStopped)
 }

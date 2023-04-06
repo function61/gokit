@@ -15,8 +15,8 @@ func TestPipe(t *testing.T) {
 	err := Pipe(WithName("person1", person1), WithName("person2", person2))
 
 	assert.Ok(t, err)
-	assert.EqualString(t, person2.received, "Nice to meet you, Person2")
-	assert.EqualString(t, person1.received, "Thanks Person1, pleasure is all mine")
+	assert.Equal(t, person2.received, "Nice to meet you, Person2")
+	assert.Equal(t, person1.received, "Thanks Person1, pleasure is all mine")
 }
 
 func TestPipeWithErrorFromPerson1(t *testing.T) {
@@ -25,9 +25,9 @@ func TestPipeWithErrorFromPerson1(t *testing.T) {
 
 	err := Pipe(WithName("person1", person1), WithName("person2", person2))
 
-	assert.EqualString(t, err.Error(), "bidipipe: person1 -> person2 error: hurr durr, I broke")
-	assert.EqualString(t, person2.received, "")
-	assert.EqualString(t, person1.received, "Thanks Person1, pleasure is all mine")
+	assert.Equal(t, err.Error(), "bidipipe: person1 -> person2 error: hurr durr, I broke")
+	assert.Equal(t, person2.received, "")
+	assert.Equal(t, person1.received, "Thanks Person1, pleasure is all mine")
 }
 
 func TestPipeWithErrorFromPerson2(t *testing.T) {
@@ -36,9 +36,9 @@ func TestPipeWithErrorFromPerson2(t *testing.T) {
 
 	err := Pipe(WithName("person1", person1), WithName("person2", person2))
 
-	assert.EqualString(t, err.Error(), "bidipipe: person2 -> person1 error: hurr durr, I broke")
-	assert.EqualString(t, person2.received, "Nice to meet you, Person2")
-	assert.EqualString(t, person1.received, "")
+	assert.Equal(t, err.Error(), "bidipipe: person2 -> person1 error: hurr durr, I broke")
+	assert.Equal(t, person2.received, "Nice to meet you, Person2")
+	assert.Equal(t, person1.received, "")
 }
 
 type ReaderWriterMock struct {

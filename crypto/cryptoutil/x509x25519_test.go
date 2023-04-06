@@ -17,7 +17,7 @@ func TestParsedPrivateKeyComputesToPublicKeyOpenSslEquivalent(t *testing.T) {
 
 	// since we managed to import OpenSSL-exported X25519 key, computed its public key and
 	// pubMarshaled equals what OpenSSL also computed from the private key, we know it works
-	assert.EqualString(t, string(bobPublicPem), bobPublicPemFromOpenssl)
+	assert.Equal(t, string(bobPublicPem), bobPublicPemFromOpenssl)
 }
 
 func TestPrivateAndPublicKeyParsing(t *testing.T) {
@@ -40,7 +40,7 @@ func TestPrivateAndPublicKeyParsing(t *testing.T) {
 	assert.Ok(t, err)
 
 	assert.Assert(t, bytes.Equal(aliceShared, bobShared))
-	assert.EqualString(t, fmt.Sprintf("%x", aliceShared), "1e9be8d5c01de22df9ccd852c17db8ca9367f72140cc1bbed9bac9e0ee7c1e53")
+	assert.Equal(t, fmt.Sprintf("%x", aliceShared), "1e9be8d5c01de22df9ccd852c17db8ca9367f72140cc1bbed9bac9e0ee7c1e53")
 
 	/*
 		Ideally we would like to compare OpenSSL's ECDH result to in-Go result (thus verifying

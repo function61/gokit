@@ -25,7 +25,7 @@ func TestHumanize(t *testing.T) {
 		{1152921504606846976, "1024.00 PiB"},
 	} {
 		t.Run(tc.output, func(t *testing.T) {
-			assert.EqualString(t, Humanize(tc.input), tc.output)
+			assert.Equal(t, Humanize(tc.input), tc.output)
 		})
 	}
 }

@@ -20,7 +20,7 @@ func TestReaderGoodHash(t *testing.T) {
 
 	out, err := io.ReadAll(verifiedReader)
 	assert.Ok(t, err)
-	assert.EqualString(t, string(out), "The quick brown fox jumps over the lazy dog")
+	assert.Equal(t, string(out), "The quick brown fox jumps over the lazy dog")
 }
 
 func TestReaderBadHash(t *testing.T) {
@@ -32,7 +32,7 @@ func TestReaderBadHash(t *testing.T) {
 		hexToBytes("7885198ae80b48ebf6c0d0d6b8ce86169570d346ec0b2c43029d04b3e3763ec3"))
 
 	_, err := io.ReadAll(thisHashWillNotMatch)
-	assert.EqualString(t, err.Error(), "hashVerifyReader: digest mismatch")
+	assert.Equal(t, err.Error(), "hashVerifyReader: digest mismatch")
 }
 
 func hexToBytes(input string) []byte {

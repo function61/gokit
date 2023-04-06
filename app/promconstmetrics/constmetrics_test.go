@@ -31,7 +31,7 @@ func TestConstMetrics(t *testing.T) {
 	expositionOutput := &bytes.Buffer{}
 
 	assert.Ok(t, gatherToTextExport(allCollectors, expositionOutput))
-	assert.EqualString(t, expositionOutput.String(), `# HELP stars Stars in GitHub
+	assert.Equal(t, expositionOutput.String(), `# HELP stars Stars in GitHub
 # TYPE stars gauge
 stars{org="function61",repo="varasto"} 3 1579694400000
 `)
@@ -41,7 +41,7 @@ stars{org="function61",repo="varasto"} 3 1579694400000
 	expositionOutput.Reset()
 
 	assert.Ok(t, gatherToTextExport(allCollectors, expositionOutput))
-	assert.EqualString(t, expositionOutput.String(), `# HELP stars Stars in GitHub
+	assert.Equal(t, expositionOutput.String(), `# HELP stars Stars in GitHub
 # TYPE stars gauge
 stars{org="function61",repo="varasto"} 11 1579694402000
 `)
@@ -63,7 +63,7 @@ func TestVariableLabels(t *testing.T) {
 	expositionOutput := &bytes.Buffer{}
 
 	assert.Ok(t, gatherToTextExport(allCollectors, expositionOutput))
-	assert.EqualString(t, expositionOutput.String(), `# HELP stars Stars in GitHub
+	assert.Equal(t, expositionOutput.String(), `# HELP stars Stars in GitHub
 # TYPE stars gauge
 stars{org="function61",repo="gokit"} 5 1579694400000
 stars{org="function61",repo="varasto"} 11 1579694400000

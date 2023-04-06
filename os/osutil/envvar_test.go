@@ -10,7 +10,7 @@ import (
 func TestEnvThatDoesNotExist(t *testing.T) {
 	_, err := GetenvRequired("DOES_NOT_EXIST")
 
-	assert.EqualString(t, err.Error(), "ENV not defined: DOES_NOT_EXIST")
+	assert.Equal(t, err.Error(), "ENV not defined: DOES_NOT_EXIST")
 }
 
 func TestEnvThatExists(t *testing.T) {
@@ -25,10 +25,10 @@ func TestGetenvRequiredFromBase64(t *testing.T) {
 
 	_, err := GetenvRequiredFromBase64("FOO2")
 
-	assert.EqualString(t, err.Error(), "ENV not defined: FOO2")
+	assert.Equal(t, err.Error(), "ENV not defined: FOO2")
 
 	fooVal, err := GetenvRequiredFromBase64("FOO")
 
 	assert.Ok(t, err)
-	assert.EqualString(t, string(fooVal), "hi mom!")
+	assert.Equal(t, string(fooVal), "hi mom!")
 }

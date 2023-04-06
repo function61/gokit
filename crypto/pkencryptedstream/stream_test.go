@@ -29,7 +29,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 
 	plaintext, err := io.ReadAll(plaintextReader)
 	assert.Ok(t, err)
-	assert.EqualString(t, string(plaintext), "this will be encrypted")
+	assert.Equal(t, string(plaintext), "this will be encrypted")
 }
 
 const testPublicKeyDer = `-----BEGIN RSA PUBLIC KEY-----

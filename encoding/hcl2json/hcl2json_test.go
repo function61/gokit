@@ -28,7 +28,7 @@ person {
 	jsonBytes, err := io.ReadAll(jsonBytesReader)
 	assert.Ok(t, err)
 
-	assert.EqualString(t, string(jsonBytes), `{
+	assert.Equal(t, string(jsonBytes), `{
   "person": [
     {
       "age": 32,

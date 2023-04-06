@@ -83,5 +83,5 @@ func TestTakesTooLong(t *testing.T) {
 	assert.Assert(t, attempts == 1)
 	assert.Assert(t, len(receivedErrors) == 1)
 	assert.Assert(t, regexp.MustCompile(`GIVING UP \(context timeout\): attempt 1 failed in .+: encountered timeout`).MatchString(receivedErrors[0].Error()))
-	assert.EqualString(t, err.Error(), receivedErrors[0].Error())
+	assert.Equal(t, err.Error(), receivedErrors[0].Error())
 }

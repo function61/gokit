@@ -48,7 +48,7 @@ func TestPostJson(t *testing.T) {
 	resp, err := Post(context.TODO(), ts.URL, SendJson(&req))
 	assert.Ok(t, err)
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), `{"Hello":"hello good sir"}`)
+	assert.Equal(t, string(respBody), `{"Hello":"hello good sir"}`)
 }
 
 func TestPostArbitraryData(t *testing.T) {
@@ -68,7 +68,7 @@ func TestPostArbitraryData(t *testing.T) {
 
 	assert.Ok(t, err)
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), `received Content-Type: text/awesome
+	assert.Equal(t, string(respBody), `received Content-Type: text/awesome
 
 why
 hello there
@@ -91,10 +91,10 @@ func TestRespondsJson(t *testing.T) {
 	responseBody := &ExampleJsonPayload{}
 	_, err := Get(context.TODO(), ts.URL+"/valid-json", RespondsJson(responseBody, false))
 	assert.Ok(t, err)
-	assert.EqualString(t, responseBody.Hello, "World")
+	assert.Equal(t, responseBody.Hello, "World")
 
 	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, false))
-	assert.EqualString(t, err.Error(), `json: unknown field "got"`)
+	assert.Equal(t, err.Error(), `json: unknown field "got"`)
 
 	_, err = Get(context.TODO(), ts.URL+"/valid-json-but-has-unknown-field", RespondsJson(responseBody, true))
 	assert.Ok(t, err)
@@ -108,7 +108,7 @@ func TestRespondsJsonFails(t *testing.T) {
 
 	responseBody := &ExampleJsonPayload{}
 	_, err := Get(context.TODO(), ts.URL, RespondsJson(responseBody, false))
-	assert.EqualString(t, err.Error(), "invalid character 'i' looking for beginning of value")
+	assert.Equal(t, err.Error(), "invalid character 'i' looking for beginning of value")
 }
 
 func TestNon200x(t *testing.T) {
@@ -118,7 +118,7 @@ func TestNon200x(t *testing.T) {
 	defer ts.Close()
 
 	_, err := Get(context.TODO(), ts.URL)
-	assert.EqualString(t, err.Error(), "500 Internal Server Error; I failed you :(\n")
+	assert.Equal(t, err.Error(), "500 Internal Server Error; I failed you :(\n")
 
 	_, err = Get(context.TODO(), ts.URL, TolerateNon2xxResponse)
 	assert.Ok(t, err)
@@ -134,7 +134,7 @@ func TestHeader(t *testing.T) {
 	assert.Ok(t, err)
 
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), "Echoing User-Agent: Sausage")
+	assert.Equal(t, string(respBody), "Echoing User-Agent: Sausage")
 }
 
 func TestAuthBearer(t *testing.T) {
@@ -147,7 +147,7 @@ func TestAuthBearer(t *testing.T) {
 	assert.Ok(t, err)
 
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), "Echoing Authorization: Bearer LOLOLOLOL")
+	assert.Equal(t, string(respBody), "Echoing Authorization: Bearer LOLOLOLOL")
 }
 
 func TestRespondsJSONDoesntOverrideExplicitAccept(t *testing.T) {
@@ -164,7 +164,7 @@ func TestRespondsJSONDoesntOverrideExplicitAccept(t *testing.T) {
 	_, err := Get(context.TODO(), ts.URL, Header("Accept", "text/foobar"), RespondsJSONDisallowUnknownFields(&respJSON))
 	assert.Ok(t, err)
 
-	assert.EqualString(t, respJSON.AcceptEchoed, "text/foobar")
+	assert.Equal(t, respJSON.AcceptEchoed, "text/foobar")
 }
 
 func TestAuthBasic(t *testing.T) {
@@ -177,7 +177,7 @@ func TestAuthBasic(t *testing.T) {
 	assert.Ok(t, err)
 
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), "Echoing Authorization: Basic QXp1cmVEaWFtb25kOmh1bnRlcjI=")
+	assert.Equal(t, string(respBody), "Echoing Authorization: Basic QXp1cmVEaWFtb25kOmh1bnRlcjI=")
 }
 
 func TestCookie(t *testing.T) {
@@ -195,7 +195,7 @@ func TestCookie(t *testing.T) {
 	assert.Ok(t, err)
 
 	respBody, _ := io.ReadAll(resp.Body)
-	assert.EqualString(t, string(respBody), `Echoing Cookie: cookiemonster="says nom nom"`)
+	assert.Equal(t, string(respBody), `Echoing Cookie: cookiemonster="says nom nom"`)
 }
 
 func TestExpectedVsUnexpectedNotModified(t *testing.T) {
@@ -205,7 +205,7 @@ func TestExpectedVsUnexpectedNotModified(t *testing.T) {
 	defer ts.Close()
 
 	_, err := Get(context.TODO(), ts.URL)
-	assert.EqualString(t, err.Error(), "304 Not Modified; <no response body>")
+	assert.Equal(t, err.Error(), "304 Not Modified; <no response body>")
 
 	// it's not an error however, if "expecting caching" headers are sent
 
@@ -231,8 +231,8 @@ func TestRequestBodyForNonBodyMethods(t *testing.T) {
 	defer ts.Close()
 
 	_, err := Get(context.TODO(), ts.URL, SendBody(strings.NewReader("huh?"), "text/plain"))
-	assert.EqualString(t, err.Error(), "ezhttp: GET with non-nil body is usually a mistake")
+	assert.Equal(t, err.Error(), "ezhttp: GET with non-nil body is usually a mistake")
 
 	_, err = Head(context.TODO(), ts.URL, SendBody(strings.NewReader("huh?"), "text/plain"))
-	assert.EqualString(t, err.Error(), "ezhttp: HEAD with non-nil body is usually a mistake")
+	assert.Equal(t, err.Error(), "ezhttp: HEAD with non-nil body is usually a mistake")
 }

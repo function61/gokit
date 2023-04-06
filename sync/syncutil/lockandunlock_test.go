@@ -42,7 +42,7 @@ func TestLockAndUnlock(t *testing.T) {
 	<-contenderGotLock
 
 	// this is the true ordering of events
-	assert.EqualString(t, <-eventSequence, "[main] lock acquired")
-	assert.EqualString(t, <-eventSequence, "[main] about to release lock")
-	assert.EqualString(t, <-eventSequence, "[contenderThread] got lock") // critical that this happens after main releases
+	assert.Equal(t, <-eventSequence, "[main] lock acquired")
+	assert.Equal(t, <-eventSequence, "[main] about to release lock")
+	assert.Equal(t, <-eventSequence, "[contenderThread] got lock") // critical that this happens after main releases
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func TestMarshalPemBytes(t *testing.T) {
-	assert.EqualString(t, string(MarshalPemBytes([]byte("hello"), PemTypeCertificate)), `-----BEGIN CERTIFICATE-----
+	assert.Equal(t, string(MarshalPemBytes([]byte("hello"), PemTypeCertificate)), `-----BEGIN CERTIFICATE-----
 aGVsbG8=
 -----END CERTIFICATE-----
 `)
@@ -26,11 +26,11 @@ func TestParsePemPkcs1EncodedRsaPublicKey(t *testing.T) {
 
 	// invalid PEM
 	_, err = ParsePemPkcs1EncodedRsaPublicKey([]byte("-----BEGIN RSA PUBLIC KEY-----\nMIIB@\n-----END RSA PUBLIC KEY-----"))
-	assert.EqualString(t, err.Error(), "PEM decode failed")
+	assert.Equal(t, err.Error(), "PEM decode failed")
 
 	// valid PEM, invalid asn1
 	_, err = ParsePemPkcs1EncodedRsaPublicKey([]byte("-----BEGIN RSA PUBLIC KEY-----\nMIIB\n-----END RSA PUBLIC KEY-----"))
-	assert.EqualString(t, err.Error(), "asn1: syntax error: truncated tag or length")
+	assert.Equal(t, err.Error(), "asn1: syntax error: truncated tag or length")
 }
 
 func TestParsePemEncodedPrivateKey(t *testing.T) {
@@ -38,13 +38,13 @@ func TestParsePemEncodedPrivateKey(t *testing.T) {
 	assert.Ok(t, err)
 	rsaPublicKey, _ := PublicKeyFromPrivateKey(rsaKey)
 	rsaPublicKeyDescr, _ := PublicKeyHumanReadableDescription(rsaPublicKey)
-	assert.EqualString(t, rsaPublicKeyDescr, "RSA-1024")
+	assert.Equal(t, rsaPublicKeyDescr, "RSA-1024")
 
 	ecdsaKey, err := ParsePemEncodedPrivateKey([]byte(testValidEcdsaPrivateKey))
 	assert.Ok(t, err)
 	ecdsaPublicKey, _ := PublicKeyFromPrivateKey(ecdsaKey)
 	ecdsaPublicKeyDescr, _ := PublicKeyHumanReadableDescription(ecdsaPublicKey)
-	assert.EqualString(t, ecdsaPublicKeyDescr, "ECDSA")
+	assert.Equal(t, ecdsaPublicKeyDescr, "ECDSA")
 }
 
 func TestSha256FingerprintForPublicKey(t *testing.T) {
@@ -54,14 +54,14 @@ func TestSha256FingerprintForPublicKey(t *testing.T) {
 	fingerprint, err := Sha256FingerprintForPublicKey(pubKey)
 	assert.Ok(t, err)
 
-	assert.EqualString(t, fingerprint, "SHA256:mkKvVUiFg0oZd1IRltdabZPDD4oPUJcyIFnxeqi1sl8")
+	assert.Equal(t, fingerprint, "SHA256:mkKvVUiFg0oZd1IRltdabZPDD4oPUJcyIFnxeqi1sl8")
 }
 
 func TestMarshalPemPkcs1EncodedRsaPublicKey(t *testing.T) {
 	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey([]byte(testValidRsaPublicKey))
 	assert.Ok(t, err)
 
-	assert.EqualString(t, string(MarshalPemPkcs1EncodedRsaPublicKey(pubKey)), `-----BEGIN RSA PUBLIC KEY-----
+	assert.Equal(t, string(MarshalPemPkcs1EncodedRsaPublicKey(pubKey)), `-----BEGIN RSA PUBLIC KEY-----
 MIIBCgKCAQEA+xGZ/wcz9ugFpP07Nspo6U17l0YhFiFpxxU4pTk3Lifz9R3zsIsu
 ERwta7+fWIfxOo208ett/jhskiVodSEt3QBGh4XBipyWopKwZ93HHaDVZAALi/2A
 +xTBtWdEo7XGUujKDvC2/aZKukfjpOiUI8AhLAfjmlcD/UZ1QPh0mHsglRNCmpCw
@@ -76,7 +76,7 @@ func TestMarshalPemPkcs1EncodedRsaPrivateKey(t *testing.T) {
 	pubKey, err := ParsePemPkcs1EncodedRsaPrivateKey([]byte(testValidRsaPrivateKey))
 	assert.Ok(t, err)
 
-	assert.EqualString(t, string(MarshalPemPkcs1EncodedRsaPrivateKey(pubKey)), `-----BEGIN RSA PRIVATE KEY-----
+	assert.Equal(t, string(MarshalPemPkcs1EncodedRsaPrivateKey(pubKey)), `-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZf
 XJ/DgYSF6vUpwmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/
 3j+skZ6UtW+5u09lHNsj6tQ51s1SPrCBkedbNf0Tp0GbMJDyR4e9T04ZZwIDAQAB

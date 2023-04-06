@@ -18,10 +18,10 @@ func TestSignAndAuthenticate(t *testing.T) {
 	bothCookies := ToCookiesWithCsrfProtection(token)
 	assert.Assert(t, len(bothCookies) == 2)
 
-	assert.EqualString(t, bothCookies[0].Name, "auth")
-	assert.EqualString(t, bothCookies[0].Value, token)
+	assert.Equal(t, bothCookies[0].Name, "auth")
+	assert.Equal(t, bothCookies[0].Value, token)
 	assert.Assert(t, bothCookies[0].HttpOnly)
-	assert.EqualString(t, bothCookies[1].Name, "csrf_token")
+	assert.Equal(t, bothCookies[1].Name, "csrf_token")
 	assert.Assert(t, len(bothCookies[1].Value) == 22)
 	assert.Assert(t, !bothCookies[1].HttpOnly)
 
@@ -41,27 +41,27 @@ func TestSignAndAuthenticate(t *testing.T) {
 	onlyLoginCookie := []*http.Cookie{bothCookies[0]}
 	onlyCsrfCookie := []*http.Cookie{bothCookies[1]}
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(bothCookies, "invalid header")),
 		"csrf: cookie does not match HTTP header")
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(bothCookies, "")),
 		"csrf: x-csrf-token HTTP header missing")
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(onlyLoginCookie, "just something here")),
 		"csrf: cookie csrf_token missing")
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(onlyCsrfCookie, "just something here")),
 		"csrf: cookie does not match HTTP header")
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(bothCookies, onlyCsrfCookie[0].Value)),
 		"userid<123> tok<eyJhbGci..>")
 
-	assert.EqualString(t,
+	assert.Equal(t,
 		authenticateReq(makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)),
 		"auth: either specify 'auth' cookie or 'Authorization' header")
 
@@ -70,7 +70,7 @@ func TestSignAndAuthenticate(t *testing.T) {
 	reqWithBearerToken := makeReq(onlyCsrfCookie, onlyCsrfCookie[0].Value)
 	reqWithBearerToken.Header.Set("Authorization", "Bearer "+onlyLoginCookie[0].Value)
 
-	assert.EqualString(t, authenticateReq(reqWithBearerToken), "userid<123> tok<eyJhbGci..>")
+	assert.Equal(t, authenticateReq(reqWithBearerToken), "userid<123> tok<eyJhbGci..>")
 }
 
 func TestSignAndAuthenticateMismatchingPublicKey(t *testing.T) {
@@ -84,7 +84,7 @@ func TestSignAndAuthenticateMismatchingPublicKey(t *testing.T) {
 
 	_, err := authenticator.AuthenticateWithCsrfProtection(makeReq(bothCookies, bothCookies[1].Value))
 
-	assert.EqualString(t, err.Error(), "JWT authentication: crypto/ecdsa: verification error")
+	assert.Equal(t, err.Error(), "JWT authentication: crypto/ecdsa: verification error")
 }
 
 func TestTokenExpiry(t *testing.T) {
@@ -102,9 +102,9 @@ func TestTokenExpiry(t *testing.T) {
 
 		if should {
 			assert.Ok(t, err)
-			assert.EqualString(t, userDetails.Id, "123")
+			assert.Equal(t, userDetails.Id, "123")
 		} else {
-			assert.EqualString(t, err.Error(), "JWT authentication: token is expired by 1h0m0s")
+			assert.Equal(t, err.Error(), "JWT authentication: token is expired by 1h0m0s")
 		}
 	}
 

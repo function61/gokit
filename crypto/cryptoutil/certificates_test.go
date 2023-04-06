@@ -10,9 +10,9 @@ func TestParsePemX509Certificate(t *testing.T) {
 	cert, err := ParsePemX509Certificate([]byte(testValidCertificate))
 	assert.Ok(t, err)
 
-	assert.EqualString(t, cert.Subject.CommonName, "godoc.org")
-	assert.EqualString(t, Identity(*cert), "godoc.org")
-	assert.EqualString(t, Issuer(*cert), "Let's Encrypt")
+	assert.Equal(t, cert.Subject.CommonName, "godoc.org")
+	assert.Equal(t, Identity(*cert), "godoc.org")
+	assert.Equal(t, Issuer(*cert), "Let's Encrypt")
 }
 
 const (

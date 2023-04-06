@@ -8,5 +8,5 @@ import (
 
 func TestEncryptFailsWithoutSlots(t *testing.T) {
 	_, err := Encrypt([]byte("sekrit"), []SlotEncrypter{}, "label")
-	assert.EqualString(t, err.Error(), "envelope with zero slots not supported")
+	assert.Equal(t, err.Error(), "envelope with zero slots not supported")
 }

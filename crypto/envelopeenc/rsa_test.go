@@ -17,7 +17,7 @@ func TestDecryptionRequiresCorrectLabel(t *testing.T) {
 
 	kek1Private := RsaOaepSha256Decrypter(kek1PrivateKey)
 
-	assert.EqualString(t, kek1Private.KekId(), "SHA256:P+E7i8cwgczvWmvPKV68wbhvHjrM4hgvq6gobxGiWrY")
+	assert.Equal(t, kek1Private.KekId(), "SHA256:P+E7i8cwgczvWmvPKV68wbhvHjrM4hgvq6gobxGiWrY")
 
 	envelope, err := Encrypt(
 		[]byte("hunter2"),
@@ -33,7 +33,7 @@ func TestDecryptionRequiresCorrectLabel(t *testing.T) {
 	envelope.Label = "foo2"
 
 	_, err = envelope.Decrypt(kek1Private)
-	assert.EqualString(t, err.Error(), "decryptWithSlot DecryptOAEP: crypto/rsa: decryption error")
+	assert.Equal(t, err.Error(), "decryptWithSlot DecryptOAEP: crypto/rsa: decryption error")
 }
 
 func TestEncryptAndDecrypt(t *testing.T) {
@@ -76,7 +76,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 				deterministicRand(tc.encryptionKey, tc.nonce))
 			assert.Ok(t, err)
 
-			assert.EqualString(
+			assert.Equal(
 				t,
 				hex.EncodeToString(pwdEnvelope.EncryptedContent),
 				tc.expectedOutput)
@@ -88,7 +88,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 			decrypted, err := pwdEnvelope.Decrypt(kek1Private)
 			assert.Ok(t, err)
 
-			assert.EqualString(t, string(decrypted), "hunter2")
+			assert.Equal(t, string(decrypted), "hunter2")
 		})
 	}
 }

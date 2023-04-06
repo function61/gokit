@@ -9,27 +9,27 @@ import (
 func TestParseEnv(t *testing.T) {
 	key, val := ParseEnv("FOO=bar")
 
-	assert.EqualString(t, key, "FOO")
-	assert.EqualString(t, val, "bar")
+	assert.Equal(t, key, "FOO")
+	assert.Equal(t, val, "bar")
 }
 
 func TestParseEnvEmptyValue(t *testing.T) {
 	key, val := ParseEnv("FOO=")
 
-	assert.EqualString(t, key, "FOO")
-	assert.EqualString(t, val, "")
+	assert.Equal(t, key, "FOO")
+	assert.Equal(t, val, "")
 }
 
 func TestParseEnvSyntaxError(t *testing.T) {
 	key, val := ParseEnv("=")
 
-	assert.EqualString(t, key, "")
-	assert.EqualString(t, val, "")
+	assert.Equal(t, key, "")
+	assert.Equal(t, val, "")
 }
 
 func TestParseEnvEmptyString(t *testing.T) {
 	key, val := ParseEnv("")
 
-	assert.EqualString(t, key, "")
-	assert.EqualString(t, val, "")
+	assert.Equal(t, key, "")
+	assert.Equal(t, val, "")
 }
