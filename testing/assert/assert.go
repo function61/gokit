@@ -7,17 +7,7 @@ import (
 	"testing"
 )
 
-// waiting for generics to arrive to Go..
-
-func EqualString(t testing.TB, actual string, expected string) {
-	t.Helper()
-
-	if actual != expected {
-		t.Fatalf("exp=%v; got=%v", expected, actual)
-	}
-}
-
-func EqualInt(t testing.TB, actual int, expected int) {
+func Equal[T comparable](t testing.TB, actual T, expected T) {
 	t.Helper()
 
 	if actual != expected {
@@ -33,15 +23,13 @@ func EqualJSON(t testing.TB, obj interface{}, expected string) {
 		panic(err)
 	}
 
-	EqualString(t, string(jsonBytes), expected)
+	Equal(t, string(jsonBytes), expected)
 }
 
 func Assert(t testing.TB, expr bool) {
 	t.Helper()
 
-	if !expr {
-		t.Fatal("Expecting true; got false")
-	}
+	Equal(t, expr, true)
 }
 
 func Ok(t testing.TB, err error) {
@@ -65,4 +53,18 @@ func EqualJson(t testing.TB, obj interface{}, expected string) {
 	t.Helper()
 
 	EqualJSON(t, obj, expected)
+}
+
+// Deprecated: use Equal()
+func EqualString(t testing.TB, actual string, expected string) {
+	t.Helper()
+
+	Equal(t, actual, expected)
+}
+
+// Deprecated: use Equal()
+func EqualInt(t testing.TB, actual int, expected int) {
+	t.Helper()
+
+	Equal(t, actual, expected)
 }
