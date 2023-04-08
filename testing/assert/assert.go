@@ -26,12 +26,6 @@ func EqualJSON(t testing.TB, obj interface{}, expected string) {
 	Equal(t, string(jsonBytes), expected)
 }
 
-func Assert(t testing.TB, expr bool) {
-	t.Helper()
-
-	Equal(t, expr, true)
-}
-
 func Ok(t testing.TB, err error) {
 	t.Helper()
 
@@ -53,6 +47,14 @@ func EqualJson(t testing.TB, obj interface{}, expected string) {
 	t.Helper()
 
 	EqualJSON(t, obj, expected)
+}
+
+// Deprecated: use `Equal(t, expr, true)`
+// replacing `Assert(t, attempts == 1)` with `Equal(t, attempts, 1)` allows for better error messages.
+func Assert(t testing.TB, expr bool) {
+	t.Helper()
+
+	Equal(t, expr, true)
 }
 
 // Deprecated: use Equal()
