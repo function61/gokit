@@ -17,7 +17,7 @@ func TestEnvThatExists(t *testing.T) {
 	val, err := GetenvRequired("PATH")
 
 	assert.Ok(t, err)
-	assert.Assert(t, len(val) > 1)
+	assert.Equal(t, len(val) > 1, true)
 }
 
 func TestGetenvRequiredFromBase64(t *testing.T) {

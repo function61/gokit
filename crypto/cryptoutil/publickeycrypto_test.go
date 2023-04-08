@@ -16,13 +16,13 @@ aGVsbG8=
 func TestParsePemPkcs1EncodedRsaPrivateKey(t *testing.T) {
 	privKey, err := ParsePemPkcs1EncodedRsaPrivateKey([]byte(testValidRsaPrivateKey))
 	assert.Ok(t, err)
-	assert.Assert(t, privKey.E == 65537)
+	assert.Equal(t, privKey.E, 65537)
 }
 
 func TestParsePemPkcs1EncodedRsaPublicKey(t *testing.T) {
 	pubKey, err := ParsePemPkcs1EncodedRsaPublicKey([]byte(testValidRsaPublicKey))
 	assert.Ok(t, err)
-	assert.Assert(t, pubKey.E == 65537)
+	assert.Equal(t, pubKey.E, 65537)
 
 	// invalid PEM
 	_, err = ParsePemPkcs1EncodedRsaPublicKey([]byte("-----BEGIN RSA PUBLIC KEY-----\nMIIB@\n-----END RSA PUBLIC KEY-----"))

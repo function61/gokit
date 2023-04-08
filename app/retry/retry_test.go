@@ -24,7 +24,7 @@ func TestSucceedsRightAway(t *testing.T) {
 	}, DefaultBackoff(), ifFailed)
 
 	assert.Ok(t, err)
-	assert.Assert(t, attempts == 1)
+	assert.Equal(t, attempts, 1)
 }
 
 func TestSucceedsOnThirdTry(t *testing.T) {
@@ -49,8 +49,8 @@ func TestSucceedsOnThirdTry(t *testing.T) {
 	}, DefaultBackoff(), ifFailed)
 
 	assert.Ok(t, err)
-	assert.Assert(t, attempts == 3)
-	assert.Assert(t, len(receivedErrors) == 2)
+	assert.Equal(t, attempts, 3)
+	assert.Equal(t, len(receivedErrors), 2)
 	// use regex to work around variable timing ("failed in 270ns")
 	assert.Matches(t, receivedErrors[0].Error(), "attempt 1 failed in .+: fails on first try")
 	assert.Matches(t, receivedErrors[1].Error(), "attempt 2 failed in .+: fails on second as well")
@@ -80,8 +80,8 @@ func TestTakesTooLong(t *testing.T) {
 		}
 	}, DefaultBackoff(), ifFailed)
 
-	assert.Assert(t, attempts == 1)
-	assert.Assert(t, len(receivedErrors) == 1)
-	assert.Assert(t, regexp.MustCompile(`GIVING UP \(context timeout\): attempt 1 failed in .+: encountered timeout`).MatchString(receivedErrors[0].Error()))
+	assert.Equal(t, attempts, 1)
+	assert.Equal(t, len(receivedErrors), 1)
+	assert.Equal(t, regexp.MustCompile(`GIVING UP \(context timeout\): attempt 1 failed in .+: encountered timeout`).MatchString(receivedErrors[0].Error()), true)
 	assert.Equal(t, err.Error(), receivedErrors[0].Error())
 }

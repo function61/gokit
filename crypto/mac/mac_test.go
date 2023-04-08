@@ -19,7 +19,7 @@ func TestAuthenticate(t *testing.T) {
 	assert.Equal(t, signature, "bo4dqebLiFXPTpqv")
 
 	assert.Ok(t, New(key1, msg).Authenticate(signature))
-	assert.Assert(t, New(key1, msg).Authenticate("wrong signature") == ErrMacValidationFailed)
+	assert.Equal(t, New(key1, msg).Authenticate("wrong signature"), ErrMacValidationFailed)
 }
 
 func TestDifferentMessagesProduceDifferentSignatures(t *testing.T) {

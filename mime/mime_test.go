@@ -30,8 +30,8 @@ func TestExtensionByType(t *testing.T) {
 }
 
 func TestIs(t *testing.T) {
-	assert.Assert(t, Is("image/jpeg", TypeImage))
-	assert.Assert(t, Is("image/", TypeImage))
-	assert.Assert(t, !Is("image", TypeImage))
-	assert.Assert(t, !Is("text/plain", TypeImage))
+	assert.Equal(t, Is("image/jpeg", TypeImage), true)
+	assert.Equal(t, Is("image/", TypeImage), true)
+	assert.Equal(t, Is("image", TypeImage), false)
+	assert.Equal(t, Is("text/plain", TypeImage), false)
 }

@@ -16,14 +16,14 @@ func TestSignAndAuthenticate(t *testing.T) {
 	token := signer.Sign(UserDetails{Id: "123"}, time.Now())
 
 	bothCookies := ToCookiesWithCsrfProtection(token)
-	assert.Assert(t, len(bothCookies) == 2)
+	assert.Equal(t, len(bothCookies), 2)
 
 	assert.Equal(t, bothCookies[0].Name, "auth")
 	assert.Equal(t, bothCookies[0].Value, token)
-	assert.Assert(t, bothCookies[0].HttpOnly)
+	assert.Equal(t, bothCookies[0].HttpOnly, true)
 	assert.Equal(t, bothCookies[1].Name, "csrf_token")
-	assert.Assert(t, len(bothCookies[1].Value) == 22)
-	assert.Assert(t, !bothCookies[1].HttpOnly)
+	assert.Equal(t, len(bothCookies[1].Value), 22)
+	assert.Equal(t, bothCookies[1].HttpOnly, false)
 
 	authenticator, _ := NewEcJwtAuthenticator([]byte(testPublicKey))
 

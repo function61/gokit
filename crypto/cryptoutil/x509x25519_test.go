@@ -31,7 +31,7 @@ func TestPrivateAndPublicKeyParsing(t *testing.T) {
 	bobPublic, err := ParsePemPKCS8X25519PublicKey([]byte(bobPublicPemFromOpenssl))
 	assert.Ok(t, err)
 
-	assert.Assert(t, bytes.Equal(bobPublic.Bytes(), bobPrivate.Public().Bytes()))
+	assert.Equal(t, bytes.Equal(bobPublic.Bytes(), bobPrivate.Public().Bytes()), true)
 
 	aliceShared, err := alicePrivate.ECDH(*bobPublic)
 	assert.Ok(t, err)
@@ -39,7 +39,7 @@ func TestPrivateAndPublicKeyParsing(t *testing.T) {
 	bobShared, err := bobPrivate.ECDH(alicePublic)
 	assert.Ok(t, err)
 
-	assert.Assert(t, bytes.Equal(aliceShared, bobShared))
+	assert.Equal(t, bytes.Equal(aliceShared, bobShared), true)
 	assert.Equal(t, fmt.Sprintf("%x", aliceShared), "1e9be8d5c01de22df9ccd852c17db8ca9367f72140cc1bbed9bac9e0ee7c1e53")
 
 	/*

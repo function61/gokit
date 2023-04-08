@@ -89,7 +89,7 @@ func TestBackoff(t *testing.T) {
 	for idx, expectation := range expectations {
 		expectation := expectation // pin
 		t.Run(fmt.Sprintf("Iteration %d", idx), func(t *testing.T) {
-			assert.Assert(t, backoffDuration() == expectation)
+			assert.Equal(t, backoffDuration(), expectation)
 		})
 	}
 }

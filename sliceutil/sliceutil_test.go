@@ -7,8 +7,8 @@ import (
 )
 
 func TestContainsString(t *testing.T) {
-	assert.Assert(t, ContainsString([]string{"foo", "bar"}, "bar"))
-	assert.Assert(t, !ContainsString([]string{"foo", "bar"}, "ufo"))
+	assert.Equal(t, ContainsString([]string{"foo", "bar"}, "bar"), true)
+	assert.Equal(t, ContainsString([]string{"foo", "bar"}, "ufo"), false)
 }
 
 func TestFilterString(t *testing.T) {
@@ -16,15 +16,15 @@ func TestFilterString(t *testing.T) {
 		return item != "three" && item != "four"
 	})
 
-	assert.Assert(t, len(result) == 3)
-	assert.Assert(t, result[0] == "one")
-	assert.Assert(t, result[1] == "two")
-	assert.Assert(t, result[2] == "five")
+	assert.Equal(t, len(result), 3)
+	assert.Equal(t, result[0], "one")
+	assert.Equal(t, result[1], "two")
+	assert.Equal(t, result[2], "five")
 }
 
 func TestContainsInt(t *testing.T) {
-	assert.Assert(t, ContainsInt([]int{1, 2}, 2))
-	assert.Assert(t, !ContainsInt([]int{1, 2}, 3))
+	assert.Equal(t, ContainsInt([]int{1, 2}, 2), true)
+	assert.Equal(t, ContainsInt([]int{1, 2}, 3), false)
 }
 
 func TestFilterInt(t *testing.T) {
@@ -32,7 +32,7 @@ func TestFilterInt(t *testing.T) {
 		return item >= 4
 	})
 
-	assert.Assert(t, len(result) == 2)
-	assert.Assert(t, result[0] == 4)
-	assert.Assert(t, result[1] == 5)
+	assert.Equal(t, len(result), 2)
+	assert.Equal(t, result[0], 4)
+	assert.Equal(t, result[1], 5)
 }

@@ -41,7 +41,7 @@ func TestWaitThreeTasks(t *testing.T) {
 	cancel()
 
 	assert.Ok(t, runner.Wait())
-	assert.Assert(t, time.Since(taskStarted) > 69*time.Millisecond)
+	assert.Equal(t, time.Since(taskStarted) > 69*time.Millisecond, true)
 }
 
 func TestCancellationStopsTask(t *testing.T) {
@@ -62,7 +62,7 @@ func TestCancellationStopsTask(t *testing.T) {
 
 	assert.Ok(t, <-runner.Done())
 
-	assert.Assert(t, time.Since(taskStarted) > 59*time.Millisecond)
+	assert.Equal(t, time.Since(taskStarted) > 59*time.Millisecond, true)
 }
 
 func TestStoppingFails(t *testing.T) {
@@ -96,5 +96,5 @@ func TestTaskErrorShouldStopSiblings(t *testing.T) {
 	})
 
 	assert.Equal(t, runner.Wait().Error(), "unexpected exit of fails: i fail immediately")
-	assert.Assert(t, correctlyWorkingSiblingAlsoStopped)
+	assert.Equal(t, correctlyWorkingSiblingAlsoStopped, true)
 }

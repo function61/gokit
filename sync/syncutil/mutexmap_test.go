@@ -14,15 +14,15 @@ func TestMutexMap(t *testing.T) {
 	unlockFoo()
 
 	unlockFoo, fooOk := mm.TryLock("foo")
-	assert.Assert(t, fooOk)
+	assert.Equal(t, fooOk, true)
 
 	_, fooConcurrentOk := mm.TryLock("foo")
-	assert.Assert(t, !fooConcurrentOk)
+	assert.Equal(t, fooConcurrentOk, false)
 
 	unlockFoo()
 
 	unlockFoo, fooOk = mm.TryLock("foo")
-	assert.Assert(t, fooOk)
+	assert.Equal(t, fooOk, true)
 
 	lockAcquireDuration := make(chan time.Duration)
 
@@ -39,5 +39,5 @@ func TestMutexMap(t *testing.T) {
 
 	unlockFoo()
 
-	assert.Assert(t, <-lockAcquireDuration > 10*time.Millisecond)
+	assert.Equal(t, <-lockAcquireDuration > 10*time.Millisecond, true)
 }

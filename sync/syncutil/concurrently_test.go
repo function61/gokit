@@ -39,5 +39,5 @@ func TestConcurrently(t *testing.T) {
 	})
 
 	assert.Ok(t, err)
-	assert.Assert(t, sum == 45) // 0+1+2+3+4+5+6+7+8+9
+	assert.Equal(t, sum, 45) // 0+1+2+3+4+5+6+7+8+9
 }

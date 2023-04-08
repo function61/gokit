@@ -83,7 +83,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 
 			nonceLen := 24
 
-			assert.Assert(t, len(pwdEnvelope.EncryptedContent)-nonceLen == len("hunter2")+secretbox.Overhead)
+			assert.Equal(t, len(pwdEnvelope.EncryptedContent)-nonceLen, len("hunter2")+secretbox.Overhead)
 
 			decrypted, err := pwdEnvelope.Decrypt(kek1Private)
 			assert.Ok(t, err)

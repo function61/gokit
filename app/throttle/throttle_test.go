@@ -28,7 +28,7 @@ func TestBurstThrottler(t *testing.T) {
 
 	elapsed := time.Since(started)
 
-	assert.Assert(t, timesCalled == 6)
-	assert.Assert(t, elapsed > 1*interval)
-	assert.Assert(t, elapsed < 2*interval)
+	assert.Equal(t, timesCalled, 6)
+	assert.Equal(t, elapsed > 1*interval, true)
+	assert.Equal(t, elapsed < 2*interval, true)
 }

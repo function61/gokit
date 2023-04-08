@@ -221,9 +221,9 @@ func TestErrorIs(t *testing.T) {
 
 	_, err := Get(context.TODO(), ts.URL)
 
-	assert.Assert(t, ErrorIs(err, http.StatusInternalServerError))
-	assert.Assert(t, !ErrorIs(err, http.StatusNotModified))
-	assert.Assert(t, !ErrorIs(nil, http.StatusNotModified))
+	assert.Equal(t, ErrorIs(err, http.StatusInternalServerError), true)
+	assert.Equal(t, ErrorIs(err, http.StatusNotModified), false)
+	assert.Equal(t, ErrorIs(nil, http.StatusNotModified), false)
 }
 
 func TestRequestBodyForNonBodyMethods(t *testing.T) {
