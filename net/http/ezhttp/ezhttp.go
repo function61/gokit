@@ -18,6 +18,7 @@ import (
 
 var (
 	DefaultTimeout10s = 10 * time.Second
+	NoOpConfig        = ConfigPiece{} // sometimes it's beneficial to give an option that does nothing (so user doesn't have to do varargs)
 )
 
 type ConfigHook func(conf *Config)

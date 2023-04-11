@@ -236,3 +236,16 @@ func TestRequestBodyForNonBodyMethods(t *testing.T) {
 	_, err = Head(context.TODO(), ts.URL, SendBody(strings.NewReader("huh?"), "text/plain"))
 	assert.Equal(t, err.Error(), "ezhttp: HEAD with non-nil body is usually a mistake")
 }
+
+func TestNoOpConfig(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, "hello world")
+	}))
+	defer ts.Close()
+
+	resp, err := Get(context.TODO(), ts.URL, NoOpConfig)
+	assert.Ok(t, err)
+
+	respBody, _ := io.ReadAll(resp.Body)
+	assert.Equal(t, string(respBody), "hello world\n")
+}
