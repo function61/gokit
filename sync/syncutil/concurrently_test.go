@@ -39,5 +39,20 @@ func TestConcurrently(t *testing.T) {
 	})
 
 	assert.Ok(t, err)
-	assert.Equal(t, sum, 45) // 0+1+2+3+4+5+6+7+8+9
+	assert.Equal(t, sum, 0+1+2+3+4+5+6+7+8+9)
+}
+
+func TestConcurrently2(t *testing.T) {
+	sum := uint64(0)
+
+	err := Concurrently2(context.Background(), 3, func(_ context.Context, num uint64) error {
+		time.Sleep(10 * time.Millisecond)
+
+		atomic.AddUint64(&sum, num)
+
+		return nil
+	}, ProducerForSlice([]uint64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}))
+
+	assert.Ok(t, err)
+	assert.Equal(t, sum, 0+1+2+3+4+5+6+7+8+9)
 }
