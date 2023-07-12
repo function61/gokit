@@ -26,7 +26,7 @@ func read(path string, data interface{}, unmarshal func(io.Reader, interface{}) 
 	defer file.Close()
 
 	if err := unmarshal(file, data); err != nil {
-		return fmt.Errorf("%s: %s", path, err.Error())
+		return fmt.Errorf("%s: %w", path, err)
 	}
 
 	return nil
