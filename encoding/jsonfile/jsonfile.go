@@ -54,7 +54,9 @@ func unmarshalInternal(source io.Reader, data interface{}, disallowUnknownFields
 	if err := jsonDecoder.Decode(data); err != nil {
 		// sadly, line numbers are only possible with hacks (requiring buffering):
 		//   https://github.com/hashicorp/packer/blob/master/common/json/unmarshal.go
-		return fmt.Errorf("JSON parsing failed: %s", err.Error())
+		//
+		// no need mention JSON as context in error message, because `err` already mentions that.
+		return fmt.Errorf("decode failed: %s", err.Error())
 	}
 
 	return nil
