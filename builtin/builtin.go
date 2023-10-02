@@ -78,11 +78,5 @@ func Must[T any](value T, err error) T {
 // returns first error, or nil if no errors
 // Deprecated: use `FirstNonEmpty()`
 func FirstError(errs ...error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return FirstNonEmpty(errs...)
 }

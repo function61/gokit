@@ -1,6 +1,6 @@
 module github.com/function61/gokit
 
-go 1.18
+go 1.20
 
 require (
 	github.com/apex/gateway v1.1.1
