@@ -17,6 +17,20 @@ This updates and code generates our `db.gen.go` from the source's head. Remember
 `$ go fmt` before committing.
 
 
+Source of data
+--------------
+
+```mermaid
+flowchart TD
+    IANA -- aggregated to --> mimedb
+    Apache -- aggregated to --> mimedb
+    NGINX -- aggregated to --> mimedb
+    mimedb["jshttp/mime-db"] -- uses / exposes --> gokit["gokit/mime"]
+```
+
+[See more](https://github.com/jshttp/mime-db)
+
+
 Why?
 ----
 
