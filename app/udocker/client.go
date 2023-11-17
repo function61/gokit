@@ -14,6 +14,10 @@ import (
 
 type certificateLoader func() (*tls.Certificate, error)
 
+func DefaultDockerSockClient() (*http.Client, string, error) {
+	return Client("unix:///var/run/docker.sock", nil, false)
+}
+
 func Client(
 	dockerUrl string,
 	clientCertificateLoader certificateLoader,
