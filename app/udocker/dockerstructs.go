@@ -54,8 +54,9 @@ type Mount struct {
 }
 
 type ContainerConfig struct {
-	Labels map[string]string `json:"Labels"`
-	Env    []string          `json:"Env"`
+	Labels     map[string]string `json:"Labels"`
+	Env        []string          `json:"Env"`
+	Entrypoint []string          `json:"Entrypoint"`
 }
 
 type Service struct {
