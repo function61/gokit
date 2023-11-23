@@ -25,7 +25,7 @@ func WriteFileAtomicFromReader(filename string, content io.Reader, options ...Wr
 // - write all requested content to it (content produced by callback)
 // - rename temp filename to filename if everything went OK
 //
-// If encountering any errors, remove the partial file
+// If encountering any errors, removes the partial file
 func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...WriteFileOption) error {
 	opts := writeFileOptions{}
 	for _, option := range options {
@@ -74,7 +74,7 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 			return err
 		}
 
-		if opts.atime != nil { // Chtimes() can't be done on the handle so this has to be done after Close()
+		if opts.atime != nil { // Chtimes() can't be done on the file handle so this has to be done after Close()
 			if err := os.Chtimes(filenameTemp, *opts.atime, *opts.mtime); err != nil {
 				return err
 			}
