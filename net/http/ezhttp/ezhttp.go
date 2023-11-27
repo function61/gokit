@@ -1,10 +1,10 @@
 // This package aims to wrap Go HTTP Client's request-response with sane defaults:
 //
-// - You are forced to consider timeouts by having to specify Context
-// - Instead of not considering non-2xx status codes as a failure, check that by default
-//   (unless explicitly asked to)
-// - Sending and receiving JSON requires much less boilerplate, and on receiving JSON you
-//   are forced to think whether to "allowUnknownFields"
+//   - You are forced to consider timeouts by having to specify Context
+//   - Instead of not considering non-2xx status codes as a failure, check that by default
+//     (unless explicitly asked to)
+//   - Sending and receiving JSON requires much less boilerplate, and on receiving JSON you
+//     are forced to think whether to "allowUnknownFields"
 package ezhttp
 
 import (
@@ -58,31 +58,44 @@ func (e ResponseStatusError) StatusCode() int {
 	return e.statusCode
 }
 
+// returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
 func Get(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return do(ctx, http.MethodGet, url, confPieces...)
-}
-
-func Post(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return do(ctx, http.MethodPost, url, confPieces...)
-}
-
-func Put(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return do(ctx, http.MethodPut, url, confPieces...)
-}
-
-func Head(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return do(ctx, http.MethodHead, url, confPieces...)
-}
-
-func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
-	return do(ctx, http.MethodDelete, url, confPieces...)
+	return newRequest(ctx, http.MethodGet, url, confPieces...).Send()
 }
 
 // returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
 // error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
-func do(ctx context.Context, method string, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+func Post(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return newRequest(ctx, http.MethodPost, url, confPieces...).Send()
+}
+
+// returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
+func Put(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return newRequest(ctx, http.MethodPut, url, confPieces...).Send()
+}
+
+// returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
+func Head(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return newRequest(ctx, http.MethodHead, url, confPieces...).Send()
+}
+
+// returns *ResponseStatusError as error if non-2xx response (unless TolerateNon2xxResponse()).
+// error is not *ResponseStatusError for transport-level errors, content (JSON) marshaling errors etc
+func Del(ctx context.Context, url string, confPieces ...ConfigPiece) (*http.Response, error) {
+	return newRequest(ctx, http.MethodDelete, url, confPieces...).Send()
+}
+
+func newRequest(ctx context.Context, method string, url string, confPieces ...ConfigPiece) *Config {
 	conf := &Config{
 		Client: http.DefaultClient,
+	}
+
+	withErr := func(err error) *Config {
+		conf.Abort = err // will be early-error-returned in `Send()`
+		return conf
 	}
 
 	for _, configure := range confPieces {
@@ -93,7 +106,7 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 	}
 
 	if conf.Abort != nil {
-		return nil, conf.Abort
+		return withErr(conf.Abort)
 	}
 
 	// "Request has body = No" for:
@@ -102,7 +115,7 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 	if conf.RequestBody != nil && (method == http.MethodGet || method == http.MethodHead) {
 		// Technically, these can have body, but it's usually a mistake so if we need it we'll
 		// make it an opt-in flag.
-		return nil, fmt.Errorf("ezhttp: %s with non-nil body is usually a mistake", method)
+		return withErr(fmt.Errorf("ezhttp: %s with non-nil body is usually a mistake", method))
 	}
 
 	req, err := http.NewRequest(
@@ -110,7 +123,7 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 		url,
 		conf.RequestBody)
 	if err != nil {
-		return nil, err
+		return withErr(err)
 	}
 
 	req = req.WithContext(ctx)
@@ -124,17 +137,21 @@ func do(ctx context.Context, method string, url string, confPieces ...ConfigPiec
 		configure.AfterInit(conf)
 	}
 
+	return conf
+}
+
+func (conf *Config) Send() (*http.Response, error) {
 	if conf.Abort != nil {
 		return nil, conf.Abort
 	}
 
-	resp, err := conf.Client.Do(req)
+	resp, err := conf.Client.Do(conf.Request)
 	if err != nil {
 		return resp, err // this is a transport-level error
 	}
 
 	// 304 is an error unless caller is expecting such response by sending caching headers
-	if resp.StatusCode == http.StatusNotModified && req.Header.Get("If-None-Match") != "" {
+	if resp.StatusCode == http.StatusNotModified && conf.Request.Header.Get("If-None-Match") != "" {
 		return resp, nil
 	}
 
