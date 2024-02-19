@@ -17,7 +17,7 @@ are equivalents. E.g. `httputils` is found in [net/http/httputils/](net/http/htt
 
 ### Higher-level, "app", packages
 
-Go's stdlib (wisely) doesn't implement higher lervel/app-level concepts.
+Go's stdlib (wisely) doesn't implement higher level/app-level concepts.
 
 Higher-level concepts are in [app/](app/) like backoff/retry algorithms or external service
 related things like AWS wrappers or Prometheus helpers.
