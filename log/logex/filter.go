@@ -1,6 +1,7 @@
 package logex
 
 import (
+	"io"
 	"log"
 	"regexp"
 )
@@ -18,6 +19,8 @@ type filterLogWriter struct {
 	filter  *regexp.Regexp
 	matches *log.Logger
 }
+
+var _ io.Writer = (*filterLogWriter)(nil)
 
 func (d *filterLogWriter) Write(msg []byte) (int, error) {
 	if !d.filter.Match(msg) {
