@@ -1,7 +1,8 @@
 package evdev
 
 // represents numpad key's meaning for both on and off cases for num lock
-//   https://en.wikipedia.org/wiki/Num_Lock
+//
+//	https://en.wikipedia.org/wiki/Num_Lock
 type numpadKeyPair struct {
 	withNumLock    KeyOrButton
 	withoutNumLock KeyOrButton

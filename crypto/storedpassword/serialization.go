@@ -9,7 +9,8 @@ import (
 
 // format: $<strategyId>$<salt>$<derived>
 // trying to be somewhat compatible with
-// 	https://passlib.readthedocs.io/en/stable/modular_crypt_format.html#application-defined-hashes
+// https://passlib.readthedocs.io/en/stable/modular_crypt_format.html#application-defined-hashes
+//
 // with the exception that we're storing the cost in the <strategyId> so that we don't have
 // to implement different parsing formats per strategy
 type StoredPassword string

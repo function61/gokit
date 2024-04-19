@@ -1,8 +1,8 @@
 // Use public key crypto to encrypt a data stream in a way, that the encrypting party can
 // not necessarily decrypt the same data (unless she possesses the private key as well).
 //
-// DEPRECATED: this provides confidentiality, but is malleable (ciphertext is not authenticated)
-//             use Age instead
+// DEPRECATED: this provides confidentiality, but is malleable (ciphertext is not authenticated).
+// use Age instead.
 package pkencryptedstream
 
 /*	Public key (RSA) encrypted stream:
@@ -87,10 +87,11 @@ var (
 )
 
 // Format:
-// 		<len of below envelope>
-// 		<encrypted AES key envelope: RSA-OAEP-SHA256>
-// 		<iv>
-// 		<ciphertext stream>
+//
+//	<len of below envelope>
+//	<encrypted AES key envelope: RSA-OAEP-SHA256>
+//	<iv>
+//	<ciphertext stream>
 func Writer(destination io.Writer, pubKey *rsa.PublicKey) (io.WriteCloser, error) {
 	// generate new 256-bit AES key
 	aesKey := make([]byte, aes256KeyBytes)

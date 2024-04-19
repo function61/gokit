@@ -3,9 +3,9 @@
 // Works similar to golang.org/x/sync/errgroup but provides richer logging (tasks are
 // named) and errors
 //
-// - The tasks are expected to run forever, until context cancellation (e.g. task stopping
-//   before cancellation even with nil error is considered an error).
-// - If any of the tasks fail, sibling tasks are canceled as well.
+//   - The tasks are expected to run forever, until context cancellation (e.g. task stopping
+//     before cancellation even with nil error is considered an error).
+//   - If any of the tasks fail, sibling tasks are canceled as well.
 package taskrunner
 
 import (
@@ -76,8 +76,8 @@ func (t *Runner) Done() <-chan error {
 // - err if any of the tasks exited unexpectedly or exit was expected but errored
 //
 // NOTE: don't have multiple goroutines concurrently use Done() or Wait(). i.e. you can
-//   call Done() and even after that call Wait(), but don't do it concurrently (the
-//   channel only sends one value)
+// call Done() and even after that call Wait(), but don't do it concurrently (the
+// channel only sends one value)
 func (t *Runner) Wait() error {
 	return <-t.Done()
 }

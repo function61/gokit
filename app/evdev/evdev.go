@@ -13,7 +13,8 @@ import (
 
 // https://github.com/gvalkov/golang-evdev implements what we do, but requires Cgo
 
-/* Hunting the numeric code for EVIOCGRAB was an absolute pain (none of these specify it legibly):
+/*
+	Hunting the numeric code for EVIOCGRAB was an absolute pain (none of these specify it legibly):
 
 - https://github.com/gvalkov/golang-evdev/search?q=EVIOCGRAB&unscoped_q=EVIOCGRAB
 - https://github.com/pfirpfel/node-exclusive-keyboard/blob/master/lib/eviocgrab.cpp

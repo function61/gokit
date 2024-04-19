@@ -36,7 +36,7 @@ func Store(plaintext string, strategy DerivationStrategy) (StoredPassword, error
 
 // 1st return: if != "" is the upgraded version of the stored password, if upgraded DerivationStrategy found
 // 2nd return: nil if hash matches and no internal errors occurred.
-//             ErrIncorrectPassword if no internal errors but hash doesn't match.
+// ErrIncorrectPassword if no internal errors but hash doesn't match.
 //
 // this function is safe from timing attacks
 func Verify(stored StoredPassword, givenPlaintext string, resolver StrategyResolver) (StoredPassword, error) {

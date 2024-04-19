@@ -67,9 +67,9 @@ type UnprivilegedUser interface {
 // same as DropToUnprivilegedUser() but UnprivilegedUser is only an optional outcome, the only thing
 // guaranteed is PrivilegedWork. this means that:
 //
-// - we definitely can elevate
-// - but we might not be running as unprivileged user (we were not run under '$ sudo' so we cannot
-//   jump between unprivileged and privileged contexts)
+//   - we definitely can elevate
+//   - but we might not be running as unprivileged user (we were not run under '$ sudo' so we cannot
+//     jump between unprivileged and privileged contexts)
 //
 // WARNING: this alters global process state, so you shouldn't be doing anything concurrent.
 // (at least where the different operations would be bothered by running in different security context)
@@ -170,13 +170,15 @@ func (r *runningUnderSudo) AsRoot(work func(ProofOfRunningAsRoot) error) error {
 // this is useful for e.g. writing user's owned file on directory only root can write to.
 //
 // Running a process as root, before this function call (from /proc/self/status):
-//     Uid:	0	0	0	0
 //
-//     (values are: "Real, effective, saved set, and filesystem UIDs")
-//     https://man7.org/linux/man-pages/man5/proc.5.html
+//	Uid:	0	0	0	0
+//
+//	(values are: "Real, effective, saved set, and filesystem UIDs")
+//	https://man7.org/linux/man-pages/man5/proc.5.html
 //
 // After this function call:
-//     Uid:	0	1000	0	1000
+//
+//	Uid:	0	1000	0	1000
 //
 // => makes changes to (drops privileges of):
 // - Real      : ☐
