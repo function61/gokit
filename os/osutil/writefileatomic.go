@@ -70,6 +70,11 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 			}
 		}
 
+		// `Close()` alone doesn't guarantee that the data has been successfully saved to disk.
+		if err := file.Sync(); err != nil {
+			return err
+		}
+
 		if err := file.Close(); err != nil { // double close intentional
 			return err
 		}
