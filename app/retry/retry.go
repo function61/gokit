@@ -59,8 +59,8 @@ func IgnoreErrorsWithin(expectErrorsWithin time.Duration, handleError func(error
 			return
 		}
 
-		// now in this time window we have passes the expected failures and the failures have likely
-		// become unexpected. inform ther user.
+		// now in this time window we have passed the expected failures and the failures have likely
+		// become unexpected. inform the user.
 
 		handleError(err)
 	}
