@@ -5,6 +5,8 @@
 
 Frequently needed, stupid simple, packages in Go.
 
+![](logo.webp)
+
 
 Directory structure
 -------------------
