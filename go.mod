@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go v1.16.15
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/hashicorp/hcl v1.0.0
+	github.com/mattn/go-isatty v0.0.20
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/xattr v0.4.4
 	github.com/prometheus/client_golang v1.1.0
@@ -15,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.6.1
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20201101102859-da207088b7d1
+	golang.org/x/sys v0.6.0
 )
 
 require (

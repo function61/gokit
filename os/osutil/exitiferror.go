@@ -3,6 +3,8 @@ package osutil
 import (
 	"fmt"
 	"os"
+
+	"github.com/mattn/go-isatty"
 )
 
 // if "err" is non-nil, exits with exit code 1 and prints the given error to stderr
@@ -16,8 +18,15 @@ func ExitIfError(err error) {
 		return
 	}
 
-	// non-technical folk more often have trouble recognizing error condition from message, so
-	// better make it STAND OUT that the following is an error message
-	fmt.Fprintf(os.Stderr, "✗ ERROR: %s\n", err.Error())
+	errorStream := os.Stderr
+
+	if isatty.IsTerminal(errorStream.Fd()) {
+		// non-technical folk more often have trouble recognizing error condition from output, so
+		// better make it STAND OUT that the following is an error message
+		fmt.Fprintf(errorStream, "✗ ERROR: %s\n", err.Error())
+	} else { // little less decoration for machine-to-machine communication
+		fmt.Fprintf(errorStream, "ERROR: %s\n", err.Error())
+	}
+
 	os.Exit(1)
 }
