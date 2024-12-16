@@ -3,6 +3,8 @@ package taskrunner
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -11,7 +13,7 @@ import (
 
 func TestWaitThreeTasks(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	runner := New(ctx, nil)
+	runner := New(ctx, discardLogger())
 
 	taskStarted := time.Now()
 
@@ -47,7 +49,7 @@ func TestWaitThreeTasks(t *testing.T) {
 func TestCancellationStopsTask(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	runner := New(ctx, nil)
+	runner := New(ctx, discardLogger())
 
 	taskStarted := time.Now()
 
@@ -68,7 +70,7 @@ func TestCancellationStopsTask(t *testing.T) {
 func TestStoppingFails(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	runner := New(ctx, nil)
+	runner := New(ctx, discardLogger())
 
 	runner.Start("hangForever", func(taskCtx context.Context) error {
 		<-taskCtx.Done()
@@ -81,7 +83,7 @@ func TestStoppingFails(t *testing.T) {
 }
 
 func TestTaskErrorShouldStopSiblings(t *testing.T) {
-	runner := New(context.Background(), nil)
+	runner := New(context.Background(), discardLogger())
 
 	correctlyWorkingSiblingAlsoStopped := false
 
@@ -97,4 +99,8 @@ func TestTaskErrorShouldStopSiblings(t *testing.T) {
 
 	assert.Equal(t, runner.Wait().Error(), "unexpected exit of fails: i fail immediately")
 	assert.Equal(t, correctlyWorkingSiblingAlsoStopped, true)
+}
+
+func discardLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }

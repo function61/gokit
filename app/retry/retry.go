@@ -4,7 +4,7 @@ package retry
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/function61/gokit/app/backoff"
@@ -26,19 +26,27 @@ func Retry(
 			return nil // no error, happy path
 		}
 
-		attemptDuration := time.Since(attemptStarted)
+		errAttemptStructural := &retryAttemptError{
+			attemptError:    errAttempt,
+			attemptDuration: time.Since(attemptStarted),
+			attemptNumber:   attemptNumber,
+		}
 
-		err := fmt.Errorf("attempt %d failed in %s: %s", attemptNumber, attemptDuration, errAttempt.Error())
+		failed(errAttemptStructural)
 
 		select {
 		case <-ctx.Done(): // context canceled? (= deadline exceeded)
-			err = fmt.Errorf("GIVING UP (context timeout): %s", err.Error())
-			failed(err)
-			return err
+			// TODO: what about explicit cancel (not timeout?)
+
+			// not calling `failed()` here because the surfacing of this conclusion error is the
+			// caller's responsibility.
+
+			return &retryAggregateFailed{
+				outcome:     fmt.Errorf("Retry: bailing out (%w)", ctx.Err()),
+				lastAttempt: errAttemptStructural,
+			}
 		case <-time.After(backoffDuration()):
 		}
-
-		failed(err)
 
 		attemptNumber++
 	}
@@ -67,8 +75,54 @@ func IgnoreErrorsWithin(expectErrorsWithin time.Duration, handleError func(error
 }
 
 // creates `Retry()` compatible error handler function that just pushes errors to a logger
-func ErrorsToLogger(logger *log.Logger) func(error) {
+func ErrorsToLogger(logger *slog.Logger) func(error) {
 	return func(err error) {
-		logger.Println(err.Error())
+		logger.Warn("retry attempt failed", "attempt", err)
 	}
+}
+
+type retryAggregateFailed struct {
+	outcome     error // intentionally does not wrap `lastAttempt`
+	lastAttempt error
+}
+
+var _ interface {
+	error
+	slog.LogValuer
+} = (*retryAggregateFailed)(nil)
+
+func (r *retryAggregateFailed) Error() string {
+	return fmt.Sprintf("%v: %v", r.outcome, r.lastAttempt)
+}
+
+func (r *retryAggregateFailed) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("outcome", r.outcome.Error()),
+		slog.Any("last_attempt", r.lastAttempt),
+	)
+}
+
+// this exists mainly to be able to unpack these details in bowels of `ErrorsToLogger()` via `error` type.
+// (to be able to structurally log the details.)
+type retryAttemptError struct {
+	attemptError    error
+	attemptDuration time.Duration
+	attemptNumber   int
+}
+
+var _ interface {
+	error
+	slog.LogValuer
+} = (*retryAttemptError)(nil)
+
+func (r *retryAttemptError) Error() string {
+	return fmt.Sprintf("attempt %d failed (in %s): %v", r.attemptNumber, r.attemptDuration, r.attemptError.Error())
+}
+
+func (r *retryAttemptError) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.Any("number", r.attemptNumber),
+		slog.Any("error", r.attemptError),
+		slog.Any("duration", r.attemptDuration),
+	)
 }

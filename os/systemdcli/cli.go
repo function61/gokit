@@ -4,7 +4,6 @@ package systemdcli
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 
@@ -40,7 +39,7 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "start",
 		Short: "Start the service",
 		Args:  cobra.NoArgs,
-		Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
 			return runSystemctlVerb(ctx, "start")
 		}),
 	})
@@ -49,7 +48,7 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "stop",
 		Short: "Stop the service",
 		Args:  cobra.NoArgs,
-		Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
 			return runSystemctlVerb(ctx, "stop")
 		}),
 	})
@@ -58,7 +57,7 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "restart",
 		Short: "Restart the service",
 		Args:  cobra.NoArgs,
-		Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
 			return runSystemctlVerb(ctx, "restart")
 		}),
 	})
@@ -67,7 +66,7 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "status",
 		Short: "Show status of the service",
 		Args:  cobra.NoArgs,
-		Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
 			translateNonError := func(err error) error {
 				if err != nil {
 					// LSB dictates that successful status show of non-running program must return 3:
@@ -90,7 +89,7 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "logs",
 		Short: "Get logs for the service",
 		Args:  cobra.NoArgs,
-		Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
 			//nolint:gosec // ok, is expected to not be user input.
 			logsCmd := exec.CommandContext(ctx, "journalctl", "--unit="+serviceName)
 			logsCmd.Stdout = os.Stdout
@@ -109,7 +108,7 @@ func WithInstallAndUninstallCommands(makeSvc func(string) (*systemdinstaller.Ser
 				Use:   "install",
 				Short: "Installs the background service",
 				Args:  cobra.NoArgs,
-				Run: cli.RunnerNoArgs(func(ctx context.Context, _ *log.Logger) error {
+				Run: cli.WrapRun(func(_ context.Context, _ []string) error {
 					svc, err := makeSvc(serviceName)
 					if err != nil {
 						return err

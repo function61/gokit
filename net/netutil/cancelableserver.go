@@ -3,12 +3,11 @@ package netutil
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 	"net"
 	"sync"
 
 	. "github.com/function61/gokit/builtin"
-	"github.com/function61/gokit/log/logex"
 	"github.com/function61/gokit/sync/syncutil"
 )
 
@@ -53,13 +52,13 @@ func CancelableListen(
 	ctx context.Context,
 	listener net.Listener,
 	listen func() error,
-	logger *log.Logger,
+	logger *slog.Logger,
 ) error {
 	go func() {
 		<-ctx.Done()
 
 		if err := listener.Close(); err != nil {
-			logex.Levels(logger).Error.Println(err.Error())
+			logger.Error("listener close", "err", err)
 		}
 	}()
 

@@ -28,5 +28,6 @@ related things like AWS wrappers or Prometheus helpers.
 Deprecations
 ------------
 
-- `csrf/` - just use SameSite cookies
-- `crypto/pkencryptedstream/` - provides confidentiality, but is malleable (ciphertext is not authenticated). Use Age instead.
+- [net/http/csrf/](net/http/csrf/) - just use SameSite cookies
+- [crypto/pkencryptedstream/](crypto/pkencryptedstream/) - provides confidentiality, but is malleable (ciphertext is not authenticated). Use Age instead.
+- [log/logex/](log/logex/) - use [log/slog](https://go.dev/blog/slog) i.e. the official solution to pain which our package addressed.

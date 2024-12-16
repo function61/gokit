@@ -11,11 +11,9 @@ package taskrunner
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"sync"
 	"time"
-
-	"github.com/function61/gokit/log/logex"
 )
 
 type Runner struct {
@@ -23,19 +21,19 @@ type Runner struct {
 	ctx            context.Context // canceled by parent context or by us if any sibling task fails
 	cancelAllTasks context.CancelFunc
 	taskExited     chan *taskItem
-	logl           *logex.Leveled
+	log            *slog.Logger
 	allTasksExited chan error
 	startWaiting   sync.Once
 }
 
-func New(ctx context.Context, logger *log.Logger) *Runner {
+func New(ctx context.Context, logger *slog.Logger) *Runner {
 	ctx, cancel := context.WithCancel(ctx)
 
 	return &Runner{
 		runningTasks:   []*taskItem{},
 		ctx:            ctx,
 		cancelAllTasks: cancel,
-		logl:           logex.Levels(logger),
+		log:            logger,
 		taskExited:     make(chan *taskItem),
 		allTasksExited: make(chan error),
 	}
@@ -44,7 +42,7 @@ func New(ctx context.Context, logger *log.Logger) *Runner {
 // not safe to be called after you call Wait() or Done()
 // not safe for concurrent use
 func (t *Runner) Start(taskName string, fn func(ctx context.Context) error) {
-	t.logl.Debug.Printf("starting %s", taskName)
+	t.log.Debug("starting", "task", taskName)
 
 	task := &taskItem{name: taskName}
 
@@ -85,29 +83,31 @@ func (t *Runner) Wait() error {
 // the caller has ensured that there is only one instance of this function running
 func (t *Runner) waitInternal() error {
 	// this is Wait()'s return value as described in method comment
-	var firstErr error
+	var allTasksResult error // will be `nil` in the happy case
 
 	processOneExit := func(task *taskItem) {
 		t.removeFromRunningTasks(task)
 
+		// if any of the tasks exited with error (even if that was after we were requested to stop),
+		// the aggregate result will be an error.
 		if err := task.result; err != nil {
-			errWrapped := fmt.Errorf("task '%s' exited with: %w", task.name, err)
-			t.logl.Error.Println(errWrapped.Error())
+			t.log.Error("exited with error", "task", task.name, "err", err)
 
-			if firstErr == nil {
-				firstErr = errWrapped
+			if allTasksResult == nil {
+				allTasksResult = fmt.Errorf("task '%s' exited with: %w", task.name, err)
 			}
 		} else {
-			t.logl.Debug.Printf("%s exited", task.name)
+			t.log.Debug("exited", "task", task.name)
 		}
 	}
 
-	waitRunningTasksToExit := func() error {
+	// ensures that all running tasks have exited and `processOneExit()` has been called on each of them
+	waitRunningTasksToExit := func() {
 		for len(t.runningTasks) > 0 {
 			select {
 			case <-time.After(3 * time.Second):
 				for _, stuckTask := range t.runningTasks {
-					t.logl.Error.Printf("waiting for stuck task '%s' to exit", stuckTask.name)
+					t.log.Warn("waiting for stuck task to exit", "task", stuckTask.name)
 				}
 
 				// go back to waiting
@@ -115,13 +115,12 @@ func (t *Runner) waitInternal() error {
 				processOneExit(exit)
 			}
 		}
-
-		return firstErr // nil in happy case
 	}
 
 	select {
 	case <-t.ctx.Done():
-		return waitRunningTasksToExit()
+		waitRunningTasksToExit()
+		return allTasksResult
 	case maybeUnexpectedExit := <-t.taskExited: // handle unexpected exits
 		// why maybeUnexpectedExit?
 		// there might be race when this runner's ctx is cancelled because its cancellation
@@ -131,7 +130,8 @@ func (t *Runner) waitInternal() error {
 		case <-t.ctx.Done(): // handle the race here
 			definitelyExpectedExit := maybeUnexpectedExit
 			processOneExit(definitelyExpectedExit)
-			return waitRunningTasksToExit()
+			waitRunningTasksToExit()
+			return allTasksResult
 		default:
 			// was not a race, continue
 		}
@@ -141,14 +141,16 @@ func (t *Runner) waitInternal() error {
 
 		t.removeFromRunningTasks(unexpectedExit)
 
-		firstErr = fmt.Errorf("unexpected exit of %s: %v", unexpectedExit.name, unexpectedExit.result)
+		t.log.Error("unexpected exit", "err", unexpectedExit.result, "task", unexpectedExit.name)
 
-		t.logl.Error.Println(firstErr.Error())
+		err := fmt.Errorf("unexpected exit of %s: %v", unexpectedExit.name, unexpectedExit.result)
 
 		// all sibling tasks fail on first unexpected exit
 		t.cancelAllTasks()
 
-		return waitRunningTasksToExit()
+		waitRunningTasksToExit()
+
+		return err
 	}
 }
 
