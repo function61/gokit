@@ -80,3 +80,9 @@ func Must[T any](value T, err error) T {
 func FirstError(errs ...error) error {
 	return FirstNonEmpty(errs...)
 }
+
+
+// append to a slice without needing the "assign to same variable" boilerplate
+func Append[T any](slice *[]T, item T) {
+	*slice = append(*slice, item)
+}

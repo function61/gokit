@@ -3,6 +3,7 @@ package builtin
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/function61/gokit/testing/assert"
@@ -75,4 +76,13 @@ func TestFirstNonEmptyWithError(t *testing.T) {
 
 	assert.EqualString(t, FirstNonEmpty(nilError, actualError).Error(), "actual")
 	assert.Assert(t, FirstNonEmpty(nilError, nilError) == nil)
+}
+
+func TestAppend(t *testing.T) {
+	favoriteThings := []string{"hamburger"}
+
+	Append(&favoriteThings, "food")
+	Append(&favoriteThings, "bar")
+
+	assert.EqualString(t, strings.Join(favoriteThings, ", "), "hamburger, food, bar")
 }
