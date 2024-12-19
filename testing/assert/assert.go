@@ -38,7 +38,7 @@ func Matches(t testing.TB, actual string, pattern string) {
 	t.Helper()
 
 	if !regexp.MustCompile(pattern).MatchString(actual) {
-		t.Fatalf("expected %s to match %s", pattern, actual)
+		t.Fatalf("regex '%s' did not match '%s'", pattern, actual)
 	}
 }
 
