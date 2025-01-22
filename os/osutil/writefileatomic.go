@@ -92,14 +92,23 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 // - ensures a file with given name only appears on the filesystem if all its file operations succeed
 // - tries to clean up temp file on failure of *operations* or the atomic rename
 func FileAtomicOperationByRename(path string, operations func(pathTemp string) error) error {
+	return atomicOperationByRename(path, operations, os.Remove)
+}
+
+func DirectoryAtomicOperationByRename(path string, operations func(pathTemp string) error) error {
+	return atomicOperationByRename(path, operations, os.RemoveAll)
+}
+
+// `removeFileOrDirectory` gets either `os.Remove` or `os.RemoveAll` as argument
+func atomicOperationByRename(path string, operations func(pathTemp string) error, removeFileOrDirectory func(string) error) error {
 	pathTemp := path + ".part"
 
 	retErrorWithCleanup := func(err error) error { // err is non-nil here
-		if errCleanup := os.Remove(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
+		if errCleanup := removeFileOrDirectory(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
 			// IsNotExist is acceptable from remove, the *operations* didn't manage to start creating
 			// the temp file (or was not authorized so)
 
-			return fmt.Errorf("%w; additionally FileAtomicOperationByRename failed cleaning up: %v", err, errCleanup)
+			return fmt.Errorf("%w; additionally atomicOperationByRename failed cleaning up: %v", err, errCleanup)
 		} else {
 			return err
 		}
