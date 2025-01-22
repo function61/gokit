@@ -24,8 +24,8 @@ func NoCacheHeaders(w http.ResponseWriter) {
 	w.Header().Set("Cache-Control", "no-store, must-revalidate")
 }
 
-// helper for adapting context cancellation to shutdown the HTTP listener
-func CancelableServer(ctx context.Context, srv *http.Server, listener func() error) error {
+// helper for adapting context cancellation to shutdown the HTTP server
+func CancelableServer(ctx context.Context, srv *http.Server, serve func() error) error {
 	shutdownerCtx, cancel := context.WithCancel(ctx)
 
 	shutdownResult := make(chan error, 1)
@@ -40,7 +40,7 @@ func CancelableServer(ctx context.Context, srv *http.Server, listener func() err
 		shutdownResult <- srv.Shutdown(context.Background())
 	}()
 
-	err := listener()
+	err := serve()
 
 	// ask shutdowner to stop. this is useful only for cleanup where listener failed before
 	// it was requested to shut down b/c parent cancellation didn't happen and thus the

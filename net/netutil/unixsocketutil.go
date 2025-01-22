@@ -2,7 +2,6 @@
 package netutil
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"os"
@@ -19,63 +18,49 @@ var (
 	allowEveryone      = osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherRW)
 )
 
-func ListenUnixAllowOwner(ctx context.Context, sockPath string, with func(net.Listener) error) error {
-	return ListenUnixWithMode(ctx, sockPath, &allowOwner, with)
+func ListenUnixAllowOwner(sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(sockPath, &allowOwner, with)
 }
 
-func ListenUnixAllowOwnerAndGroup(ctx context.Context, sockPath string, with func(net.Listener) error) error {
-	return ListenUnixWithMode(ctx, sockPath, &allowOwnerAndGroup, with)
+func ListenUnixAllowOwnerAndGroup(sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(sockPath, &allowOwnerAndGroup, with)
 }
 
-func ListenUnixAllowEveryone(ctx context.Context, sockPath string, with func(net.Listener) error) error {
-	return ListenUnixWithMode(ctx, sockPath, &allowEveryone, with)
+func ListenUnixAllowEveryone(sockPath string, with func(net.Listener) error) error {
+	return ListenUnixWithMode(sockPath, &allowEveryone, with)
 }
 
 // pass nil os.FileMode if you don't want to Chmod() the socket file
-func ListenUnixWithMode(
-	ctx context.Context,
-	sockPath string,
-	mode *os.FileMode,
-	with func(net.Listener) error,
-) error {
+//
+// NOTE: `with()` is responsible for closing the obtained listener. for example the HTTP server
+// launched from `with()` must be able to do graceful shutdown and `http.Server.Serve()` always closes the listener.
+func ListenUnixWithMode(sockPath string, mode *os.FileMode, with func(net.Listener) error) error {
+	withErr := func(err error) error { return fmt.Errorf("ListenUnix: %w", err) }
+
 	exists, err := osutil.Exists(sockPath)
 	if err != nil {
-		return fmt.Errorf("ListenUnix: exists: %w", err)
+		return withErr(fmt.Errorf("exists: %w", err))
 	}
 
 	// clean-up old socket
 	if exists {
 		if err := os.Remove(sockPath); err != nil {
-			return fmt.Errorf("ListenUnix: cleanup previous: %w", err)
+			return withErr(fmt.Errorf("cleanup previous socket: %w", err))
 		}
 	}
 
 	listener, err := net.Listen("unix", sockPath)
 	if err != nil {
-		return fmt.Errorf("ListenUnix: %w", err)
+		return withErr(err)
 	}
 
 	defer func() { // socket file was created. cleanup, so hopefully the next user doesn't need os.Remove()
 		_ = os.Remove(sockPath)
 	}()
 
-	listenerCtx, cancel := context.WithCancel(ctx) // explained in next block
-	defer cancel()
-
-	// stop listener when:
-	//
-	// a) parent ctx done
-	// b) we're exiting due to Chmod() failing
-	// c) with() exits due to listener not closed but Accept() failing (kinda grey area - can that happen?)
-	//    ^ this signalled by defer cancel()
-	go func() {
-		<-listenerCtx.Done()
-		listener.Close()
-	}()
-
 	if mode != nil {
 		if err := os.Chmod(sockPath, *mode); err != nil {
-			return fmt.Errorf("ListenUnix: %w", err)
+			return withErr(err)
 		}
 	}
 
