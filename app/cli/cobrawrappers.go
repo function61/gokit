@@ -21,6 +21,11 @@ func Execute(app *cobra.Command) {
 	// hide the default "completion" subcommand from polluting UX (it can still be used). https://github.com/spf13/cobra/issues/1507
 	app.CompletionOptions = cobra.CompletionOptions{HiddenDefaultCmd: true}
 
+	// disable alternate `help <command>` route from polluting UX.
+	// the de facto `--help` can still be used and pro-tip for that is prominently visible.
+	// https://github.com/spf13/cobra/issues/587#issuecomment-843747825
+	app.SetHelpCommand(&cobra.Command{Hidden: true})
+
 	// cannot `AddLogLevelControls(app.Flags())` here because it gets confusing if:
 	// a) the root command is not runnable
 	// b) the root command is runnable BUT it doesn't do logging (or there is no debug-level logs to suppress)
