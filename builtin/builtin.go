@@ -55,6 +55,7 @@ func ErrorIfUnset(isUnset bool, fieldName string) error {
 }
 
 // returns the first non-empty value.
+// Deprecated: use `cmp.Or()`
 func FirstNonEmpty[T comparable](values ...T) T {
 	var empty T
 	for _, value := range values {
