@@ -11,13 +11,18 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// wraps the `Execute()` call of the command to inject boilerplate details like `Use`, `Version` and
-// handling of error to `Command.Execute()` (such as flag validation, missing command etc.)
+// wraps the `Execute()` call of the command to inject boilerplate details for root command:
+// - `Use` (for root cmd should be `os.Args[0]`)
+// - `Version` (should be program's built-in version info)
+// - UX improvements (some Cobra defaults are in poor taste)
+// - configure logging
+// - deliver context & cancel it on signals
 func Execute(app *cobra.Command) {
 	// dirty to mutate after-the-fact
 
 	app.Use = os.Args[0]
 	app.Version = dynversion.Version
+
 	// hide the default "completion" subcommand from polluting UX (it can still be used). https://github.com/spf13/cobra/issues/1507
 	app.CompletionOptions = cobra.CompletionOptions{HiddenDefaultCmd: true}
 
@@ -26,32 +31,44 @@ func Execute(app *cobra.Command) {
 	// https://github.com/spf13/cobra/issues/587#issuecomment-843747825
 	app.SetHelpCommand(&cobra.Command{Hidden: true})
 
+	// don't display error internally by Cobra. we do better job of displaying it here (and most importantly, setting exit code)
+	app.SilenceErrors = true
+
 	// cannot `AddLogLevelControls(app.Flags())` here because it gets confusing if:
 	// a) the root command is not runnable
 	// b) the root command is runnable BUT it doesn't do logging (or there is no debug-level logs to suppress)
 
-	osutil.ExitIfError(app.Execute())
+	// handle logging
+	configureLogging()
+
+	// handle signals
+	ctx := notifyContextInterruptOrTerminate()
+
+	// this is where the magic happens
+	_, err := app.ExecuteContextC(ctx)
+
+	osutil.ExitIfError(err)
 }
 
 // fixes problems of cobra commands' bare run callbacks with regards to application quality:
-// 1. logging not configured
-// 2. no interrupt handling
-// 3. no error handling
-func WrapRun(run func(ctx context.Context, args []string) error) func(*cobra.Command, []string) {
-	return func(_ *cobra.Command, args []string) {
-		// handle logging
-		configureLogging()
+// 1. `context.Context` (interrupt handling) has to be fetched from a middle man (not idiomatic Go)
+// 2. CLI usage help would be shown for all (even higher app-level) errors
+//
+// this is intended to be given to `RunE` field in `*cobra.Command`
+func WrapRun(run func(ctx context.Context, args []string) error) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		// Cobra would displays CLI usage help for any error happened inside `Run` func.
+		//
+		// in reality we want the usage to only appear on failed input validation, because it would be confusing to
+		// show CLI usage help for app-level errors happening above the CLI layer.
+		//
+		// since we arrived at the `Run` func we know the error won't be due to input validation anymore.
+		cmd.SilenceUsage = true
 
-		// handle interrupts
-		ctx := notifyContextInterruptOrTerminate()
+		// retrieve back the context that was injected by our `Execute()`
+		ctx := cmd.Context()
 
-		// run the actual code (jump from CLI context to higher-level application context)
-		// this can be kinda read as:
-		//  output = logic(input)
-		err := run(ctx, args)
-
-		// handle errors
-		osutil.ExitIfError(err)
+		return run(ctx, args)
 	}
 }
 
