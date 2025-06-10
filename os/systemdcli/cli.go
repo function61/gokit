@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/function61/gokit/app/cli"
 	"github.com/function61/gokit/os/systemdinstaller"
 	"github.com/spf13/cobra"
 )
@@ -39,34 +38,34 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 		Use:   "start",
 		Short: "Start the service",
 		Args:  cobra.NoArgs,
-		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
-			return runSystemctlVerb(ctx, "start")
-		}),
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runSystemctlVerb(cmd.Context(), "start")
+		},
 	})
 
 	cmd.AddCommand(&cobra.Command{
 		Use:   "stop",
 		Short: "Stop the service",
 		Args:  cobra.NoArgs,
-		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
-			return runSystemctlVerb(ctx, "stop")
-		}),
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runSystemctlVerb(cmd.Context(), "stop")
+		},
 	})
 
 	cmd.AddCommand(&cobra.Command{
 		Use:   "restart",
 		Short: "Restart the service",
 		Args:  cobra.NoArgs,
-		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
-			return runSystemctlVerb(ctx, "restart")
-		}),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runSystemctlVerb(cmd.Context(), "restart")
+		},
 	})
 
 	cmd.AddCommand(&cobra.Command{
 		Use:   "status",
 		Short: "Show status of the service",
 		Args:  cobra.NoArgs,
-		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			translateNonError := func(err error) error {
 				if err != nil {
 					// LSB dictates that successful status show of non-running program must return 3:
@@ -81,21 +80,21 @@ func Entrypoint(serviceName string, makeAdditionalCommands func(string) []*cobra
 				}
 			}
 
-			return translateNonError(runSystemctlVerb(ctx, "status"))
-		}),
+			return translateNonError(runSystemctlVerb(cmd.Context(), "status"))
+		},
 	})
 
 	cmd.AddCommand(&cobra.Command{
 		Use:   "logs",
 		Short: "Get logs for the service",
 		Args:  cobra.NoArgs,
-		Run: cli.WrapRun(func(ctx context.Context, _ []string) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			//nolint:gosec // ok, is expected to not be user input.
-			logsCmd := exec.CommandContext(ctx, "journalctl", "--unit="+serviceName)
+			logsCmd := exec.CommandContext(cmd.Context(), "journalctl", "--unit="+serviceName)
 			logsCmd.Stdout = os.Stdout
 			logsCmd.Stderr = os.Stderr
 			return logsCmd.Run()
-		}),
+		},
 	})
 
 	return cmd
@@ -108,7 +107,7 @@ func WithInstallAndUninstallCommands(makeSvc func(string) (*systemdinstaller.Ser
 				Use:   "install",
 				Short: "Installs the background service",
 				Args:  cobra.NoArgs,
-				Run: cli.WrapRun(func(_ context.Context, _ []string) error {
+				RunE: func(_ *cobra.Command, args []string) error {
 					svc, err := makeSvc(serviceName)
 					if err != nil {
 						return err
@@ -121,7 +120,7 @@ func WithInstallAndUninstallCommands(makeSvc func(string) (*systemdinstaller.Ser
 					fmt.Println(systemdinstaller.EnableAndStartCommandHints(*svc))
 
 					return nil
-				}),
+				},
 			},
 			// TODO: add uninstall command
 		}
