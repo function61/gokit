@@ -12,6 +12,7 @@ import (
 
 type ServiceDefinition struct {
 	serviceName      string
+	serviceType      serviceType
 	args             []string
 	description      string
 	docs             []string
@@ -23,6 +24,14 @@ type ServiceDefinition struct {
 	selfAbsolutePath string
 	err              error // if error reading selfAbsolutePath
 }
+
+// affects how service manager gauges the service start success (which if fails, can make service manager restart the service)
+type serviceType string
+
+const (
+	ServiceTypeExec   serviceType = "exec"   // will consider the unit started immediately after the main service binary has been executed
+	ServiceTypeNotify serviceType = "notify" // it is expected that the service sends a "READY=1" notification message
+)
 
 type Option func(*ServiceDefinition)
 
@@ -40,6 +49,7 @@ func newService(serviceName string, description string, opts []Option, userServi
 	selfAbsolutePath, err := currentExecutableNoFollowSymlink()
 
 	sf := ServiceDefinition{
+		serviceType:      ServiceTypeExec,
 		userService:      userService,
 		serviceName:      serviceName,
 		description:      description,
@@ -153,6 +163,7 @@ func serialize(sf ServiceDefinition) string {
 	l("")
 	l("[Service]")
 	l("ExecStart=" + strings.Join(append([]string{sf.selfAbsolutePath}, sf.args...), " "))
+	l("Type=" + string(sf.serviceType))
 	l("WorkingDirectory=" + filepath.Dir(sf.selfAbsolutePath))
 	l("Restart=always")
 	l("RestartSec=10s")
@@ -178,6 +189,12 @@ func unitfilePath(sf ServiceDefinition) (string, error) {
 	} else {
 		// /etc/systemd/system/example.service
 		return "/etc/systemd/system/" + unitFilename, nil
+	}
+}
+
+func Type(typ serviceType) Option {
+	return func(sf *ServiceDefinition) {
+		sf.serviceType = typ
 	}
 }
 

@@ -19,6 +19,7 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64 start
+Type=exec
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
@@ -45,6 +46,7 @@ WantedBy=default.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64 start
+Type=exec
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
@@ -71,6 +73,7 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64 start
+Type=exec
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
@@ -90,6 +93,7 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64
+Type=exec
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
@@ -108,6 +112,7 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64
+Type=exec
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
@@ -129,6 +134,26 @@ WantedBy=multi-user.target
 
 [Service]
 ExecStart=/home/dummy/testservice_amd64
+Type=exec
+WorkingDirectory=/home/dummy
+Restart=always
+RestartSec=10s
+`)
+}
+
+func TestTypeNotify(t *testing.T) {
+	sf := Service("testservice", "My cool service", Type(ServiceTypeNotify))
+	sf = fixForTest(sf)
+
+	assert.Equal(t, serialize(sf), `[Unit]
+Description=My cool service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/dummy/testservice_amd64
+Type=notify
 WorkingDirectory=/home/dummy
 Restart=always
 RestartSec=10s
