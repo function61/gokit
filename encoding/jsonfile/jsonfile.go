@@ -59,6 +59,12 @@ func unmarshalInternal(source io.Reader, data interface{}, disallowUnknownFields
 		return fmt.Errorf("decode failed: %s", err.Error())
 	}
 
+	// validate there's no (non-whitespace) trailers after the decoded data to prevent smuggling undefined data
+	// after the payload. https://blog.trailofbits.com/2025/06/17/unexpected-security-footguns-in-gos-parsers/
+	if err := jsonDecoder.Decode(data); err != io.EOF {
+		return fmt.Errorf("validate JSON trailer: expecting EOF got %v", err)
+	}
+
 	return nil
 }
 
