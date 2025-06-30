@@ -74,6 +74,8 @@ type UnprivilegedUser interface {
 // WARNING: this alters global process state, so you shouldn't be doing anything concurrent.
 // (at least where the different operations would be bothered by running in different security context)
 func DropToUnprivilegedUserIfPossible() (PrivilegedWork, error) {
+	withErr := func(err error) (PrivilegedWork, error) { return nil, FuncWrapErr(err) }
+
 	if _, err := RequireRoot(); err != nil {
 		return nil, err
 	}
@@ -83,10 +85,10 @@ func DropToUnprivilegedUserIfPossible() (PrivilegedWork, error) {
 	userDetails, err := getInvokingUserUidAndGidIfRunningInSudoWithSupplementary()
 	switch {
 	case err != nil: // should only happen if sudo ENV var numbers fail to parse
-		return nil, ErrorWrap("PrivilegesDropTemporarily", err)
+		return withErr(err)
 	case userDetails != nil:
 		if err := setEffectiveUIDAndGID(*userDetails); err != nil {
-			return nil, ErrorWrap("PrivilegesDropTemporarily", err)
+			return withErr(err)
 		}
 
 		return &runningUnderSudo{*userDetails}, nil
@@ -138,12 +140,12 @@ func (r *runningUnderSudo) UnprivilegedUser() UserAndGroup {
 
 func (r *runningUnderSudo) AsRoot(work func(ProofOfRunningAsRoot) error) error {
 	if err := regainRoot(); err != nil {
-		return ErrorWrap("AsRoot", err)
+		return fmt.Errorf("AsRoot: %w", err)
 	}
 
 	returnAfterDroppingPrivileges := func(errWork error) error {
 		if errDrop := setEffectiveUIDAndGID(r.unprivileged); errDrop != nil {
-			if errDrop != nil {
+			if errWork != nil {
 				return fmt.Errorf("%w; additionally privilege drop failed: %v", errWork, errDrop)
 			} else {
 				return fmt.Errorf("AsRoot: work succeeded but privilege drop failed: %w", errDrop)
@@ -188,42 +190,42 @@ func (r *runningUnderSudo) AsRoot(work func(ProofOfRunningAsRoot) error) error {
 //
 // After regaining root (seteuid(0) and setegid(0)) the effect is reversed, i.e. back to starting situation.
 func setEffectiveUIDAndGID(user UserAndGroup) error {
-	return ErrorWrap("setEffectiveUIDAndGID", func() error {
-		// gid has to be set first (otherwise we'd not be authorized to change it)
-		if err := syscall.Setegid(user.gid); err != nil {
-			return ErrorWrap("Setegid", err)
-		}
+	// gid has to be set first (otherwise we'd not be authorized to change it)
+	if err := syscall.Setegid(user.gid); err != nil {
+		return fmt.Errorf("Setegid: %w", err)
+	}
 
-		if err := syscall.Setgroups(user.gidsSupplementary); err != nil {
-			return ErrorWrap("Setgroups", err)
-		}
+	if err := syscall.Setgroups(user.gidsSupplementary); err != nil {
+		return fmt.Errorf("Setgroups: %w", err)
+	}
 
-		if err := syscall.Seteuid(user.uid); err != nil {
-			return ErrorWrap("Seteuid", err)
-		}
+	if err := syscall.Seteuid(user.uid); err != nil {
+		return fmt.Errorf("Seteuid: %w", err)
+	}
 
-		return nil
-	}())
+	return nil
 }
 
 func regainRoot() error {
-	return ErrorWrap("regainRoot", func() error {
-		// uid has to be set first (otherwise we'd not be authorized to change it)
-		if err := syscall.Seteuid(0); err != nil {
-			return fmt.Errorf("Seteuid root: %w", err)
-		}
+	withErr := FuncWrapErr
 
-		if err := syscall.Setegid(0); err != nil {
-			return fmt.Errorf("Setegid root: %w", err)
-		}
+	// uid has to be set first (otherwise we'd not be authorized to change it)
+	if err := syscall.Seteuid(0); err != nil {
+		return withErr(fmt.Errorf("Seteuid root: %w", err))
+	}
 
-		return nil
-	}())
+	if err := syscall.Setegid(0); err != nil {
+		return withErr(fmt.Errorf("Setegid root: %w", err))
+	}
+
+	return nil
 }
 
 // if running under '$ sudo', return invoking user's uid:gid pair.
 // returns nil, nil if not running under sudo
 func getInvokingUserUidAndGidIfRunningInSudoWithSupplementary() (*UserAndGroup, error) {
+	withErr := func(err error) (*UserAndGroup, error) { return nil, FuncWrapErr(err) }
+
 	// documented in https://www.sudo.ws/docs/man/sudo.man/#SUDO_UID
 	if os.Getenv("SUDO_UID") == "" { // not running under sudo
 		return nil, nil
@@ -231,18 +233,18 @@ func getInvokingUserUidAndGidIfRunningInSudoWithSupplementary() (*UserAndGroup, 
 
 	uidSudo, err := strconv.Atoi(os.Getenv("SUDO_UID"))
 	if err != nil {
-		return nil, ErrorWrap("getInvokingUserUidAndGidIfRunningInSudoWithoutSupplementary", err)
+		return withErr(err)
 	}
 
 	gidSudo, err := strconv.Atoi(os.Getenv("SUDO_GID"))
 	if err != nil {
-		return nil, ErrorWrap("getInvokingUserUidAndGidIfRunningInSudoWithoutSupplementary", err)
+		return withErr(err)
 	}
 
 	// resolve also supplementary gids
 	gidsSupplementarySudo, err := resolveSupplementaryGids(os.Getenv("SUDO_USER"))
 	if err != nil {
-		return nil, ErrorWrap("getInvokingUserUidAndGidIfRunningInSudoWithSupplementary", err)
+		return withErr(err)
 	}
 
 	return &UserAndGroup{uidSudo, gidSudo, gidsSupplementarySudo}, nil

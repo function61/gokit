@@ -15,8 +15,7 @@ import (
 // - visitedItems := map[string]Void{}
 type Void struct{}
 
-// ignores error in situations where context was canceled and thus errors are to be expected
-// and thus are non-interesting
+// ignores error in situations where context was canceled and thus errors are to be expected / normal.
 func IgnoreErrorIfCanceled(ctx context.Context, err error) error {
 	select {
 	case <-ctx.Done():
@@ -34,17 +33,6 @@ func Pointer[T any](val T) *T {
 	return &val
 }
 
-// helper for wrapping an error with error prefix.
-// if error is nil, nil is returned.
-// Deprecated: this doesn't carry its own weight - just use `fmt.Errorf()`
-func ErrorWrap(prefix string, err error) error {
-	if err != nil {
-		return fmt.Errorf("%s: %w", prefix, err)
-	} else {
-		return nil
-	}
-}
-
 // errors if a field is unset. it is up to the caller to evaluate if the field is unset
 func ErrorIfUnset(isUnset bool, fieldName string) error {
 	if isUnset {
@@ -52,18 +40,6 @@ func ErrorIfUnset(isUnset bool, fieldName string) error {
 	} else {
 		return nil
 	}
-}
-
-// returns the first non-empty value.
-// Deprecated: use `cmp.Or()`
-func FirstNonEmpty[T comparable](values ...T) T {
-	var empty T
-	for _, value := range values {
-		if value != empty {
-			return value
-		}
-	}
-	return empty
 }
 
 // for a function that returns two values, you can get the value with `Must(fn())` to convert it to
@@ -75,13 +51,6 @@ func Must[T any](value T, err error) T {
 
 	return value
 }
-
-// returns first error, or nil if no errors
-// Deprecated: use `FirstNonEmpty()`
-func FirstError(errs ...error) error {
-	return FirstNonEmpty(errs...)
-}
-
 
 // append to a slice without needing the "assign to same variable" boilerplate
 func Append[T any](slice *[]T, item T) {
