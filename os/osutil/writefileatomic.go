@@ -3,6 +3,7 @@
 package osutil
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -92,19 +93,10 @@ func WriteFileAtomic(filename string, produce func(io.Writer) error, options ...
 // - ensures a file with given name only appears on the filesystem if all its file operations succeed
 // - tries to clean up temp file on failure of *operations* or the atomic rename
 func FileAtomicOperationByRename(path string, operations func(pathTemp string) error) error {
-	return atomicOperationByRename(path, operations, os.Remove)
-}
-
-func DirectoryAtomicOperationByRename(path string, operations func(pathTemp string) error) error {
-	return atomicOperationByRename(path, operations, os.RemoveAll)
-}
-
-// `removeFileOrDirectory` gets either `os.Remove` or `os.RemoveAll` as argument
-func atomicOperationByRename(path string, operations func(pathTemp string) error, removeFileOrDirectory func(string) error) error {
 	pathTemp := path + ".part"
 
 	retErrorWithCleanup := func(err error) error { // err is non-nil here
-		if errCleanup := removeFileOrDirectory(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
+		if errCleanup := os.Remove(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
 			// IsNotExist is acceptable from remove, the *operations* didn't manage to start creating
 			// the temp file (or was not authorized so)
 
@@ -117,6 +109,45 @@ func atomicOperationByRename(path string, operations func(pathTemp string) error
 	// the heavy lifting happens here: *operations* tries to produce <file>.part, and only if it succeeds
 	// we'll try to rename the temp file to the actual requested filename
 	if err := operations(pathTemp); err != nil {
+		return retErrorWithCleanup(err)
+	}
+
+	if err := os.Rename(pathTemp, path); err != nil {
+		return retErrorWithCleanup(err)
+	}
+
+	return nil
+}
+
+// tries to do atomic operation by doing `operations` on a first temp-named directory and only after all operations succeed
+// it then tries its best to atomically rename the directory to the destination name.
+func DirectoryAtomicOperationByRename(path string, mode fs.FileMode, operations func(pathTemp string) error) error {
+	pathTemp := path + ".part"
+
+	// create temp dir. only tolerable error if the directory already exists.
+	if err := os.Mkdir(pathTemp, mode); err != nil && errors.Is(err, fs.ErrExist) {
+		return err
+	}
+
+	retErrorWithCleanup := func(err error) error { // err is non-nil here
+		if errCleanup := os.RemoveAll(pathTemp); errCleanup != nil && !os.IsNotExist(errCleanup) {
+			// IsNotExist is acceptable from remove, the *operations* didn't manage to start creating
+			// the temp file (or was not authorized so)
+
+			return fmt.Errorf("%w; additionally DirectoryAtomicOperationByRename failed cleaning up: %v", err, errCleanup)
+		} else {
+			return err
+		}
+	}
+
+	// the heavy lifting happens here: *operations* tries to produce <file>.part, and only if it succeeds
+	// we'll try to rename the temp file to the actual requested filename
+	if err := operations(pathTemp); err != nil {
+		return retErrorWithCleanup(err)
+	}
+
+	// rename doesn't work for directories if the target already exists. hence this isn't completely atomic.
+	if err := os.RemoveAll(path); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return retErrorWithCleanup(err)
 	}
 
