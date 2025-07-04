@@ -11,9 +11,21 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"ez"},
 	},
+	"application/appinstaller": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"appinstaller"},
+	},
 	"application/applixware": &Spec{
 		Source:     "apache",
 		Extensions: []string{"aw"},
+	},
+	"application/appx": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"appx"},
+	},
+	"application/appxbundle": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"appxbundle"},
 	},
 	"application/atom+xml": &Spec{
 		Source:       "iana",
@@ -49,6 +61,16 @@ var mimeTypes = map[string]*Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"rsat"},
+	},
+	"application/automationml-aml+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"aml"},
+	},
+	"application/automationml-amlx+zip": &Spec{
+		Source:       "iana",
+		Compressible: &falseVal,
+		Extensions:   []string{"amlx"},
 	},
 	"application/bdoc": &Spec{
 		Compressible: &falseVal,
@@ -116,6 +138,10 @@ var mimeTypes = map[string]*Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"davmount"},
+	},
+	"application/dicom": &Spec{
+		Source:     "iana",
+		Extensions: []string{"dcm"},
 	},
 	"application/docbook+xml": &Spec{
 		Source:       "apache",
@@ -218,7 +244,7 @@ var mimeTypes = map[string]*Spec{
 		Extensions:   []string{"its"},
 	},
 	"application/java-archive": &Spec{
-		Source:       "apache",
+		Source:       "iana",
 		Compressible: &falseVal,
 		Extensions:   []string{"jar", "war", "ear"},
 	},
@@ -354,7 +380,15 @@ var mimeTypes = map[string]*Spec{
 	},
 	"application/mp4": &Spec{
 		Source:     "iana",
-		Extensions: []string{"mp4s", "m4p"},
+		Extensions: []string{"mp4", "mpg4", "mp4s", "m4p"},
+	},
+	"application/msix": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"msix"},
+	},
+	"application/msixbundle": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"msixbundle"},
 	},
 	"application/msword": &Spec{
 		Source:       "iana",
@@ -379,7 +413,7 @@ var mimeTypes = map[string]*Spec{
 	},
 	"application/octet-stream": &Spec{
 		Source:       "iana",
-		Compressible: &falseVal,
+		Compressible: &trueVal,
 		Extensions:   []string{"bin", "dms", "lrf", "mar", "so", "dist", "distz", "pkg", "bpk", "dump", "elc", "deploy", "exe", "dll", "deb", "dmg", "iso", "img", "msi", "msp", "msm", "buffer"},
 	},
 	"application/oda": &Spec{
@@ -403,7 +437,7 @@ var mimeTypes = map[string]*Spec{
 	},
 	"application/onenote": &Spec{
 		Source:     "apache",
-		Extensions: []string{"onetoc", "onetoc2", "onetmp", "onepkg"},
+		Extensions: []string{"onetoc", "onetoc2", "onetmp", "onepkg", "one", "onea"},
 	},
 	"application/oxps": &Spec{
 		Source:     "iana",
@@ -647,6 +681,10 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"srx"},
 	},
+	"application/sql": &Spec{
+		Source:     "iana",
+		Extensions: []string{"sql"},
+	},
 	"application/srgs": &Spec{
 		Source:     "iana",
 		Extensions: []string{"gram"},
@@ -691,6 +729,7 @@ var mimeTypes = map[string]*Spec{
 		Extensions: []string{"tsd"},
 	},
 	"application/toml": &Spec{
+		Source:       "iana",
 		Compressible: &trueVal,
 		Extensions:   []string{"toml"},
 	},
@@ -862,6 +901,9 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"aep"},
 	},
+	"application/vnd.autodesk.fbx": &Spec{
+		Extensions: []string{"fbx"},
+	},
 	"application/vnd.balsamiq.bmml+xml": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
@@ -982,6 +1024,11 @@ var mimeTypes = map[string]*Spec{
 	"application/vnd.dbf": &Spec{
 		Source:     "iana",
 		Extensions: []string{"dbf"},
+	},
+	"application/vnd.dcmp+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"dcmp"},
 	},
 	"application/vnd.dece.data": &Spec{
 		Source:     "iana",
@@ -1157,6 +1204,10 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"ggb"},
 	},
+	"application/vnd.geogebra.slides": &Spec{
+		Source:     "iana",
+		Extensions: []string{"ggs"},
+	},
 	"application/vnd.geogebra.tool": &Spec{
 		Source:     "iana",
 		Extensions: []string{"ggt"},
@@ -1185,9 +1236,33 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &falseVal,
 		Extensions:   []string{"gdoc"},
 	},
+	"application/vnd.google-apps.drawing": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gdraw"},
+	},
+	"application/vnd.google-apps.form": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gform"},
+	},
+	"application/vnd.google-apps.jam": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gjam"},
+	},
+	"application/vnd.google-apps.map": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gmap"},
+	},
 	"application/vnd.google-apps.presentation": &Spec{
 		Compressible: &falseVal,
 		Extensions:   []string{"gslides"},
+	},
+	"application/vnd.google-apps.script": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gscript"},
+	},
+	"application/vnd.google-apps.site": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"gsite"},
 	},
 	"application/vnd.google-apps.spreadsheet": &Spec{
 		Compressible: &falseVal,
@@ -1202,6 +1277,11 @@ var mimeTypes = map[string]*Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
 		Extensions:   []string{"kmz"},
+	},
+	"application/vnd.gov.sk.xmldatacontainer+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"xdcf"},
 	},
 	"application/vnd.grafeq": &Spec{
 		Source:     "iana",
@@ -1636,6 +1716,9 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"mpp", "mpt"},
 	},
+	"application/vnd.ms-visio.viewer": &Spec{
+		Extensions: []string{"vdx"},
+	},
 	"application/vnd.ms-word.document.macroenabled.12": &Spec{
 		Source:     "iana",
 		Extensions: []string{"docm"},
@@ -1672,6 +1755,11 @@ var mimeTypes = map[string]*Spec{
 	"application/vnd.mynfc": &Spec{
 		Source:     "iana",
 		Extensions: []string{"taglet"},
+	},
+	"application/vnd.nato.bindingdataobject+xml": &Spec{
+		Source:       "iana",
+		Compressible: &trueVal,
+		Extensions:   []string{"bdo"},
 	},
 	"application/vnd.neurolanguage.nlu": &Spec{
 		Source:     "iana",
@@ -1735,7 +1823,7 @@ var mimeTypes = map[string]*Spec{
 		Extensions: []string{"otc"},
 	},
 	"application/vnd.oasis.opendocument.database": &Spec{
-		Source:     "iana",
+		Source:     "apache",
 		Extensions: []string{"odb"},
 	},
 	"application/vnd.oasis.opendocument.formula": &Spec{
@@ -1903,6 +1991,15 @@ var mimeTypes = map[string]*Spec{
 	"application/vnd.previewsystems.box": &Spec{
 		Source:     "iana",
 		Extensions: []string{"box"},
+	},
+	"application/vnd.procrate.brushset": &Spec{
+		Extensions: []string{"brushset"},
+	},
+	"application/vnd.procreate.brush": &Spec{
+		Extensions: []string{"brush"},
+	},
+	"application/vnd.procreate.dream": &Spec{
+		Extensions: []string{"drm"},
 	},
 	"application/vnd.proteus.magazine": &Spec{
 		Source:     "iana",
@@ -2192,7 +2289,7 @@ var mimeTypes = map[string]*Spec{
 	},
 	"application/vnd.visio": &Spec{
 		Source:     "iana",
-		Extensions: []string{"vsd", "vst", "vss", "vsw"},
+		Extensions: []string{"vsd", "vst", "vss", "vsw", "vsdx", "vtx"},
 	},
 	"application/vnd.visionary": &Spec{
 		Source:     "iana",
@@ -2363,6 +2460,9 @@ var mimeTypes = map[string]*Spec{
 		Source:     "apache",
 		Extensions: []string{"torrent"},
 	},
+	"application/x-blender": &Spec{
+		Extensions: []string{"blend"},
+	},
 	"application/x-blorb": &Spec{
 		Source:     "apache",
 		Extensions: []string{"blb", "blorb"},
@@ -2403,6 +2503,9 @@ var mimeTypes = map[string]*Spec{
 	"application/x-cocoa": &Spec{
 		Source:     "nginx",
 		Extensions: []string{"cco"},
+	},
+	"application/x-compressed": &Spec{
+		Extensions: []string{"rar"},
 	},
 	"application/x-conference": &Spec{
 		Source:     "apache",
@@ -2523,6 +2626,10 @@ var mimeTypes = map[string]*Spec{
 	"application/x-install-instructions": &Spec{
 		Source:     "apache",
 		Extensions: []string{"install"},
+	},
+	"application/x-ipynb+json": &Spec{
+		Compressible: &trueVal,
+		Extensions:   []string{"ipynb"},
 	},
 	"application/x-iso9660-image": &Spec{
 		Source:     "apache",
@@ -2836,6 +2943,9 @@ var mimeTypes = map[string]*Spec{
 		Source:     "apache",
 		Extensions: []string{"xz"},
 	},
+	"application/x-zip-compressed": &Spec{
+		Extensions: []string{"zip"},
+	},
 	"application/x-zmachine": &Spec{
 		Source:     "apache",
 		Extensions: []string{"z1", "z2", "z3", "z4", "z5", "z6", "z7", "z8"},
@@ -2938,6 +3048,9 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &falseVal,
 		Extensions:   []string{"zip"},
 	},
+	"application/zip+dotlottie": &Spec{
+		Extensions: []string{"lottie"},
+	},
 	"audio/3gpp": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
@@ -2975,7 +3088,7 @@ var mimeTypes = map[string]*Spec{
 	"audio/mp4": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
-		Extensions:   []string{"m4a", "mp4a"},
+		Extensions:   []string{"m4a", "mp4a", "m4b"},
 	},
 	"audio/mpeg": &Spec{
 		Source:       "iana",
@@ -3161,6 +3274,7 @@ var mimeTypes = map[string]*Spec{
 		Extensions: []string{"exr"},
 	},
 	"image/apng": &Spec{
+		Source:       "iana",
 		Compressible: &falseVal,
 		Extensions:   []string{"apng"},
 	},
@@ -3189,6 +3303,10 @@ var mimeTypes = map[string]*Spec{
 	"image/dicom-rle": &Spec{
 		Source:     "iana",
 		Extensions: []string{"drle"},
+	},
+	"image/dpx": &Spec{
+		Source:     "iana",
+		Extensions: []string{"dpx"},
 	},
 	"image/emf": &Spec{
 		Source:     "iana",
@@ -3227,13 +3345,17 @@ var mimeTypes = map[string]*Spec{
 		Source:     "iana",
 		Extensions: []string{"hej2"},
 	},
-	"image/hsj2": &Spec{
-		Source:     "iana",
-		Extensions: []string{"hsj2"},
-	},
 	"image/ief": &Spec{
 		Source:     "iana",
 		Extensions: []string{"ief"},
+	},
+	"image/jaii": &Spec{
+		Source:     "iana",
+		Extensions: []string{"jaii"},
+	},
+	"image/jais": &Spec{
+		Source:     "iana",
+		Extensions: []string{"jais"},
 	},
 	"image/jls": &Spec{
 		Source:     "iana",
@@ -3247,7 +3369,7 @@ var mimeTypes = map[string]*Spec{
 	"image/jpeg": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
-		Extensions:   []string{"jpeg", "jpg", "jpe"},
+		Extensions:   []string{"jpg", "jpeg", "jpe"},
 	},
 	"image/jph": &Spec{
 		Source:     "iana",
@@ -3260,12 +3382,16 @@ var mimeTypes = map[string]*Spec{
 	"image/jpm": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
-		Extensions:   []string{"jpm"},
+		Extensions:   []string{"jpm", "jpgm"},
 	},
 	"image/jpx": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
 		Extensions:   []string{"jpx", "jpf"},
+	},
+	"image/jxl": &Spec{
+		Source:     "iana",
+		Extensions: []string{"jxl"},
 	},
 	"image/jxr": &Spec{
 		Source:     "iana",
@@ -3302,6 +3428,10 @@ var mimeTypes = map[string]*Spec{
 	"image/ktx2": &Spec{
 		Source:     "iana",
 		Extensions: []string{"ktx2"},
+	},
+	"image/pjpeg": &Spec{
+		Compressible: &falseVal,
+		Extensions:   []string{"jfif"},
 	},
 	"image/png": &Spec{
 		Source:       "iana",
@@ -3346,6 +3476,10 @@ var mimeTypes = map[string]*Spec{
 	"image/vnd.airzip.accelerator.azv": &Spec{
 		Source:     "iana",
 		Extensions: []string{"azv"},
+	},
+	"image/vnd.blockfact.facti": &Spec{
+		Source:     "iana",
+		Extensions: []string{"facti"},
 	},
 	"image/vnd.dece.graphic": &Spec{
 		Source:     "iana",
@@ -3392,10 +3526,6 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"ico"},
 	},
-	"image/vnd.mozilla.apng": &Spec{
-		Source:     "iana",
-		Extensions: []string{"apng"},
-	},
 	"image/vnd.ms-dds": &Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"dds"},
@@ -3437,7 +3567,7 @@ var mimeTypes = map[string]*Spec{
 		Extensions: []string{"pcx"},
 	},
 	"image/webp": &Spec{
-		Source:     "apache",
+		Source:     "iana",
 		Extensions: []string{"webp"},
 	},
 	"image/wmf": &Spec{
@@ -3447,6 +3577,9 @@ var mimeTypes = map[string]*Spec{
 	"image/x-3ds": &Spec{
 		Source:     "apache",
 		Extensions: []string{"3ds"},
+	},
+	"image/x-adobe-dng": &Spec{
+		Extensions: []string{"dng"},
 	},
 	"image/x-cmu-raster": &Spec{
 		Source:     "apache",
@@ -3545,7 +3678,7 @@ var mimeTypes = map[string]*Spec{
 	"message/rfc822": &Spec{
 		Source:       "iana",
 		Compressible: &trueVal,
-		Extensions:   []string{"eml", "mime"},
+		Extensions:   []string{"eml", "mime", "mht", "mhtml"},
 	},
 	"message/vnd.wfa.wsc": &Spec{
 		Source:     "iana",
@@ -3570,6 +3703,10 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &falseVal,
 		Extensions:   []string{"igs", "iges"},
 	},
+	"model/jt": &Spec{
+		Source:     "iana",
+		Extensions: []string{"jt"},
+	},
 	"model/mesh": &Spec{
 		Source:       "iana",
 		Compressible: &falseVal,
@@ -3586,6 +3723,10 @@ var mimeTypes = map[string]*Spec{
 	"model/prc": &Spec{
 		Source:     "iana",
 		Extensions: []string{"prc"},
+	},
+	"model/step": &Spec{
+		Source:     "iana",
+		Extensions: []string{"step", "stp", "stpnc", "p21", "210"},
 	},
 	"model/step+xml": &Spec{
 		Source:       "iana",
@@ -3609,6 +3750,14 @@ var mimeTypes = map[string]*Spec{
 	"model/u3d": &Spec{
 		Source:     "iana",
 		Extensions: []string{"u3d"},
+	},
+	"model/vnd.bary": &Spec{
+		Source:     "iana",
+		Extensions: []string{"bary"},
+	},
+	"model/vnd.cld": &Spec{
+		Source:     "iana",
+		Extensions: []string{"cld"},
 	},
 	"model/vnd.collada+xml": &Spec{
 		Source:       "iana",
@@ -3650,6 +3799,10 @@ var mimeTypes = map[string]*Spec{
 	"model/vnd.sap.vds": &Spec{
 		Source:     "iana",
 		Extensions: []string{"vds"},
+	},
+	"model/vnd.usda": &Spec{
+		Source:     "iana",
+		Extensions: []string{"usda"},
 	},
 	"model/vnd.usdz+zip": &Spec{
 		Source:       "iana",
@@ -3880,6 +4033,10 @@ var mimeTypes = map[string]*Spec{
 		Compressible: &trueVal,
 		Extensions:   []string{"vtt"},
 	},
+	"text/wgsl": &Spec{
+		Source:     "iana",
+		Extensions: []string{"wgsl"},
+	},
 	"text/x-asm": &Spec{
 		Source:     "apache",
 		Extensions: []string{"s", "asm"},
@@ -4007,7 +4164,7 @@ var mimeTypes = map[string]*Spec{
 	},
 	"video/mp2t": &Spec{
 		Source:     "iana",
-		Extensions: []string{"ts"},
+		Extensions: []string{"ts", "m2t", "m2ts", "mts"},
 	},
 	"video/mp4": &Spec{
 		Source:       "iana",
