@@ -8,12 +8,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"syscall"
 
 	. "github.com/function61/gokit/builtin"
-	"github.com/function61/gokit/sliceutil"
 )
 
 func RequireRoot() (*ProofOfRunningAsRoot, error) {
@@ -280,7 +280,7 @@ func resolveSupplementaryGids(username string) ([]int, error) {
 
 		// "joonas,anotheruser" => ["joonas", "anotheruser"]
 		lineUsernames := strings.Split(parts[3], ",")
-		if sliceutil.ContainsString(lineUsernames, username) {
+		if slices.Contains(lineUsernames, username) {
 			gid, err := strconv.Atoi(parts[2])
 			if err != nil {
 				return nil, err
