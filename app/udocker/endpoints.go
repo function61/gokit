@@ -1,7 +1,8 @@
 package udocker
 
 var (
-	DefaultVersion = EndpointVersion("1.24")
+	// API version 1.48 = Docker 28.0 = 2025-02
+	DefaultVersion = EndpointVersion("1.48")
 )
 
 type VersionedEndpoints struct {
