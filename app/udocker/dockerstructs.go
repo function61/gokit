@@ -25,12 +25,13 @@ type ContainerState struct {
 }
 
 // stupid Docker requires "inspect" to get actually interesting details
+// WARN: this struct is for items of "List containers" endpoint. the "Inspect a container" endpoint has different data model (for example `State` is not a string but an object!)
 type ContainerListItem struct {
 	Id              string            `json:"Id"`
 	Names           []string          `json:"Names"`
 	Image           string            `json:"Image"`
 	Labels          map[string]string `json:"Labels"`
-	State           ContainerState    `json:"State"`
+	State           string            `json:"State"`
 	NetworkSettings struct {
 		Networks map[string]struct {
 			IPAddress string `json:"IPAddress"`
