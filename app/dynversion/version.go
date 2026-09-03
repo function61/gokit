@@ -48,10 +48,9 @@ func resolveVersion() (string, error) {
 		revisionIdShort += "-dev"
 	}
 
-	// same logic as in Turbo Bob
-	friendlyRevId := ts.UTC().Format("20060102_1504") + "_" + revisionIdShort
+	// https://chronver.org/ -ish (we're using revision ID instead of branch name)
+	friendlyRevId := ts.UTC().Format("2006.01.02") + "-" + revisionIdShort
 	return friendlyRevId, nil
-
 }
 
 func findSetting(key string, settings []debug.BuildSetting) *debug.BuildSetting {
